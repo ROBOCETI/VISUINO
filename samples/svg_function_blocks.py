@@ -9,14 +9,15 @@
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 
-import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtSvg import *
 
 from bases import *
+from svg_load import *
+from glued_items import *
 
-BLOCK_SVG = \
+SVG_FUNCTION_BLOCK = \
 """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
@@ -101,7 +102,7 @@ BLOCK_SVG = \
   </g>
 </svg>"""
 
-INSERT_MARKER = \
+SVG_INSERTION_MARKER = \
 """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
@@ -170,126 +171,35 @@ INSERT_MARKER = \
 </svg>
 """
 
-class GluingScene(BaseScene):
-    def __init__(self, parent=None):
-        bases.Scene.__init__(self, parent)
-
-        self._insert_marker = QGraphicsSvgItem()
-        self._insert_marker.setSharedRenderer(QSvgRenderer(
-            QByteArray().append(QString(INSERT_MARKER))))
-        self._insert_marker.setVisible(False)
-        self.addItem(self._insert_marker)
-
-        self._collision_effect = QGraphicsOpacityEffect()
-        self._collision_effect.setEnabled(False)
-
-
-class GxGlueableItem(QGraphicsItem):
-    COLOR = QColor('blue')
-
-    def __init__(self, function_name='', svg_data='', parent=None, scene=None):
+class GxSVGFunctionBlock(GxSVGItem, AbstractGlueableItem):
+    def __init__(self, svg_data='', gb_scene=None):
         """
-        function_name: string.
+        svg_data: string. From GxSVGItem.
+        gb_scene: GlueableScene().
         """
-        super(GxGluedItem, self).__init__(parent, scene)
-
-        self.function_name = function_name
+        GxSVGItem.__init__(self, svg_data)
+        AbstractGlueableItem.__init__(self, gb_scene)
 
         self.setFlags(QGraphicsItem.ItemIsSelectable |
                       QGraphicsItem.ItemIsMovable)
-        self.setGraphicsEffect(self.scene()._collision_effect)
-
-        self._glue_onto = {"item": None, "pos": "after"}
-
-
-
-
-    def mouseMoveEvent(self, event):
-        super(GraphicsBlock, self).mouseMoveEvent(event)
-
-        # looking for collisions
-        collided_block = None   # must contain only GraphicsBlock objects
-        for x in self.scene().collidingItems(self):
-            if isinstance(x, GraphicsBlock):
-                collided_block = x
-                break
-
-        if collided_block:    # if collided with some GraphicsBlock item...
-            self.scene()._collision_effect.setEnabled(True)
-            collided_block_height = collided_block.boundingRect().height()
-
-            if event.scenePos().y() > collided_block.pos().y() + \
-            collided_block_height/2.:
-                #print "AFTER"
-                self._enableInsert(collided_block, "after", -13,
-                                   collided_block_height - 12)
-            else:
-                #print "BEFORE"
-                self._enableInsert(collided_block, "before", -13, -10)
-
-        else: self._disableInsert()
-
-    def mouseReleaseEvent(self, event):
-        super(GraphicsBlock, self).mouseReleaseEvent(event)
-        item_glued = self._glue_onto["item"]
-
-        if item_glued:
-
-            if self._glue_onto["pos"] == "before":
-
-                print "Glued BEFORE %s." % (item_glued.function_name)
-                self.setParentItem(item_glued)
-                self.setPos(0, -self.boundingRect().height() + 5)
-                self._disableInsert()
-
-            elif self._glue_onto["pos"] == "after":
-
-                print "Glued AFTER %s." % (item_glued.function_name)
-                self.setParentItem(item_glued)
-                self.setPos(0, item_glued.boundingRect().height() - 5)
-                self._disableInsert()
-
-    def _disableInsert(self):
-        self._glue_onto["item"] = None
-        self.scene()._collision_effect.setEnabled(False)
-        self.scene()._insert_marker.setVisible(False)
-
-    def _enableInsert(self, item, pos, dx, dy):
-        self.scene()._insert_marker.setPos(item.pos())
-        self.scene()._insert_marker.setZValue(1000)   ##FIX
-        self.scene()._insert_marker.moveBy(dx, dy)
-        self.scene()._insert_marker.setVisible(True)
-        self._glue_onto = {"item": item, "pos": pos}
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    app = QApplication([])
 
-    scene = Scene()
+    gb_scene = GlueableScene(insertion_maker = GxSVGItem(
+        SVG_INSERTION_MARKER))
+    gb_scene.GLUED_ITEMS_PADD = -5
 
-    block_digital_write = GraphicsBlock("digitalWrite mah oe eh um meleao de reais", BLOCK_SVG, None, scene)
-    block_digital_write.setPos(0, 100)
+    block_digital_write = GxSVGFunctionBlock(SVG_FUNCTION_BLOCK.replace(
+        '@BLOCK_NAME@', 'digitalWrite'), gb_scene)
 
-    block_delay = GraphicsBlock("delay", BLOCK_SVG, None, scene)
+    block_delay = GxSVGFunctionBlock(SVG_FUNCTION_BLOCK.replace(
+        '@BLOCK_NAME@', 'delay'), gb_scene)
     block_delay.setPos(0, 250)
 
-    ellipse = scene.addEllipse(50.0, 80.0, 100., 200., \
-        QPen(Qt.blue), QBrush(Qt.red))
-    ellipse.setFlags(QGraphicsItem.ItemIsSelectable |
-                     QGraphicsItem.ItemIsMovable)
-    ellipse.setGraphicsEffect(QGraphicsDropShadowEffect())
-    ellipse.setPos(100, 300)
-
-    svg_block = QGraphicsSvgItem()
-    svg_block.setSharedRenderer(QSvgRenderer(QByteArray() \
-        .append(QString(BLOCK_SVG))))
-    svg_block.setFlags(QGraphicsItem.ItemIsSelectable |
-                       QGraphicsItem.ItemIsMovable)
-    svg_block.setPos(300, 350)
-    scene.addItem(svg_block)
-
-    view = bases.BaseView(scene)
+    view = BaseView(gb_scene)
     view.show()
 
-    sys.exit(app.exec_())
+    app.exec_()
 

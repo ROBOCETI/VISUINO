@@ -122,7 +122,7 @@ class GlueableScene(BaseScene):
             painter.fillRect(self.boundingRect(), self.COLOR)
 
 
-class GxGlueableItem(QGraphicsItem):
+class AbstractGlueableItem(QGraphicsItem):
     """
     This graphics item has the ability to be "glued" on others of the same
     kind, meaning that
@@ -130,58 +130,23 @@ class GxGlueableItem(QGraphicsItem):
     WIDTH = 300
     HEIGHT = 100
 
-    def __init__(self, gb_scene=None, **kwargs):
-        """
-        - gb_scene: GluableScene().
-        kwargs:
-          - color: QColor() <QColor('blue')>.
-          - pos: list/tuple of 2 integers <(100, 100)>.
-          - effect: QGraphicsEffect() <QGraphicsOpacityEffect()>.
-          - parent: QGraphicsItem() <None>.
-        """
-        super(GxGlueableItem, self).__init__(kwargs.get('parent', None), None)
+    # data from the target item which the moving one (self)
+    # will be glued onto
+    _glue_onto = {"item": None, "pos": None}
 
-        # setting up color and position (not necessary for functionality)
-        self.color = kwargs.get('color', QColor('blue'))
-        pos = kwargs.get('pos', (100, 100))
-        if pos and isinstance(pos, (tuple, list)) and len(pos) == 2:
-            self.setPos(pos[0], pos[1])
+    insertion_effect = QGraphicsOpacityEffect()
+
+    def __init__(self, gb_scene=None, insertion_effect=None):
 
         # properly add the item on the scene (has to be the special GBScene)
         if isinstance(gb_scene, GlueableScene):
             gb_scene.addGlueableItem(self)
 
-        self.setFlags(QGraphicsItem.ItemIsSelectable |
-                      QGraphicsItem.ItemIsMovable)
+        if isinstance(insertion_effect, QGraphicsEffect):
+            self.insertion_effect = insertion_effect
 
-        self.insertion_effect = kwargs.get('effect', QGraphicsOpacityEffect())
-        if isinstance(self.insertion_effect, QGraphicsEffect):
-            self.setGraphicsEffect(self.insertion_effect)
-            self.insertion_effect.setEnabled(False)
-
-        # data from the target item which the moving one (self)
-        # will be glued onto
-        self._glue_onto = {"item": None, "pos": None}
-
-        self.group = None
-        self.parent_delta_pos = {"dx": None, "dy": None}
-
-    def boundingRect(self):
-        """
-        RE-IMPLEMENTED from QGraphicsItem.
-        """
-        return QRectF(0, 0, self.WIDTH, self.HEIGHT)
-
-
-    def paint(self, painter, option, widget=None):
-        """
-        RE-IMPLEMENTED from QGraphicsItem.
-        """
-        painter.fillRect(self.boundingRect(), self.color)
-        if self.isSelected():
-            painter.setBrush(QBrush('transparent'))
-            painter.setPen(QPen(QBrush(QColor('black')), 3.0, Qt.DotLine))
-            painter.drawRect(self.boundingRect())
+        self.setGraphicsEffect(self.insertion_effect)
+        self.insertion_effect.setEnabled(False)
 
     def enableInsertionEffect(self):
         if self.graphicsEffect():
@@ -199,7 +164,7 @@ class GxGlueableItem(QGraphicsItem):
 
         RE-IMPLEMENTED from QGraphicsItem.
         """
-        super(GxGlueableItem, self).mouseMoveEvent(event)
+        super(AbstractGlueableItem, self).mouseMoveEvent(event)
 
         if self.parentItem():
             return
@@ -235,7 +200,7 @@ class GxGlueableItem(QGraphicsItem):
         If there is an valide gluable item configured in self._glue_onto,
         then perform the actual "gluing".
         """
-        super(GxGlueableItem, self).mouseReleaseEvent(event)
+        super(AbstractGlueableItem, self).mouseReleaseEvent(event)
 
         if isinstance(self._glue_onto["item"], self.__class__):
             self.scene().glueItems(self, self._glue_onto["item"],
@@ -246,19 +211,58 @@ class GxGlueableItem(QGraphicsItem):
 
 
     def mousePressEvent(self, event):
-        super(GxGlueableItem, self).mousePressEvent(event)
+        super(AbstractGlueableItem, self).mousePressEvent(event)
 
-        print self.boundingRect()
+##        print self.boundingRect()
+##
+##        if self.parentItem():
+##            self.parent_delta_pos["dx"] = event.scenePos().x() \
+##                - self.parentItem().x()
+##            self.parent_delta_pos["dy"] = event.scenePos().y() \
+##                - self.parentItem().y()
+##
+##            print self.parent_delta_pos
 
-        if self.parentItem():
-            self.parent_delta_pos["dx"] = event.scenePos().x() \
-                - self.parentItem().x()
-            self.parent_delta_pos["dy"] = event.scenePos().y() \
-                - self.parentItem().y()
 
-            print self.parent_delta_pos
+class GxGlueableItem(AbstractGlueableItem, QGraphicsItem):
+
+    def __init__(self, gb_scene=None, **kwargs):
+        """
+        - gb_scene: GluableScene().
+        kwargs:
+          - color: QColor() <QColor('blue')>.
+          - pos: list/tuple of 2 integers <(100, 100)>.
+          - effect: QGraphicsEffect() <QGraphicsOpacityEffect()>.
+          - parent: QGraphicsItem() <None>.
+        """
+        QGraphicsItem.__init__(self)
+        AbstractGlueableItem.__init__(self, gb_scene)
+
+        # setting up color and position (not necessary for functionality)
+        self.color = kwargs.get('color', QColor('blue'))
+        pos = kwargs.get('pos', (100, 100))
+        if pos and isinstance(pos, (tuple, list)) and len(pos) == 2:
+            self.setPos(pos[0], pos[1])
+
+        self.setFlags(QGraphicsItem.ItemIsSelectable |
+                      QGraphicsItem.ItemIsMovable)
+
+    def boundingRect(self):
+        """
+        RE-IMPLEMENTED from QGraphicsItem.
+        """
+        return QRectF(0, 0, self.WIDTH, self.HEIGHT)
 
 
+    def paint(self, painter, option, widget=None):
+        """
+        RE-IMPLEMENTED from QGraphicsItem.
+        """
+        painter.fillRect(self.boundingRect(), self.color)
+        if self.isSelected():
+            painter.setBrush(QBrush('transparent'))
+            painter.setPen(QPen(QBrush(QColor('black')), 3.0, Qt.DotLine))
+            painter.drawRect(self.boundingRect())
 
 
 def main():

@@ -119,7 +119,7 @@ class GxSVGItem(QGraphicsPixmapItem):
         """
         QGraphicsPixmapItem.__init__(self, parent, scene)
 
-        if len(svg_data) > 0 and svg_data[0] == '<':
+        if svg_data and len(svg_data) > 0 and svg_data[0] == '<':
             render_source = QByteArray().append(QString(svg_data))
         else:
             render_source = svg_data    # here, its a filename
