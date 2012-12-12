@@ -9,39 +9,10 @@
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 
-import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from PyQt4.QtSvg import *
 
-
-class View(QGraphicsView):
-    def __init__(self, parent=None):
-        super(View, self).__init__(parent)
-        self.setRenderHint(QPainter.Antialiasing)
-        self.setRenderHint(QPainter.TextAntialiasing)
-        self.setDragMode(QGraphicsView.ScrollHandDrag)
-
-        self.zoom_level = 0
-
-##    def wheelEvent(self, event):
-##        super(View, self).wheelEvent(event)
-##
-##        factor = 1.41 ** (event.delta() / 240.0)
-##        self.scale(factor, factor)
-##
-##        if factor < 1: self.zoom_level -= 1
-##        else: self.zoom_level += 1
-##
-##        print(self.zoom_level)
-
-
-class Scene(QGraphicsScene):
-    def __init__(self, parent=None):
-        super(Scene, self).__init__(parent)
-        self.setSceneRect(0, 0, 640, 480)
-        self.setBackgroundBrush(QBrush(QColor(200, 200, 200)))  ##TODO
-
+from bases import *
 
 class GxArgument(QGraphicsWidget):
     DEFAULT_FONT = QFont('Verdana', 10)
@@ -49,8 +20,8 @@ class GxArgument(QGraphicsWidget):
 
     def __init__(self, **kwargs):
         """
-        @ name: string
-        @ type: string
+        @ name: string.
+        @ type: string.
         @ value: Defines the field QWidget(). It can be:
             * list of strings, for discrete values. Ex: ["HIGH", "LOW"]
                 -> Field widget: QComboBox()
@@ -61,8 +32,8 @@ class GxArgument(QGraphicsWidget):
                 -> Field widget: QLineEdit()
         @ fonts: {'label': QFont(), 'field': QFont()}
         @ orientation: string in ["H", "V"]
-        @ scene: QGraphicsScene()
-        @ parent: QGraphicsItem()
+        @ scene: QGraphicsScene().
+        @ parent: QGraphicsItem().
         """
         super(GxArgument, self).__init__(kwargs.get('parent', None))
         self.scene = kwargs.get('scene', None)
@@ -103,8 +74,6 @@ class GxArgument(QGraphicsWidget):
         self.layout.setContentsMargins(5, 5, 5, 5)
         self.layout.setSpacing(2)
 
-
-
         self.setLayout(self.layout)
 
         if self.scene: self.scene.addItem(self)
@@ -127,7 +96,6 @@ class GxArgument(QGraphicsWidget):
             combo.addItems([unicode(i) for i in value])
             combo.setCurrentIndex(-1)
             combo.setFont(self.fonts['field'])
-
 
             return combo
 
@@ -190,7 +158,10 @@ class GxFunctionBlock(QGraphicsWidget):
                                           'args_field': self.DEFAULT_FONT,
                                           'return': self.DEFAULT_FONT})
         orientation = kwargs.get('orientation', "H")
-        self.scene = kwargs.get('scene', None)
+        scene = kwargs.get('scene', None)
+        if scene: scene.addItem(self)
+
+        for a in self.args: a.setParent(self)
 
         self.setPos(kwargs.get('pos', QPointF(0, 0)))
         self.setCursor(Qt.ArrowCursor)
@@ -219,11 +190,10 @@ class GxFunctionBlock(QGraphicsWidget):
 
         self.setLayout(self.layout)
 
-        if self.scene: self.scene.addItem(self)
-
         self.setFlags(QGraphicsItem.ItemIsSelectable |
                       QGraphicsItem.ItemIsMovable)
 
+        self.fonts['name'].setBold(True)
 
     def paint(self, painter, option, widget=None):
         pen = QPen(QColor(0, 0, 120))
@@ -231,39 +201,100 @@ class GxFunctionBlock(QGraphicsWidget):
         painter.setPen(pen)
         painter.setBrush(QBrush(self.BACKGROUND_COLOR))
 
-        painter.drawRoundedRect(self.layout.geometry(), 15, 15)
+        painter.drawRoundedRect(self.layout.geometry(), 25, 25)
 
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    def mousePressEvent(self, event):
+        super(GxFunctionBlock, self).mousePressEvent(event)
+        self.scene().bringToFront(self)
 
-    scene = Scene()
+
+    def mouseMoveEvent(self, event):
+        super(GxFunctionBlock, self).mouseMoveEvent(event)
+
+        if self.collidesWithTrunk():
+            print "Mah oe"
+
+    def collidesWithBlock(self):
+        colli = []
+        for x in self.scene().collidingItems(self):
+            if isinstance(x, GxFunctionBlock):
+                colli.append(x)
+        return colli
+
+    def collidesWithTrunk(self):
+        for x in self.scene().collidingItems(self):
+            if isinstance(x, GxTrunk):
+                return x
+        return None
+
+##    def mouseReleaseEvent(self, event):
+##        print self.zValue()
+
+
+class GxTrunk(QGraphicsItem):
+
+    def __init__(self, **kwargs):
+        super(GxTrunk, self).__init__(kwargs.get('parent', None))
+        self.scene = kwargs.get('scene', None)
+        if self.scene: self.scene.addItem(self)
+        self.setCursor(Qt.ArrowCursor)
+
+##        self.setFlags(QGraphicsItem.ItemIsSelectable |
+##                      QGraphicsItem.ItemIsMovable)
+
+        self.setPos(100, 0)
+        self._items = []
+
+    def boundingRect(self):
+        return QRectF(0, 0, 50, 100)
+
+
+    def paint(self, painter, option, widget=None):
+        pen = QPen(QColor(20, 20, 20))
+        pen.setWidth(2)
+        painter.setPen(pen)
+        painter.setBrush(QBrush(QColor(80, 80, 80)))
+
+        painter.drawRoundedRect(self.boundingRect(), 10, 10)
+
+
+def main():
+    app = QApplication([])
+
+    my_scene = BaseScene()
 
     fb_pin_mode = GxFunctionBlock(
         name='pinMode',
         args=[GxArgument(name='pin', type_='int', value=(0, 13, 1)),
               GxArgument(name='mode', type_='int', value=["INPUT", "OUTPUT"])],
-        scene=scene)
+        pos=QPointF(200, 0),
+        scene=my_scene)
 
     fb_delay = GxFunctionBlock(
         name='delay',
         args=[GxArgument(name='milliseconds', type_='int')],
         pos=QPointF(100, 200),
-        orientation="V",
-        scene=scene)
+        orientation="H",
+        scene=my_scene)
 
     fb_digital_write = GxFunctionBlock(
         name='digitalWrite',
         args=[GxArgument(name='pin', type_='int', value=range(14),
-                         orientation="H"),
+                         orientation="V"),
               GxArgument(name='value', type_='int', value=["HIGH", "LOW"],
-                         orientation="H")],
-        orientation="V",
-        pos=QPointF(400, 100),
-        scene=scene)
+                         orientation="V")],
+        orientation="H",
+        pos=QPointF(300, 100),
+        scene=my_scene)
 
-    view = View(scene)
+    start = GxTrunk(scene=my_scene)
+
+    view = BaseView(scene=my_scene, wheel_zoom=True)
     view.show()
 
-    sys.exit(app.exec_())
+    app.exec_()
 
+
+if __name__ == "__main__":
+    main()
