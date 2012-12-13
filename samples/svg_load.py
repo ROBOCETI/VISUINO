@@ -1,8 +1,21 @@
 ﻿#-------------------------------------------------------------------------------
-# Name:        svg_load.py (SAMPLE)
+# Name:        svg_load.py (sample)
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
 #
-# Purpose:     Show an alternative for loading SVG items in a QGraphicsScene().
+# Purpose:     Alternative for loading SVG items in a QGraphicsScene
+#              preserving the background transparency for mouse clicks, by
+#              introducing the GxSVGItem object. Additionally, it supports
+#              loading a SVG raw content from a string and also from a
+#              file.
+#
+#              The default way is to use the QGraphicsSvgItem object, as
+#              it happens with the red star in this sample. A mouse click
+#              on it's background area (still inside of the bounding rect)
+#              it's not ignored as we would expect. The yellow star makes use
+#              of the GxSVGItem class, which corrects this behavior.
+#
+# Dependencies: bases.py - for BaseScene and BaseView. But it also works with
+#                          defaults QGraphicsScene and QGraphicsView.
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 
@@ -12,7 +25,7 @@ from PyQt4.QtSvg import *
 
 from bases import *
 
-SVG_STRING = \
+SVG_STAR = \
 """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
@@ -73,7 +86,7 @@ SVG_STRING = \
      transform="translate(-171.11455,-65.326444)">
     <path
        sodipodi:type="star"
-       style="fill:#ffff00;fill-opacity:0.96862745;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       style="fill:@FILL_COLOR@;fill-opacity:0.96862745;stroke:#000000;stroke-width:4;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="path3755"
        sodipodi:sides="5"
        sodipodi:cx="220.88348"
@@ -95,44 +108,54 @@ SVG_STRING = \
 
 class GxSVGItem(QGraphicsPixmapItem):
     """
-    Provides a way of loading SVG items on a QGraphicsScene keeping
-    the transparency right.
+    Provides a way of loading SVG items on a QGraphicsScene by keeping
+    the correct background transparency - i.e., ignoring mouse clicks.
 
-    It achieves that by loading the SVG into a pixmap, process in which
-    the transparent area is maked properly. Then, the paint() method
-    render the SVG on top of the pixmap - allowing it to be scalable.
+    That is achieved by loading the SVG into a pixmap, process in which
+    the transparent area gets properly maked. Then, the paint() method
+    renders the SVG on top of the pixmap, allowing it to be scalable.
     """
     def __init__(self, svg_data='', parent=None, scene=None):
         """
-        Creates it's pixmap based on some SVG content. Such SVG is stored
-        in the self.svg_renderer attribute.
+        Creates its pixmap based on some SVG content, which is gonna be
+        stored in the self.svg_renderer attribute.
 
-        svg_data: string. It has two interpretations:
-            (1) Initing with "<". The SVG is load from raw data, i.e., all
-                the SVG content must be in this string.
+        - svg_data: string. It has two interpretations:
+            (1) Starting with "<": the SVG is gonna be loaded from raw data,
+                i.e., all the SVG content must be in this string.
             (2) Else, it treats as a filename, from which the SVG will be
                 loaded.
-            Currently the integrity of this values IS NOT cheked.
+            Integrity of this values IS NOT checked!
 
-        parent: QGraphicsItem().
-        scene: QGraphicsScene().
+        - parent: QGraphicsItem() <None>.
+        -  scene: QGraphicsScene() <None>.
         """
         QGraphicsPixmapItem.__init__(self, parent, scene)
 
         if svg_data and len(svg_data) > 0 and svg_data[0] == '<':
+            # here, its a raw SVG data
             render_source = QByteArray().append(QString(svg_data))
         else:
             render_source = svg_data    # here, its a filename
 
+        ##FIX: integrity check for render_source
+
         # creates the renderer based on some SVG string or filename
         self.svg_renderer = QSvgRenderer(render_source)
 
+        # creates a pixmap with a size of the SVG and
+        # fills with a transparent color
         pix = QPixmap(self.svg_renderer.defaultSize())
         pix.fill(Qt.transparent)
 
+        # Render the SVG in to the pixmap.
+        # Transparent colors in the SVG are ignored in this process,
+        # but all the currently pixels are already marked as "transparent".
+        # The result is an correct background transparency.
         self.svg_renderer.render(QPainter(pix),
                                  QRectF(self.svg_renderer.viewBox()))
 
+        # configure the pixmap as its own.
         self.setPixmap(pix)
 
     def paint(self, painter, option, widget=None):
@@ -144,6 +167,7 @@ class GxSVGItem(QGraphicsPixmapItem):
         """
         self.svg_renderer.render(painter, QRectF(self.svg_renderer.viewBox()))
 
+        # the selection rectangle was created by the default paint() method
         if self.isSelected():
             self.drawSelectionRect(painter)
 
@@ -167,16 +191,21 @@ def main():
     scene = BaseScene()
 
     # default way on PyQt of loading SVG graphics in to a scene  ---------
+    # here it appears a little more complicated since we are loading the
+    # SVG data from a simple string - hence the use of a shared renderer.
+    # This will result in a RED star item.
     q_svg_item = QGraphicsSvgItem()
     q_svg_item.setSharedRenderer(QSvgRenderer(
-        QByteArray().append(QString(SVG_STRING))))
+        QByteArray().append(QString(
+        SVG_STAR.replace('@FILL_COLOR@', '#ff0000')))))
     q_svg_item.setFlags(QGraphicsItem.ItemIsSelectable |
-                       QGraphicsItem.ItemIsMovable)
+                        QGraphicsItem.ItemIsMovable)
     q_svg_item.setPos(100, 100)
     scene.addItem(q_svg_item)
 
     # loading the improved version ---------------------------------------
-    svg_item = GxSVGItem(SVG_STRING)
+    # This will result in a YELLOW star item.
+    svg_item = GxSVGItem(SVG_STAR.replace('@FILL_COLOR@', '#ffff00'))
     svg_item.setPos(200, 200)
     svg_item.setFlags(QGraphicsItem.ItemIsSelectable |
                       QGraphicsItem.ItemIsMovable)
@@ -184,7 +213,6 @@ def main():
 
     view = BaseView(scene)
     view.setDragMode(QGraphicsView.RubberBandDrag)
-    view.setGeometry(200, 200, 700, 500)
     view.show()
 
     app.exec_()
