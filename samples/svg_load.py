@@ -2,20 +2,29 @@
 # Name:        svg_load.py (sample)
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
 #
-# Purpose:     Alternative for loading SVG items in a QGraphicsScene
-#              preserving the background transparency for mouse clicks, by
-#              introducing the GxSVGItem object. Additionally, it supports
-#              loading a SVG raw content from a string and also from a
-#              file.
+# Purpose:     Shows an alternative for loading SVG items in a QGraphicsScene
+#              by preserving the background transparency for mouse clicks.
+#              Additionally, shows how to load SVG content from a string.
 #
-#              The default way is to use the QGraphicsSvgItem object, as
-#              it happens with the red star in this sample. A mouse click
-#              on it's background area (still inside of the bounding rect)
-#              it's not ignored as we would expect. The yellow star makes use
-#              of the GxSVGItem class, which corrects this behavior.
+# Description: PyQt provides the QGraphicsSVGItem class for loading SVG into
+#              a QGraphicsScene, but it has a bug related to the background
+#              transparency, which is NOT invisible to mouse clicks as one
+#              might expect. The red star in this sample shows that.
+#
+#              Here I introduce the GxSVGItem class, used by the yellow star.
+#              In addition to fixing the transparency bug, it also allows
+#              to load SVG content within a string right away. This is achieved
+#              by using QGraphicsPixmapItem class along with QSvgRenderer.
 #
 # Dependencies: bases.py - for BaseScene and BaseView. But it also works with
 #                          defaults QGraphicsScene and QGraphicsView.
+#
+# Tests:       (OK) Win7 + Python 2.7.3 + PyQt 4.9 (x86)
+#              (  ) Linux KDE + Python 2.7.3 + PyQt 4.9 (x86)
+#              (  ) Linux Gnome + Python 2.7.3 + PyQt 4.9 (x86)
+#              (  ) Mac OS + Python 2.7.3 + PyQt 4.9 (x86)
+#
+# ##TODO: Tests for Python 3.x and x64.
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 
@@ -121,14 +130,16 @@ class GxSVGItem(QGraphicsPixmapItem):
         stored in the self.svg_renderer attribute.
 
         - svg_data: string. It has two interpretations:
-            (1) Starting with "<": the SVG is gonna be loaded from raw data,
-                i.e., all the SVG content must be in this string.
-            (2) Else, it treats as a filename, from which the SVG will be
-                loaded.
-            Integrity of this values IS NOT checked!
+             (i) Starting with "<": the string has SVG content, i.e., raw
+                 xml data.
+            (ii) Else, treats as a filename from which the SVG will be
+                 loaded.
+            Beware: No warning/error is gonna be emmited if it has an invalid
+                    SVG data nor a filename - the only symptom is gonna be
+                    an empty image, due the behavior of QSvgRenderer.
 
         - parent: QGraphicsItem() <None>.
-        -  scene: QGraphicsScene() <None>.
+        - scene: QGraphicsScene() <None>.
         """
         QGraphicsPixmapItem.__init__(self, parent, scene)
 
@@ -160,10 +171,10 @@ class GxSVGItem(QGraphicsPixmapItem):
 
     def paint(self, painter, option, widget=None):
         """
-        QGraphicsPixmapItem.paint()
+        Re-implemented from QGraphicsPixmapItem.
 
         This complete overwrite QGraphicsPixmapItem.paint()!!!
-        It uses the svg_renderer to draw the image using the painter.
+        It uses the self.svg_renderer to draw the image using the painter.
         """
         self.svg_renderer.render(painter, QRectF(self.svg_renderer.viewBox()))
 
@@ -178,7 +189,7 @@ class GxSVGItem(QGraphicsPixmapItem):
 
         RE-IMPLEMENT this if you want different shapes.
 
-        painter: QPainter().
+        - painter: QPainter().
         """
         painter.setBrush(QBrush(Qt.transparent))
         painter.setPen(QPen(Qt.DashLine))
@@ -193,7 +204,7 @@ def main():
     # default way on PyQt of loading SVG graphics in to a scene  ---------
     # here it appears a little more complicated since we are loading the
     # SVG data from a simple string - hence the use of a shared renderer.
-    # This will result in a RED star item.
+    # This will result in a RED (#ff0000) star item.
     q_svg_item = QGraphicsSvgItem()
     q_svg_item.setSharedRenderer(QSvgRenderer(
         QByteArray().append(QString(
@@ -204,7 +215,7 @@ def main():
     scene.addItem(q_svg_item)
 
     # loading the improved version ---------------------------------------
-    # This will result in a YELLOW star item.
+    # This will result in a YELLOW (#ffff00) star item.
     svg_item = GxSVGItem(SVG_STAR.replace('@FILL_COLOR@', '#ffff00'))
     svg_item.setPos(200, 200)
     svg_item.setFlags(QGraphicsItem.ItemIsSelectable |
