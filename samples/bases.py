@@ -10,6 +10,9 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 class BaseView(QGraphicsView):
+    WIDTH = 800
+    HEIGHT = 600
+
     def __init__(self, scene=None, parent=None, **kwargs):
         """
         scene: QGraphicsScene().
@@ -26,7 +29,7 @@ class BaseView(QGraphicsView):
         self.setRenderHint(QPainter.Antialiasing)
         self.setRenderHint(QPainter.TextAntialiasing)
 
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, self.WIDTH, self.HEIGHT)
 
         # click on the background to drag the whole scene
         self.setDragMode(QGraphicsView.RubberBandDrag)
@@ -53,7 +56,7 @@ class BaseView(QGraphicsView):
             if factor < 1: self.zoom_level -= 1
             else: self.zoom_level += 1
 
-            print(self.zoom_level)
+            print "Zoom level:", self.zoom_level
 
 
 class BaseScene(QGraphicsScene):
@@ -62,6 +65,9 @@ class BaseScene(QGraphicsScene):
 
     Z_INCR = 0.0000001
 
+    WIDTH = 800
+    HEIGHT = 600
+
     def __init__(self, parent=None):
         QGraphicsScene.__init__(self, parent)
 
@@ -69,22 +75,32 @@ class BaseScene(QGraphicsScene):
         self._top_item = {'z': 0.0, 'item': None}
 
         # if true, perform "self.bringToFront()" on the clicked item
-        self.click_to_front = False
+        self._click_to_front = False
 
         ##TODO: use brush styles, like Qt.Dense7Pattern, for backg. grids
         self.setBackgroundBrush(QBrush(self.BACKGROUND_COLOR))
-        self.setSceneRect(0, 0, 640, 480)
+        self.setSceneRect(0, 0, self.WIDTH, self.HEIGHT)
+
+    def _clickToFront(self, event):
+        # read the item on the scene mouse coordinates, and then
+        # if it is not None, bring it to the front
+
+        item = self.itemAt(event.scenePos())
+        if isinstance(item, QGraphicsItem) and item.isSelected():
+            pass
+            #self.bringToFront(item)
 
     def mousePressEvent(self, event):
         super(BaseScene, self).mousePressEvent(event)
 
-        if self.click_to_front:
-            # read the item on the scene mouse coordinates, and then
-            # if it is not None, bring it to the front
+        if self._click_to_front:
+            self._clickToFront(event)
 
-            item = self.itemAt(event.scenePos())
-            if isinstance(item, QGraphicsItem) and item.isSelected():
-                self.bringToFront(item)
+    def setClickToFront(self, value):
+        """
+        value: boolean.
+        """
+        self._click_to_front = bool(value)
 
     def getTopItem(self):
         """
@@ -111,17 +127,20 @@ def main():
     app = QApplication([])
 
     scene = BaseScene()
+    scene.setClickToFront(True)
 
     elli = scene.addEllipse(QRectF(50, 50, 400, 200), QPen(QColor('black')),
         QBrush(QColor('blue')))
     elli.setFlags(QGraphicsItem.ItemIsSelectable |
                   QGraphicsItem.ItemIsMovable)
+    elli.setPos(100, 50)
 
     text = scene.addText("Hello world", QFont("Comic Sans MS", 30))
     text.setFlags(QGraphicsItem.ItemIsSelectable |
                   QGraphicsItem.ItemIsMovable)
+    text.setPos(50, 50)
 
-    rect = scene.addRect(QRectF(200, 200, 300, 200), QPen(QColor('black')),
+    rect = scene.addRect(QRectF(100, 250, 300, 200), QPen(QColor('black')),
         QBrush(QColor('darkred')))
     rect.setFlags(QGraphicsItem.ItemIsSelectable |
                   QGraphicsItem.ItemIsMovable)

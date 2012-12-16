@@ -8,6 +8,7 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -16,6 +17,13 @@ from PyQt4.QtSvg import *
 from bases import *
 from svg_load import *
 from glued_items import *
+
+##TODO: Misterious error
+##-----------------------
+##    Traceback (most recent call last):
+##      File "D:\devel\VISUINO\samples\glued_items.py", line 273, in mousePressEvent
+##        if self.parentItem():
+##    RuntimeError: underlying C/C++ object has been deleted
 
 SVG_FUNCTION_BLOCK = \
 """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -85,7 +93,7 @@ SVG_FUNCTION_BLOCK = \
          inkscape:connector-curvature="0"
          id="path3889"
          d="m 104.80344,-272.8773 c 3.53553,0 92.63099,-0.35355 92.63099,-0.35355 l 10.25305,9.72272 60.28086,-0.17678 10.42982,-10.25305 396.15657,0.53033 9.89949,-10.25305 1e-5,-50.0278 -10.25305,-10.42982 -395.80303,-0.17679 -10.07627,10.60661 -61.51829,-0.35355 -9.36916,-9.8995 -93.16132,0.17678 -10.253035,10.07626 0.176776,50.20459 z"
-         style="fill:#0078b0;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+         style="fill:@FILL_COLOR@;fill-opacity:1;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
       <text
          sodipodi:linespacing="125%"
          id="text3852"
@@ -172,6 +180,10 @@ SVG_INSERTION_MARKER = \
 """
 
 class GxSVGFunctionBlock(GxSVGItem, AbstractGlueableItem):
+    """
+    This class ilustrates how the multiple inheritance can be useful.
+    Here,
+    """
     def __init__(self, svg_data='', gb_scene=None):
         """
         svg_data: string. From GxSVGItem.
@@ -183,23 +195,57 @@ class GxSVGFunctionBlock(GxSVGItem, AbstractGlueableItem):
         self.setFlags(QGraphicsItem.ItemIsSelectable |
                       QGraphicsItem.ItemIsMovable)
 
+##TODO 1: resize the block based on the funcion name width
 
-if __name__ == "__main__":
+##TODO 2: widgets for argument values
+
+##TODO 3: argument
+
+def str_replace_keys(s, keys):
+    """
+    s: string.
+    keys: dict. {"k1": "r1", "k2": "r2", ...}
+
+    This will replace all matches of "k1", "k2", ..., in the string s
+    by "r1", "r2", ..., respectively.
+    """
+    for k, v in keys.items():
+        s = s.replace(k, v)
+    return s
+
+def main():
     app = QApplication([])
 
-    gb_scene = GlueableScene(insertion_maker = GxSVGItem(
+    gb_scene = GxGlueableScene(insertion_maker = GxSVGItem(
         SVG_INSERTION_MARKER))
     gb_scene.GLUED_ITEMS_PADD = -5
 
-    block_digital_write = GxSVGFunctionBlock(SVG_FUNCTION_BLOCK.replace(
-        '@BLOCK_NAME@', 'digitalWrite'), gb_scene)
+    block_digital_write = GxSVGFunctionBlock(str_replace_keys(
+        SVG_FUNCTION_BLOCK, {"@BLOCK_NAME@": "digitalWrite",
+                             "@FILL_COLOR@": "#0078b0"}), gb_scene)
+    block_digital_write.setPos(100, 100)
 
-    block_delay = GxSVGFunctionBlock(SVG_FUNCTION_BLOCK.replace(
-        '@BLOCK_NAME@', 'delay'), gb_scene)
-    block_delay.setPos(0, 250)
+    block_delay = GxSVGFunctionBlock(str_replace_keys(
+        SVG_FUNCTION_BLOCK, {"@BLOCK_NAME@": "delay",
+                             "@FILL_COLOR@": "#ff00b0"}), gb_scene)
+    block_delay.setPos(150, 300)
+
+    block_digital_read = GxSVGFunctionBlock(str_replace_keys(
+        SVG_FUNCTION_BLOCK, {"@BLOCK_NAME@": "digitalRead",
+                             "@FILL_COLOR@": "#0078b0"}), gb_scene)
+    block_digital_read.setPos(100, 400)
+
+    block_digital_read = GxSVGFunctionBlock(str_replace_keys(
+        SVG_FUNCTION_BLOCK, {"@BLOCK_NAME@": "analogRead",
+                             "@FILL_COLOR@": "#ff00b0"}), gb_scene)
+    block_digital_read.setPos(150, 450)
 
     view = BaseView(gb_scene)
     view.show()
 
     app.exec_()
+
+
+if __name__ == "__main__":
+    main()
 
