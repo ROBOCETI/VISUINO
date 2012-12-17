@@ -83,7 +83,6 @@ class GxGlueableScene(BaseScene):
 
         item: GxGlueableItem().
         """
-        # list in the ASCENDING stacking order (unlike says the PyQt doc.)
         collided = [x for x in self.collidingItems(item) \
             if isinstance(x, AbstractGlueableItem)]
         if collided:
@@ -139,10 +138,10 @@ class GxGlueableScene(BaseScene):
             bottom_child = source.getBottomChildGlueable()
 
             source.setPos(target.pos())
-            target.moveBy(0, -source.getTotalHeight()
+            source.moveBy(0, - source.getTotalHeight() \
                 - self.GLUED_ITEMS_PADD)
             target.setParentItem(bottom_child)
-            target.setPos(0, source.boundingRect().height()
+            target.setPos(0, bottom_child.boundingRect().height() \
                 + self.GLUED_ITEMS_PADD)
             self.bringToFront(source)
 
@@ -171,7 +170,7 @@ class GxGlueableScene(BaseScene):
             painter.fillRect(self.boundingRect(), self.COLOR)
 
 
-class AbstractGlueableItem(QGraphicsItem):
+class AbstractGlueableItem:
     """
     This graphics item has the ability to be "glued" on others of the same
     kind, meaning that
@@ -180,6 +179,9 @@ class AbstractGlueableItem(QGraphicsItem):
     DX_GLUEABLE = 50
 
     def __init__(self, gb_scene=None, insertion_effect=None):
+
+        self.setFlags(QGraphicsItem.ItemIsSelectable |
+                      QGraphicsItem.ItemIsMovable)
 
         if isinstance(gb_scene, GxGlueableScene):
             gb_scene.addItem(self)
@@ -205,6 +207,58 @@ class AbstractGlueableItem(QGraphicsItem):
         # z: float. From self.zValue().
         self._old_glued = {"item": None, "pos": None,
             "apart": True, "z": None}
+
+    def _updateOldGlued(self):
+
+        if self._old_glued["item"]:
+
+            # vertical displacement of the old parent
+            dy = abs(self.pos().y() - self._old_glued["pos"].y())
+            dx = abs(self.pos().x() - self._old_glued["pos"].x())
+
+            if dy < self.DY_GLUEABLE and dx < self.DX_GLUEABLE:
+                self.scene().showInsertionMarker(self._old_glued["item"],
+                    "after")
+                self._old_glued["apart"] = False
+            else:
+                # pulled away too much apart, lost the parent
+                self.scene().hideInsertionMarker()
+                self._old_glued["item"] = None
+                self._old_glued["pos"] = None
+                self._old_glued["apart"] = True
+
+    def _updateChildRect(self):
+        """
+        Schedules a drawing update for the rect that includes itself and
+        its child. This fixes the bug on QGraphicsEffect propagation to
+        the childs.
+        """
+        child = self.getChildGlueable()
+        if child:
+            self.update(QRectF(self.pos(), QSizeF(
+                self.boundingRect().width(),
+                self.boundingRect().height() + \
+                    child.boundingRect().height() + \
+                    self.scene().GLUED_ITEMS_PADD)))
+
+
+    def bringToFront(self):
+        self.scene().bringToFront(self)
+
+
+    def getCollided(self):
+        # searches for the top-most collided item
+        colli_top = self.scene().collidesWithGlueable(self)
+        colli_bottom = self.scene().collidesWithGlueable(
+            self.getBottomChildGlueable())
+
+        if not colli_top and colli_bottom:
+            colli = colli_bottom
+        else:
+            colli = colli_top
+
+        return colli
+
 
     def getChildGlueable(self):
         """
@@ -247,12 +301,15 @@ class AbstractGlueableItem(QGraphicsItem):
 
         return height
 
-    def enableInsertionEffect(self):
+    def enableInsertion(self):
         if self.graphicsEffect():
             self.graphicsEffect().setEnabled(True)
 
 
-    def disableInsertionEffect(self):
+    def disableInsertion(self):
+        self.scene().hideInsertionMarker()
+        self._glue_onto = {"target": None, "place": None}
+
         if self.graphicsEffect():
             self.graphicsEffect().setEnabled(False)
 
@@ -268,6 +325,8 @@ class AbstractGlueableItem(QGraphicsItem):
 
         if event.button() == 1:
 
+            self.setFlags(QGraphicsItem.ItemIsMovable)
+
             self.scene().bringToFront(self.scene().insert_marker)
 
             if self.parentItem():
@@ -280,11 +339,34 @@ class AbstractGlueableItem(QGraphicsItem):
                 self.setPos(self._old_glued["pos"])
                 self._old_glued["apart"] = False
 
-            self.scene().bringToFront(self)
+            self.bringToFront()
 
         if event.button() == 4:
-            pass
-            #TODO: pop the item out of the chain
+
+            parent = self.parentItem()
+            child = self.getChildGlueable()
+
+            if parent or child:
+
+                if child and parent:
+                    child.setParentItem(None)
+                    self.scene().glueItems(child, parent, "after")
+                elif child:
+                    child_pos = self.mapToScene(child.pos())
+                    child.setParentItem(None)
+                    child.setPos(child_pos)
+
+                if parent:
+                    my_pos = parent.mapToScene(self.pos())
+                else:
+                    my_pos = self.pos()
+
+                self.setParentItem(None)
+                self.setPos(my_pos)
+                self.moveBy(100, -self.boundingRect().height()/2)
+
+                self.bringToFront()
+                self.setSelected(True)
 
 
     def mouseMoveEvent(self, event):
@@ -297,29 +379,13 @@ class AbstractGlueableItem(QGraphicsItem):
         """
         QGraphicsItem.mouseMoveEvent(self, event)
 
-        if self._old_glued["item"]:
-
-            # vertical displacement of the old parent
-            dy = abs(self.pos().y() - self._old_glued["pos"].y())
-            dx = abs(self.pos().x() - self._old_glued["pos"].x())
-
-            if dy < self.DY_GLUEABLE and dx < self.DX_GLUEABLE:
-                self.scene().showInsertionMarker(self._old_glued["item"],
-                    "after")
-                self._old_glued["apart"] = False
-            else:
-                # pulled away too much apart, lost the parent
-                self.scene().hideInsertionMarker()
-                self._old_glued["item"] = None
-                self._old_glued["pos"] = None
-                self._old_glued["apart"] = True
-
-        # searches for the top-most collided item
-        colli = self.scene().collidesWithGlueable(self)
+        self._updateOldGlued()
 
         # has collided with some glueable item?
+        colli = self.getCollided()
         if colli:
-            self.enableInsertionEffect()
+
+            self.enableInsertion()
 
             colli_height = float(colli.boundingRect().height())
 
@@ -335,20 +401,11 @@ class AbstractGlueableItem(QGraphicsItem):
                 self._glue_onto = {"target": colli, "place": "before"}
 
         elif self._old_glued["apart"]:
-            self.scene().hideInsertionMarker()
-            self.disableInsertionEffect()
-            self._glue_onto = {"target": None, "place": None}
 
+            self.disableInsertion()
 
-        # schedules drawing updates for the rect that includes itself AND
-        # its children.. this FIX the QGraphicsEffect update bug for childs
-        childs = self.childItems()
-        if childs:
-            self.update(QRectF(self.pos(), QSizeF(
-                self.boundingRect().width(),
-                self.boundingRect().height() + \
-                    childs[0].boundingRect().height() + \
-                    self.scene().GLUED_ITEMS_PADD)))
+        self._updateChildRect()
+
 
     def mouseReleaseEvent(self, event):
         """
@@ -356,7 +413,10 @@ class AbstractGlueableItem(QGraphicsItem):
         """
         QGraphicsItem.mouseReleaseEvent(self, event)
 
-        if event.button() == 1:
+        if event.button() in (1, 4):
+
+            self.setFlags(QGraphicsItem.ItemIsSelectable |
+                          QGraphicsItem.ItemIsMovable)
 
             # it has an new item to be glued onto?
             if self._glue_onto["target"]:
@@ -372,16 +432,12 @@ class AbstractGlueableItem(QGraphicsItem):
                         self._old_glued["item"], "after")
                     self.setZValue(self._old_glued["z"])
 
-
-            self.scene().hideInsertionMarker()
-            self.disableInsertionEffect()
-            self._glue_onto = {"target": None, "place": None}
+            self.disableInsertion()
             self._old_glued = {"item": None, "pos": None,
                 "apart": True, "z": None}
 
 
-
-class GxGlueableItem(AbstractGlueableItem, QGraphicsItem):
+class GxGlueableItem(QGraphicsItem, AbstractGlueableItem):
 
     WIDTH = 300
     HEIGHT = 100
@@ -396,7 +452,7 @@ class GxGlueableItem(AbstractGlueableItem, QGraphicsItem):
           - effect: QGraphicsEffect() <QGraphicsOpacityEffect()>.
           - parent: QGraphicsItem() <None>.
         """
-        QGraphicsItem.__init__(self)
+        QGraphicsItem.__init__(self, kwargs.get('parent', None))
         AbstractGlueableItem.__init__(self, gb_scene)
 
         self.name = kwargs.get('name', '')
@@ -406,9 +462,6 @@ class GxGlueableItem(AbstractGlueableItem, QGraphicsItem):
         pos = kwargs.get('pos', (100, 100))
         if pos and isinstance(pos, (tuple, list)) and len(pos) == 2:
             self.setPos(pos[0], pos[1])
-
-        self.setFlags(QGraphicsItem.ItemIsSelectable |
-                      QGraphicsItem.ItemIsMovable)
 
     def boundingRect(self):
         """
