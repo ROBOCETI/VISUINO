@@ -187,9 +187,8 @@ class GxSVGFunctionBlock(GxSVGItem, AbstractGlueableItem):
         svg_data = SVG_FUNCTION_BLOCK
         for k, v in (("@BLOCK_NAME@", name), ("@FILL_COLOR@", color)):
             svg_data = svg_data.replace(k, v)
-        GxSVGItem.__init__(self, svg_data)
 
-        #GxSVGItem.__init__(self, svg_data)
+        GxSVGItem.__init__(self, svg_data)
         AbstractGlueableItem.__init__(self, gb_scene)
 
         self.setPos(QPointF(pos[0], pos[1]))
@@ -209,7 +208,7 @@ def main():
 
     gb_scene = GxGlueableScene(insertion_maker = GxSVGItem(
         SVG_INSERTION_MARKER))
-    gb_scene.GLUED_ITEMS_PADD = -4
+    gb_scene.GLUED_ITEMS_PADD = -5
 
     block_digital_write = GxSVGFunctionBlock('digitalWrite', '#0078b0',
          (100, 100), gb_scene)

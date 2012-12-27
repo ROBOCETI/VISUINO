@@ -143,30 +143,32 @@ class GxSVGItem(QGraphicsPixmapItem):
         """
         QGraphicsPixmapItem.__init__(self, parent, scene)
 
+        # solves performance issues
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+
+        self.svg_renderer = None
+
+        # initializes the renderer based on the svg source data
         if svg_data and len(svg_data) > 0 and svg_data[0] == '<':
             # here, its a raw SVG data
-            render_source = QByteArray().append(QString(svg_data))
+            self.svg_renderer = QSvgRenderer(
+                QByteArray().append(QString(svg_data)))
         else:
-            render_source = svg_data    # here, its a filename
-
-        ##FIX: integrity check for render_source
-
-        # creates the renderer based on some SVG string or filename
-        self.svg_renderer = QSvgRenderer(render_source)
+            # here, its a filename
+            self.svg_renderer = QSvgRenderer(svg_data)
 
         # creates a pixmap with a size of the SVG and
         # fills with a transparent color
         pix = QPixmap(self.svg_renderer.defaultSize())
         pix.fill(Qt.transparent)
 
-        # Render the SVG in to the pixmap.
+        # Renders the SVG onto the pixmap.
         # Transparent colors in the SVG are ignored in this process,
         # but all the currently pixels are already marked as "transparent".
         # The result is an correct background transparency.
         self.svg_renderer.render(QPainter(pix),
                                  QRectF(self.svg_renderer.viewBox()))
 
-        # configure the pixmap as its own.
         self.setPixmap(pix)
 
     def paint(self, painter, option, widget=None):
@@ -176,11 +178,14 @@ class GxSVGItem(QGraphicsPixmapItem):
         This complete overwrite QGraphicsPixmapItem.paint()!!!
         It uses the self.svg_renderer to draw the image using the painter.
         """
-        self.svg_renderer.render(painter, QRectF(self.svg_renderer.viewBox()))
+        # renders the SVG on top of the pixmap area
+        self.svg_renderer.render(
+            painter, QRectF(self.svg_renderer.viewBox()))
 
-        # the selection rectangle was created by the default paint() method
+        # draws the selection dashed rectangle (like default paint() method)
         if self.isSelected():
             self.drawSelectionRect(painter)
+
 
     def drawSelectionRect(self, painter):
         """
