@@ -10,6 +10,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtSvg import *
@@ -93,9 +94,9 @@ SVG_FUNCTION_BLOCK = \
          id="text3852"
          y="-291.91696"
          x="108.94611"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-size:@FONT_SIZE@px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
          xml:space="preserve"><tspan
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#ffffff;font-family:Palatino Linotype;-inkscape-font-specification:Palatino Linotype Bold"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#ffffff;font-family:@FONT_FAMILY@;-inkscape-font-specification:Palatino Linotype Bold"
            y="-291.91696"
            x="108.94611"
            id="tspan3854"
@@ -184,16 +185,40 @@ class GxSVGFunctionBlock(GxSVGItem, AbstractGlueableItem):
         svg_data: string. From GxSVGItem.
         gb_scene: GlueableScene().
         """
+        self.name = name
         svg_data = SVG_FUNCTION_BLOCK
-        for k, v in (("@BLOCK_NAME@", name), ("@FILL_COLOR@", color)):
+
+        self.font_family = 'Palatino Linotype'
+        self.font_size = 40
+
+        self.svg_config = {'@FONT_FAMILY@': self.font_family,
+            '@FONT_SIZE@': str(self.font_size),
+            '@BLOCK_NAME@': str(name), '@FILL_COLOR@': str(color)}
+
+        for k, v in self.svg_config.items():
             svg_data = svg_data.replace(k, v)
 
         GxSVGItem.__init__(self, svg_data)
         AbstractGlueableItem.__init__(self, gb_scene)
 
+        self.font = QFont(self.font_family, self.font_size-15)
+        self.font_metrics = QFontMetrics(self.font)
+        self.name_rect = self.font_metrics.boundingRect(self.name)
+
+        edit = QLineEdit()
+        edit.setFont(QFont('Consolas', 18))
+        proxy_w = QGraphicsProxyWidget(self)
+        proxy_w.setWidget(edit)
+        proxy_w.setPos(self.name_rect.width() + 30, 20)
+
         self.setPos(QPointF(pos[0], pos[1]))
         self.setFlags(QGraphicsItem.ItemIsSelectable |
                       QGraphicsItem.ItemIsMovable)
+    
+    def paint(self, painter, option, widget=None):
+        GxSVGItem.paint(self, painter, option, widget)
+#        painter.setFont(self.font)
+#        painter.drawText(self.boundingRect(), Qt.AlignLeft, self.name)
 
 
 ##TODO 1: resize the block based on the funcion name width
@@ -204,7 +229,7 @@ class GxSVGFunctionBlock(GxSVGItem, AbstractGlueableItem):
 
 
 def main():
-    app = QApplication([])
+    app = QApplication(sys.argv)
 
     gb_scene = GxGlueableScene(insertion_maker = GxSVGItem(
         SVG_INSERTION_MARKER))
@@ -229,7 +254,7 @@ def main():
     view.setDragMode(QGraphicsView.ScrollHandDrag)
     view.show()
 
-    app.exec_()
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
