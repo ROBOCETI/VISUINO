@@ -1,59 +1,71 @@
 ﻿#-------------------------------------------------------------------------------
-# Name:        bases.py
+# Name:        gx_bases.pyw
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
 #
-# Purpose:     Holds basic implementations for views and scenes.
+# Purpose:     Offer re-implementations of the two most basic objects on
+#              the PyQt Graphics View Framework:
+#                  - QGraphicsView --> GxView
+#                  - QGraphicsScene --> GxScene.
+#
+#              Convention: All QGraphics___ related objects will have
+#              their names started by "Gx" on this project.
+#
+# Licence:     GPL
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-__all__ = ['BaseView', 'BaseScene']
+__all__ = ['GxView', 'GxScene', 'GxProxyToFront']        
 
-class BaseView(QGraphicsView):
-    WIDTH = 800
-    HEIGHT = 600
-
+class GxView(QGraphicsView):
     def __init__(self, scene=None, parent=None, **kwargs):
         """
-        scene: QGraphicsScene().
-        parent: QWidget().
+        :scene: QGraphicsScene().
+        :parent: QWidget().
 
         kwargs:
-         - wheel_zoom: boolean (True).
-            Activates the wheel zooming functionality.
+         :wheel_zoom: bool <True>. Activates the wheel zooming functionality.
         """
         QGraphicsView.__init__(self, scene, parent)
+        
         self.wheel_zoom = kwargs.get('wheel_zoom', True)
-        self.zoom_level = 0     # incr/decr by 1 according to scalings
+        
+#        self._wheel_zoom = getv_kw(
+#            kwargs, 'wheel_zoom', True, (bool, GxScene))
+        
+        self.zoom_level = 0     # incr/decr by 1 according to scaling calls
 
         self.setRenderHint(QPainter.Antialiasing)
         self.setRenderHint(QPainter.TextAntialiasing)
 
-        self.setGeometry(100, 100, self.WIDTH, self.HEIGHT)
-
         # click on the background to drag the whole scene
         self.setDragMode(QGraphicsView.RubberBandDrag)
+        
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        
+        self.centerOn(0, 0)
 
 
     def wheelEvent(self, event):
         """
-        Scales the scene based on some delta change on the mouse wheel
+        Scales the scene based on some delta change of the mouse wheel
         movement. Its fairly the simpliest way of doing this.
 
         Re-implemented from base QGraphicsView.
 
-        event: QWheelEvent().
+        :event: QWheelEvent().
         """
         QGraphicsView.wheelEvent(self, event)
 
         if self.wheel_zoom:
 
-            ##TODO: understand this formula?! Can be useful for
-            # smooth zooming implementations!
+            ##TODO: smooth zooming
+            
             factor = 1.41 ** (event.delta() / 240.0)
             self.scale(factor, factor)
 
@@ -61,13 +73,15 @@ class BaseView(QGraphicsView):
             else: self.zoom_level += 1
 
             print "Zoom level:", self.zoom_level
+            
+            #self.centerOn(event.x(), event.y())
+        
 
+class GxScene(QGraphicsScene):
+    
+    BK_COLOR = 'lightgray'  # background color
 
-class BaseScene(QGraphicsScene):
-
-    BACKGROUND_COLOR = QColor(200, 200, 200)
-
-    Z_INCR = 0.0000001
+    Z_INCR = 0.0000000001   # increment on zValue for .bringToFront()
 
     WIDTH = 800
     HEIGHT = 600
@@ -82,33 +96,53 @@ class BaseScene(QGraphicsScene):
         self._click_to_front = False
 
         ##TODO: use brush styles, like Qt.Dense7Pattern, for backg. grids
-        self.setBackgroundBrush(QBrush(self.BACKGROUND_COLOR))
+        self.setBackgroundBrush(QBrush(QColor(self.BK_COLOR)))
         self.setSceneRect(0, 0, self.WIDTH, self.HEIGHT)
 
     def _clickToFront(self, event):
+        """
+        If the flag self._click_to_front is True, then bring the clicked 
+        item to the front.
+        
+        :event: QGraphicsSceneMouseEvent.
+        """
         # read the item on the scene mouse coordinates, and then
         # if it is not None, bring it to the front
 
         item = self.itemAt(event.scenePos())
         if isinstance(item, QGraphicsItem) and item.isSelected():
-            pass
-            #self.bringToFront(item)
+            self.bringToFront(item)
 
     def mousePressEvent(self, event):
-        super(BaseScene, self).mousePressEvent(event)
+        """
+        Offers the "click to front" functionality.
+        
+        RE-IMPLEMENTED from QGraphicsScene.
+        :event: QGraphicsSceneMouseEvent.
+        """
+        QGraphicsScene.mousePressEvent(self, event)
 
         if self._click_to_front:
             self._clickToFront(event)
 
     def setClickToFront(self, value):
         """
-        value: boolean.
+        Activates or not the "click to front" functionality, in which the
+        clicked item always become the top-most one.
+        
+        :value: boolean.
         """
-        self._click_to_front = bool(value)
+        if not isinstance(value, bool):
+            raise ValueError('Parameter \'value\' must be of type bool.'+\
+                ' Was given %s.' % value.__class__.__name__)
+            
+        self._click_to_front = value
 
     def getTopItem(self):
         """
         Return the top-most item on the scene.
+        
+        :return: QGraphicsItem.
         """
         if self._top_item == None:
             items = self.items()
@@ -119,43 +153,60 @@ class BaseScene(QGraphicsScene):
 
     def bringToFront(self, item):
         """
-        item: QGraphicsItem().
+        Make the given item the top-most on the scene by setting properly
+        a new zValue if necessary.
+        
+        :item: QGraphicsItem().
         """
+        if not isinstance(item, QGraphicsItem):
+            raise ValueError('Parameter \'item\' must be of type '+\
+                'QGraphicsItem. Was given %s.' % item.__class__.__name__)
+            
         if item != self._top_item['item']:
             item.setZValue(self._top_item['z'] + self.Z_INCR)
             self._top_item['z'] = item.zValue()
             self._top_item['item'] = item
+            
+class GxProxyToFront(QGraphicsProxyWidget):
+    """
+    New feature added: when clicked, brings its parent on the top
+    of the scene.
+    """
+    def mousePressEvent(self, event):
+        QGraphicsProxyWidget.mousePressEvent(self, event)
+        self.scene().bringToFront(self.parentItem())  
 
-
+            
 def main():
+    
     app = QApplication(sys.argv)
     win = QMainWindow()
     win.setGeometry(200, 100, 800, 600)
 
-    scene = BaseScene()
+    scene = GxScene()
     scene.setClickToFront(True)
 
-    elli = scene.addEllipse(QRectF(50, 50, 400, 200), QPen(QColor('black')),
+    elli = scene.addEllipse(QRectF(50, 100, 400, 200), QPen(QColor('black')),
         QBrush(QColor('blue')))
     elli.setFlags(QGraphicsItem.ItemIsSelectable |
                   QGraphicsItem.ItemIsMovable)
     elli.setPos(100, 50)
 
-    text = scene.addText("Hello world", QFont("Comic Sans MS", 30))
+    text = scene.addText("Hello PyQt world", QFont("Comic Sans MS", 30))
     text.setFlags(QGraphicsItem.ItemIsSelectable |
                   QGraphicsItem.ItemIsMovable)
     text.setPos(50, 50)
 
     rect = scene.addRect(QRectF(100, 250, 300, 200), QPen(QColor('black')),
-        QBrush(QColor('darkred')))
+        QBrush(QColor('red')))
     rect.setFlags(QGraphicsItem.ItemIsSelectable |
                   QGraphicsItem.ItemIsMovable)
 
-    view = BaseView(scene, parent=win)
-    
+    view = GxView(scene, win, wheel_zoom=34)
+
     win.setCentralWidget(view)
     win.show()
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    main()
+	main()

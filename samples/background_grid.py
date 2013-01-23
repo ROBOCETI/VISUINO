@@ -9,6 +9,8 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 
+import sys
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -58,7 +60,9 @@ class GridBackView(BaseView):
 
 
 def main():
-    app = QApplication([])
+    app = QApplication(sys.argv)
+    win = QMainWindow()
+    win.setGeometry(200, 100, 800, 600)
 
     scene = BaseScene()
 
@@ -67,11 +71,11 @@ def main():
     elli.setFlags(QGraphicsItem.ItemIsSelectable |
                   QGraphicsItem.ItemIsMovable)
 
-
     view = GridBackView(scene)
-    view.show()
-
-    app.exec_()
+    
+    win.setCentralWidget(view)	
+    win.show()
+    sys.exit(app.exec_())
 
 if __name__ == '__main__':
     main()

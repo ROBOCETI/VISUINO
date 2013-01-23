@@ -37,10 +37,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from bases import *
+
+__all__ = ['GxGlueableScene', 'AbstractGlueableItem']
 
 class GxGlueableScene(BaseScene):
     """
@@ -482,7 +486,9 @@ class GxGlueableItem(QGraphicsItem, AbstractGlueableItem):
 
 
 def main():
-    app = QApplication([])
+    app = QApplication(sys.argv)
+    win = QMainWindow()
+    win.setGeometry(200, 100, 800, 600)
 
     scene = GxGlueableScene()
 
@@ -492,11 +498,11 @@ def main():
     gb_item_4 = GxGlueableItem(scene, color=QColor('green'), pos=(450, 470))
     gb_item_5 = GxGlueableItem(scene, color=QColor('red'), pos=(300, 500))
 
-    view = BaseView(scene)
-    view.setWindowTitle('Sample: glued_items.py')
-    view.show()
-
-    app.exec_()
+    view = BaseView(scene, parent=win)
+    
+    win.setCentralWidget(view)
+    win.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

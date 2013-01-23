@@ -28,11 +28,15 @@
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 
+import sys
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtSvg import *
 
 from bases import *
+
+__all__ = ['GxSVGItem']
 
 SVG_STAR = \
 """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -202,7 +206,9 @@ class GxSVGItem(QGraphicsPixmapItem):
 
 
 def main():
-    app = QApplication([])
+    app = QApplication(sys.argv)
+    win = QMainWindow()
+    win.setGeometry(200, 100, 800, 600)
 
     scene = BaseScene()
 
@@ -227,11 +233,12 @@ def main():
                       QGraphicsItem.ItemIsMovable)
     scene.addItem(svg_item)
 
-    view = BaseView(scene)
+    view = BaseView(scene, parent=win)
     view.setDragMode(QGraphicsView.RubberBandDrag)
-    view.show()
-
-    app.exec_()
+    
+    win.setCentralWidget(view)
+    win.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == '__main__':

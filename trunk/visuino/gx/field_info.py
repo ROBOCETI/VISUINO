@@ -1,20 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-@project: VISUINO (http://cta.if.ufrgs.br/projects/visuino)
-@author: Nelso G. Jost (nelsojost@gmail.com)
+Created on Sat Jan 19 14:47:49 2013
+
+@author: Nelso
 """
 
-from __future__ import division
-
-import sys
-
 from PyQt4.QtGui import *
-from PyQt4.QtCore import *
 
-from bases import *
-from glued_items import *
-
-__all__ = ['FieldInfo', 'GxFunctionBlock']
+__all__ = ['FieldInfo']
 
 class FieldInfo(object):
     VALID_TYPES = ['int', 'float', 'char', 'const']
@@ -119,7 +112,6 @@ class FieldInfo(object):
         Returns a QComboBox().
         """
         combobox = QComboBox(parent)
-        combobox.setFrame(False)
         if rg:
             if rg.count(','):
                 combobox.addItems([x.strip() for x in rg.split(',')])
@@ -227,169 +219,3 @@ class FieldInfo(object):
             return self._getSpinBox(self.range, widget_params, parent)
         else:
             return self._getLineEdit(self.range, widget_params, parent)
-
-
-class GxFunctionBlock(QGraphicsItem):
-
-    H_PADD = 10     # horizontal padding
-    V_PADD = 10     # vertical padding
-    ARG_PADD = 10   # argument input field padding
-
-    # dimensions of the bounding rectangle
-    _width = 200
-    _height = 100
-
-    def __init__(self, name, args, return_field, font_scheme,
-                 bk_color, pos, scene, parent=None):
-        """
-        :name: str. Function name.
-        :args: list of FieldInfo(). Arguments fields, in the appearence
-               ordering. Can be an empty list.
-        :return_field: FieldInfo(). Return field of the function.
-        :font_scheme: dict. Defines the fonts to be used in the elements
-                      of the block. Must be in the following format:
-                      {'name': {'font': QFont(), 'color': QColor()},
-                       'input_field': {'font': QFont(), 'color': QColor()}}
-        :bk_color: QColor().
-        :pos: tuple/list of 2 int.
-        :scene: BaseScene() (for .bringToFront());
-        :parent: QGraphicsItem() <None>.
-        """
-        QGraphicsItem.__init__(self, parent, scene)
-
-        self._name = str(name)
-        self._return = return_field
-        self._font_scheme = font_scheme
-
-        self._args_proxys = []          # proxys for every field in args
-        self._setupArgsProxys(args)     # creates args input fields
-
-        self.BK_COLOR = bk_color    # argument for QColor()
-
-        self._font_scheme['name']['font'].setStyleStrategy(
-            QFont.PreferAntialias)
-        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-
-        self.setPos(pos[0], pos[1])
-        self.setFlags(QGraphicsItem.ItemIsMovable |
-                      QGraphicsItem.ItemIsFocusable)
-
-        self._updateMetrics()
-        self._plantFields()
-
-
-    def _setupArgsProxys(self, args):
-        """
-        Generates a list of GxProxyToFront for every FieldInfo() item in
-        'args' parameter. This list is stored in self._args_proxys.
-
-        :args: list of FieldInfo().
-        """
-        for x in args:
-            if isinstance(x, FieldInfo):
-                new_proxy = self.GxProxyToFront(self)
-                x_wid = x.getWidget()
-                x_wid.setFont(self._font_scheme['input_field']['font'])
-                new_proxy.setWidget(x_wid)
-                self._args_proxys.append(new_proxy)
-
-
-    def _updateMetrics(self):
-        """
-        Updates its dimensions (self._width and self._height) by computing
-        the size of each element on the block, including the function name,
-        arguments and return fields.
-        """
-        name_metrics = QFontMetrics(self._font_scheme['name']['font'])
-        self._name_width = name_metrics.boundingRect(self._name).width()
-        self._name_height = name_metrics.boundingRect(self._name).height()
-
-        args_width, max_height = 0, self._name_height
-
-        for x in self._args_proxys:
-            x_rect = x.boundingRect()
-            x_width, x_height = x_rect.width(), x_rect.height()
-            args_width += x_width
-            if x_height > max_height:
-                max_height = x_height
-
-        self._width = 2 * self.H_PADD + self._name_width + args_width \
-            + (len(self._args_proxys) - 1) * self.ARG_PADD
-
-        if self._args_proxys:   # add one more H_PADD if any args
-            self._width += self.H_PADD
-
-        self._height = 2 * self.V_PADD + max_height
-
-
-    def _plantFields(self):
-        """
-        Figures out the correct position for each argument and return fields,
-        positioning their widgets on the right place.
-        """
-        # marks
-        args_width = self.H_PADD + self._name_width
-        for x in self._args_proxys:
-            x.setPos(args_width + self.ARG_PADD,
-                     self._height/2 - x.boundingRect().height()/2)
-            args_width += self.ARG_PADD + x.boundingRect().width()
-
-
-    def boundingRect(self):
-        return QRectF(0, 0, self._width, self._height)
-
-    def paint(self, painter, option, widget=None):
-        painter.fillRect(self.boundingRect(), self.BK_COLOR)
-        painter.setFont(self._font_scheme['name']['font'])
-        painter.setPen(QPen(self._font_scheme['name']['color']))
-        painter.drawText(QRectF(self.H_PADD, 0, self._name_width, self._height),
-                         Qt.AlignCenter, self._name)
-
-    def mousePressEvent(self, event):
-        QGraphicsItem.mousePressEvent(self, event)
-        self.scene().bringToFront(self)
-
-    class GxProxyToFront(QGraphicsProxyWidget):
-        """
-        New feature added: when clicked, brings its parent on the top
-        of the scene.
-        """
-        def mousePressEvent(self, event):
-            QGraphicsProxyWidget.mousePressEvent(self, event)
-            self.scene().bringToFront(self.parentItem())
-
-def main():
-    app = QApplication(sys.argv)
-    win = QMainWindow()
-    win.setGeometry(200, 100, 800, 600)    
-
-    scene = GxGlueableScene()
-
-    font_block_scheme = {'name': {'font': QFont('Verdana', 16),
-                                  'color': QColor('white')},
-                         'input_field': {'font': QFont('Verdana', 12),
-                                         'color': QColor('black')}}
-
-    block_dg_write = GxFunctionBlock('digitalWrite',
-        [FieldInfo('pin', 'int', '0|13', 'combobox'),
-         FieldInfo('value', 'const', 'HIGH,LOW', 'combobox')],
-        None, font_block_scheme, QColor('blue'), (0, 0), scene)
-
-    block_delay = GxFunctionBlock('delay',
-        [FieldInfo('milliseconds', 'int', '0|999999', 'edit,130')],
-        None, font_block_scheme, QColor('purple'), (200, 100), scene)
-
-    block_dg_read = GxFunctionBlock('digitalRead',
-        [FieldInfo('pin', 'int', '0|13', 'spinbox,50')],
-        None, font_block_scheme, QColor('green'), (100, 300), scene)
-
-    view = BaseView(scene, win)
-    view.setGeometry(0, 0, 800, 600)
-    view.centerOn(0, 0)
-
-    win.setCentralWidget(view)
-    win.show()
-    sys.exit(app.exec_())
-
-if __name__ == '__main__':
-    main()

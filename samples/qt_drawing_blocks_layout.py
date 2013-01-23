@@ -9,10 +9,14 @@
 #-------------------------------------------------------------------------------
 #!/usr/bin/env python
 
+import sys
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
 from bases import *
+
+__all__ = ['GxArgument', 'GxFunctionBlock']
 
 class GxArgument(QGraphicsWidget):
     DEFAULT_FONT = QFont('Verdana', 10)
@@ -54,10 +58,10 @@ class GxArgument(QGraphicsWidget):
 
         self.field_widget = self._getFieldWidget(self.value)
 
-        p_field_widget = QGraphicsProxyWidget()
+        p_field_widget = QGraphicsProxyWidget(parent=self.parentItem())
         p_field_widget.setWidget(self.field_widget)
 
-        p_label = QGraphicsProxyWidget()
+        p_label = QGraphicsProxyWidget(parent=self.parentItem())
         p_label.setWidget(self.label)
 
         self.layout = QGraphicsLinearLayout()
@@ -89,6 +93,7 @@ class GxArgument(QGraphicsWidget):
         line_edit = QLineEdit()
         line_edit.setFont(self.fonts['field'])
         line_edit.setFixedWidth(100)
+        line_edit.setFrame(False)
 
         if type(value) is list:
 
@@ -96,6 +101,7 @@ class GxArgument(QGraphicsWidget):
             combo.addItems([unicode(i) for i in value])
             combo.setCurrentIndex(-1)
             combo.setFont(self.fonts['field'])
+            combo.setFrame(False)
 
             return combo
 
@@ -260,7 +266,9 @@ class GxTrunk(QGraphicsItem):
 
 
 def main():
-    app = QApplication([])
+    app = QApplication(sys.argv)
+    win = QMainWindow()
+    win.setGeometry(200, 100, 800, 600)
 
     my_scene = BaseScene()
 
@@ -281,19 +289,20 @@ def main():
     fb_digital_write = GxFunctionBlock(
         name='digitalWrite',
         args=[GxArgument(name='pin', type_='int', value=range(14),
-                         orientation="V"),
+                         orientation="H"),
               GxArgument(name='value', type_='int', value=["HIGH", "LOW"],
-                         orientation="V")],
-        orientation="H",
+                         orientation="H")],
+        orientation="V",
         pos=QPointF(300, 100),
         scene=my_scene)
 
     start = GxTrunk(scene=my_scene)
 
-    view = BaseView(scene=my_scene, wheel_zoom=True)
-    view.show()
-
-    app.exec_()
+    view = BaseView(scene=my_scene, wheel_zoom=True, parent=win)
+    
+    win.setCentralWidget(view)
+    win.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtSvg import *
@@ -19,6 +20,7 @@ from bases import *
 from svg_load import *
 from glued_items import *
 
+__all__ = ['GxSVGFunctionBlock']
 
 SVG_FUNCTION_BLOCK = \
 """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -230,6 +232,8 @@ class GxSVGFunctionBlock(GxSVGItem, AbstractGlueableItem):
 
 def main():
     app = QApplication(sys.argv)
+    win = QMainWindow()
+    win.setGeometry(200, 100, 800, 600)
 
     gb_scene = GxGlueableScene(insertion_maker = GxSVGItem(
         SVG_INSERTION_MARKER))
@@ -250,12 +254,12 @@ def main():
     block_analog_write = GxSVGFunctionBlock('analogWrite', '#009900',
          (150, 250), gb_scene)
 
-    view = BaseView(gb_scene)
+    view = BaseView(gb_scene, parent=win)
     view.setDragMode(QGraphicsView.ScrollHandDrag)
-    view.show()
 
+    win.setCentralWidget(view)
+    win.show()
     sys.exit(app.exec_())
-
 
 if __name__ == "__main__":
     main()
