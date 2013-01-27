@@ -85,20 +85,21 @@ class BaseScene(QGraphicsScene):
         self.setBackgroundBrush(QBrush(self.BACKGROUND_COLOR))
         self.setSceneRect(0, 0, self.WIDTH, self.HEIGHT)
 
-    def _clickToFront(self, event):
-        # read the item on the scene mouse coordinates, and then
-        # if it is not None, bring it to the front
-
-        item = self.itemAt(event.scenePos())
-        if isinstance(item, QGraphicsItem) and item.isSelected():
-            pass
-            #self.bringToFront(item)
+#    def _clickToFront(self, event):
+#        # read the item on the scene mouse coordinates, and then
+#        # if it is not None, bring it to the front
+#
+#        item = self.itemAt(event.scenePos())
+#        if isinstance(item, QGraphicsItem) and item.isSelected():
+            
 
     def mousePressEvent(self, event):
-        super(BaseScene, self).mousePressEvent(event)
+        QGraphicsScene.mousePressEvent(self, event)
+        
+        grabber = self.mouseGrabberItem()
 
-        if self._click_to_front:
-            self._clickToFront(event)
+        if grabber and self._click_to_front:
+            self.bringToFront(grabber)
 
     def setClickToFront(self, value):
         """
@@ -127,7 +128,8 @@ class BaseScene(QGraphicsScene):
             self._top_item['item'] = item
 
 
-def main():
+if __name__ == '__main__':
+
     app = QApplication(sys.argv)
     win = QMainWindow()
     win.setGeometry(200, 100, 800, 600)
@@ -156,6 +158,3 @@ def main():
     win.setCentralWidget(view)
     win.show()
     sys.exit(app.exec_())
-
-if __name__ == '__main__':
-    main()
