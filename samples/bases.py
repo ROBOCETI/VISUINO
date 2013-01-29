@@ -37,6 +37,9 @@ class BaseView(QGraphicsView):
 
         # click on the background to drag the whole scene
         self.setDragMode(QGraphicsView.RubberBandDrag)
+        
+        self.centerOn(0, 0)
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
 
     def wheelEvent(self, event):
@@ -59,6 +62,12 @@ class BaseView(QGraphicsView):
 
             if factor < 1: self.zoom_level -= 1
             else: self.zoom_level += 1
+            
+#            grabber = self.scene().mouseGrabberItem()
+#            print "Grabber: ", grabber
+#            if grabber:
+#                self.centerOn(grabber.pos())
+#                print "Centralizou no grabber.."
 
             print "Zoom level:", self.zoom_level
 

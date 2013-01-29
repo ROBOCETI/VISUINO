@@ -10,6 +10,15 @@ from PyQt4.QtGui import *
 __all__ = ['FieldInfo']
 
 class FieldInfo(object):
+    """
+    Attributes:
+        :name: str. Used for text label in arguments.
+        :type: str. Used for validation of inputs.
+        :range: str. Imposes limits for values of input.
+        :widget: str. Set the
+    
+    __init__
+    """
     VALID_TYPES = ['int', 'float', 'char', 'const']
 
     def __init__(self, name, type_, range_, widget, description=''):

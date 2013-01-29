@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>visuino Package &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="visuino-package">
+<h1>visuino Package<a class="headerlink" href="#visuino-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-visuino.engine">
+<span id="engine-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">engine</span></tt> Module<a class="headerlink" href="#module-visuino.engine" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="visuino.engine.AbstractBlock">
+<em class="property">class </em><tt class="descclassname">visuino.engine.</tt><tt class="descname">AbstractBlock</tt><a class="headerlink" href="#visuino.engine.AbstractBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="visuino.engine.AbstractBlock.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.AbstractBlock.getString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retorna a string de código para este bloco.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visuino.engine.AbstractBlock.getValueString">
+<tt class="descname">getValueString</tt><big>(</big><em>val</em><big>)</big><a class="headerlink" href="#visuino.engine.AbstractBlock.getValueString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retorna uma string apropriada para &#8220;val&#8221;, conforme este seja um
+valor literal (string) ou um AbstractBlock().</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.Blocks">
+<em class="property">class </em><tt class="descclassname">visuino.engine.</tt><tt class="descname">Blocks</tt><a class="headerlink" href="#visuino.engine.Blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="class">
+<dt id="visuino.engine.Blocks.Assignment">
+<em class="property">class </em><tt class="descname">Assignment</tt><big>(</big><em>variable</em>, <em>value</em><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.Assignment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#visuino.engine.AbstractBlock" title="visuino.engine.AbstractBlock"><tt class="xref py py-class docutils literal"><span class="pre">visuino.engine.AbstractBlock</span></tt></a></p>
+<dl class="method">
+<dt id="visuino.engine.Blocks.Assignment.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.Assignment.getString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retorna uma string na forma: &#8220;name = value&#8221;.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.Blocks.DigitalRead">
+<em class="property">class </em><tt class="descclassname">Blocks.</tt><tt class="descname">DigitalRead</tt><big>(</big><em>pin</em><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.DigitalRead" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#visuino.engine.FunctionBlock" title="visuino.engine.FunctionBlock"><tt class="xref py py-class docutils literal"><span class="pre">visuino.engine.FunctionBlock</span></tt></a></p>
+<dl class="method">
+<dt id="visuino.engine.Blocks.DigitalRead.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.DigitalRead.getString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retorna uma string: &#8220;digitalRead(pin)&#8221;</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.Blocks.DigitalWrite">
+<em class="property">class </em><tt class="descclassname">Blocks.</tt><tt class="descname">DigitalWrite</tt><big>(</big><em>pin</em>, <em>value</em><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.DigitalWrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#visuino.engine.FunctionBlock" title="visuino.engine.FunctionBlock"><tt class="xref py py-class docutils literal"><span class="pre">visuino.engine.FunctionBlock</span></tt></a></p>
+<dl class="method">
+<dt id="visuino.engine.Blocks.DigitalWrite.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.DigitalWrite.getString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retorna uma string: &#8220;digitalWrite(pin, value)&#8221;</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.Blocks.PinMode">
+<em class="property">class </em><tt class="descclassname">Blocks.</tt><tt class="descname">PinMode</tt><big>(</big><em>pin</em>, <em>mode</em><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.PinMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#visuino.engine.FunctionBlock" title="visuino.engine.FunctionBlock"><tt class="xref py py-class docutils literal"><span class="pre">visuino.engine.FunctionBlock</span></tt></a></p>
+<p>Block para configurar um pino como entrada/saída.</p>
+<ul class="simple">
+<li>pin:</li>
+<li>mode:</li>
+</ul>
+<dl class="method">
+<dt id="visuino.engine.Blocks.PinMode.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.PinMode.getString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.Blocks.SkipLines">
+<em class="property">class </em><tt class="descclassname">Blocks.</tt><tt class="descname">SkipLines</tt><big>(</big><em>n_lines</em><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.SkipLines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#visuino.engine.AbstractBlock" title="visuino.engine.AbstractBlock"><tt class="xref py py-class docutils literal"><span class="pre">visuino.engine.AbstractBlock</span></tt></a></p>
+<dl class="method">
+<dt id="visuino.engine.Blocks.SkipLines.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.SkipLines.getString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.Blocks.Sleep">
+<em class="property">class </em><tt class="descclassname">Blocks.</tt><tt class="descname">Sleep</tt><big>(</big><em>time_ms</em><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.Sleep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#visuino.engine.FunctionBlock" title="visuino.engine.FunctionBlock"><tt class="xref py py-class docutils literal"><span class="pre">visuino.engine.FunctionBlock</span></tt></a></p>
+<dl class="method">
+<dt id="visuino.engine.Blocks.Sleep.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.Sleep.getString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retorna uma string: &#8220;sleep(time_ms)&#8221;</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.Blocks.VariableDeclaration">
+<em class="property">class </em><tt class="descclassname">Blocks.</tt><tt class="descname">VariableDeclaration</tt><big>(</big><em>type_</em>, <em>name</em>, <em>value=None</em><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.VariableDeclaration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="visuino.engine.Blocks.VariableDeclaration.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.Blocks.VariableDeclaration.getString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.FunctionBlock">
+<em class="property">class </em><tt class="descclassname">visuino.engine.</tt><tt class="descname">FunctionBlock</tt><a class="headerlink" href="#visuino.engine.FunctionBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#visuino.engine.AbstractBlock" title="visuino.engine.AbstractBlock"><tt class="xref py py-class docutils literal"><span class="pre">visuino.engine.AbstractBlock</span></tt></a></p>
+<p>Define uma classe de blocos que representam comandos como chamadas
+de funções, e portanto, retornam uma string válida para entrada de outras
+funções.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.GroupCode">
+<em class="property">class </em><tt class="descclassname">visuino.engine.</tt><tt class="descname">GroupCode</tt><big>(</big><em>level</em>, <em>app_groups</em><big>)</big><a class="headerlink" href="#visuino.engine.GroupCode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Agrupa blocos de função e estruturas.</p>
+<dl class="method">
+<dt id="visuino.engine.GroupCode.addBlock">
+<tt class="descname">addBlock</tt><big>(</big><em>block</em><big>)</big><a class="headerlink" href="#visuino.engine.GroupCode.addBlock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="visuino.engine.GroupCode.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.GroupCode.getString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.InputFunction">
+<em class="property">class </em><tt class="descclassname">visuino.engine.</tt><tt class="descname">InputFunction</tt><a class="headerlink" href="#visuino.engine.InputFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define o conteúdo válido para entrada de funções. São eles:</p>
+<blockquote>
+<div><ul class="simple">
+<li>string, para valores literais.</li>
+<li>FunctionBlock(), que representa o retorno de uma função.</li>
+<li>OperatorBlock(), que representa o retorno de uma operação.</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.Structure">
+<em class="property">class </em><tt class="descclassname">visuino.engine.</tt><tt class="descname">Structure</tt><a class="headerlink" href="#visuino.engine.Structure" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="class">
+<dt id="visuino.engine.Structure.Function">
+<em class="property">class </em><tt class="descname">Function</tt><big>(</big><em>name</em>, <em>type_</em>, <em>params</em>, <em>app_groups</em><big>)</big><a class="headerlink" href="#visuino.engine.Structure.Function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Mantém uma estrutura de sub-rotina, com separação da área para
+declaração de variáveis locais e o código em si.</p>
+<dl class="method">
+<dt id="visuino.engine.Structure.Function.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.Structure.Function.getString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.Structure.IfElse">
+<em class="property">class </em><tt class="descclassname">Structure.</tt><tt class="descname">IfElse</tt><big>(</big><em>condition</em>, <em>parent_group</em>, <em>app_groups</em>, <em>branch_type=0</em><big>)</big><a class="headerlink" href="#visuino.engine.Structure.IfElse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Mantém uma estrutura if-else com múltiplas bifurcações.
+Cada bifurcação mantém o código em um objeto GroupCode().</p>
+<dl class="method">
+<dt id="visuino.engine.Structure.IfElse.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.Structure.IfElse.getString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.engine.TheProgram">
+<em class="property">class </em><tt class="descclassname">visuino.engine.</tt><tt class="descname">TheProgram</tt><a class="headerlink" href="#visuino.engine.TheProgram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="method">
+<dt id="visuino.engine.TheProgram.addBlockToFunction">
+<tt class="descname">addBlockToFunction</tt><big>(</big><em>function_name</em>, <em>block</em><big>)</big><a class="headerlink" href="#visuino.engine.TheProgram.addBlockToFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adiciona um bloco à uma função dado o nome da mesma.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visuino.engine.TheProgram.addBlockToGroup">
+<tt class="descname">addBlockToGroup</tt><big>(</big><em>group_id</em>, <em>block</em><big>)</big><a class="headerlink" href="#visuino.engine.TheProgram.addBlockToGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adiciona um bloco a um grupo segundo a ID fornecida.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visuino.engine.TheProgram.addGlobalConstant">
+<tt class="descname">addGlobalConstant</tt><big>(</big><em>type_</em>, <em>name</em>, <em>value</em><big>)</big><a class="headerlink" href="#visuino.engine.TheProgram.addGlobalConstant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adiciona um bloco de declaração de constante global.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visuino.engine.TheProgram.addGlobalVariable">
+<tt class="descname">addGlobalVariable</tt><big>(</big><em>type_</em>, <em>name</em>, <em>value=None</em><big>)</big><a class="headerlink" href="#visuino.engine.TheProgram.addGlobalVariable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adiciona um bloco de declaração de variável global.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visuino.engine.TheProgram.getFunctionGroup">
+<tt class="descname">getFunctionGroup</tt><big>(</big><em>function_name</em><big>)</big><a class="headerlink" href="#visuino.engine.TheProgram.getFunctionGroup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retorna um GroupCode() que contém o código de uma função.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visuino.engine.TheProgram.getString">
+<tt class="descname">getString</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.engine.TheProgram.getString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retorna a string completa do código do programa na linguagem C-like
+do Arduino.</p>
+<p>Pode ser transferido para a IDE padrão do Arduino e subsequênte
+compilação.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="visuino.engine.TheProgram.loadExample">
+<tt class="descname">loadExample</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#visuino.engine.TheProgram.loadExample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exemplos disponíveis para teste:
+- blink
+- button</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="visuino.gx.html">gx Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.html#module-visuino.gx.dockable_expression"><tt class="docutils literal"><span class="pre">dockable_expression</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.html#module-visuino.gx.field_info"><tt class="docutils literal"><span class="pre">field_info</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.html#module-visuino.gx.shapes"><tt class="docutils literal"><span class="pre">shapes</span></tt> Module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="visuino.utils.html">utils Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="visuino.utils.html#id1"><tt class="docutils literal"><span class="pre">utils</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.utils.html#module-visuino.utils.type_check"><tt class="docutils literal"><span class="pre">type_check</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">visuino Package</a><ul>
+<li><a class="reference internal" href="#module-visuino.engine"><tt class="docutils literal"><span class="pre">engine</span></tt> Module</a></li>
+<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/visuino.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

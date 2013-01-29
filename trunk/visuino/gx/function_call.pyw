@@ -10,274 +10,264 @@ import sys
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+from PyQt4.QtSvg import *
 
 from bases import *
 from field_info import *
+from shapes import *
+from utils import *
 
-class GxInputField(QGraphicsItem):
-    H_PADD = 10
-    V_PADD = 10
-    
-    def __init__(self, field_info, height, style_scheme, scene, parent=None):
+class StyleBlockFunctionCall(object):
+    def __init__(self, **kwargs):
+        self._createKwAttr(kwargs, 'name_font_family', 'Verdana')
+        self._createKwAttr(kwargs, 'name_font_size', 10)
+        self._createKwAttr(kwargs, 'name_font_color', 'white')
+
+        self._createKwAttr(kwargs, 'background_color', 'blue')
+        self._createKwAttr(kwargs, 'border_color', 'black')
+        self._createKwAttr(kwargs, 'border_width', 2)
+
+        self._createKwAttr(kwargs, 'arg_font_family', 'Verdana')
+        self._createKwAttr(kwargs, 'arg_font_size', 10)
+        self._createKwAttr(kwargs, 'arg_font_color', 'black')
+
+        self._createKwAttr(kwargs, 'arg_background_color', 'yellow')
+        self._createKwAttr(kwargs, 'arg_border_color', 'black')
+        self._createKwAttr(kwargs, 'arg_border_width', 2)
+
+    def _createKwAttr(self, kwargs, attr_name, default_value):
+        setattr(self, attr_name, kwargs.get(attr_name, default_value))
+
+
+class GxBlockFunctionCall(QGraphicsItem):
+    _CORNER_SIZE = [6, 6]
+    _CORNER_STYLE = 'trig'
+
+    _NOTCH_IO_SIZE = [10, 20]
+    _NOTCH_IO_SHAPE = ''
+
+    _NOTCH_VF_SIZE = [40, 10]
+    _NOTCH_VF_SHAPE = 'trig/0.8'
+
+    _ARGS_ALIGN = 'bellow'  # alt: 'right'
+    _ARGS_MIN_LEFT_PADD = 30
+
+    _V_PADD = 10
+
+    def __init__(self, name, args, return_=None, style=None,
+                 scene=None, parent=None):
+        """
+        :name: str
+        :args: list of FieldInfo()
+        :return_: FieldInfo()
+        :style: StyleBlockFunctionCall()
+        """
         QGraphicsItem.__init__(self, parent, scene)
-        
-        self._style_scheme = style_scheme
-        
-        if not isinstance(field_info, FieldInfo):
-            raise ValueError("Parameter 'field_info' must be of type" + \
-                "FieldInfo. Was given %s." % field_info.__class__.__name__)
-                
-        self._field_info = field_info        
-        self._proxy_widget = self.GxProxyToFront(self)
-        self._widget = field_info.getWidget()
-        self._widget.setFont(self._style_scheme['font'])
-        self._proxy_widget.setWidget(self._widget)
-        
-        
-        self._width = 2 * self.H_PADD
-        self._height = 200, int(height)
-        
+
+        self._name = name
+        self._args = args
+        self._return = return_
+        self._style = style
+
+        if not isinstance(style, StyleBlockFunctionCall):
+            raise TypeError("Parameter 'style' must be of type %s. " % \
+                StyleBlockFunctionCall + "Was given %s" % style.__class__)
+
+        self._width, self._height = 200, 100
+
+        self._max_arg_width = 0
+        self._args_labels = []
+        self._setupArgsLabels()
+
+        self.updateMetrics()
+
     def boundingRect(self):
         return QRectF(0, 0, self._width, self._height)
 
-    def _updateMetrics(self):
-        self._width = 2 * self.H_PADD + self._name_width + self._DX_NOTCH
+    def _setupArgsLabels(self):
+        arg_name_metrics = QFontMetrics(QFont(self._style.arg_font_family,
+                                              self._style.arg_font_size))
+        name_height = arg_name_metrics.height()
 
-    def paint(self, painter, option, widget=None):
+        max_name_width = 0
 
-        padd_width = self.LINE_WIDTH        
-        
-        
-    class GxProxyToFront(QGraphicsProxyWidget):
-        """
-        New feature added: when clicked, brings its parent on the top
-        of the scene.
-        """
-        def mousePressEvent(self, event):
-            QGraphicsProxyWidget.mousePressEvent(self, event)
-            self.scene().bringToFront(self.parentItem())        
-        
-        
-        
-        
+        try:
+            max_name_width = max(
+                [arg_name_metrics.width(x.name) for x in self._args])
+        except:
+            raise TypeError("All elements in tuple/list of the " + \
+                    "'args' parameter must be of type %s.\n" % FieldInfo)
+
+#        for i, x in enumerate(self._args):
+#            if isinstance(x, FieldInfo):
+#                max_name_width = max(max_name_width,
+#                                     arg_name_metrics.width(x.name))
+#            else:
+#                raise TypeError("All elements in tuple/list of the " + \
+#                    "'args' parameter must be of type %s.\n" % FieldInfo + \
+#                    "Was given %s in position %d." % (x.__class__, i))
+
+        name_height = QFontMetrics(QFont(self._style.name_font_family,
+                                         self._style.name_font_size)).height()
+        h = 2 * self._V_PADD + name_height
+
+        for x in self._args:
+            new_arg = GxArgLabel(x, QSize(max_name_width, name_height),
+                                 self._style, self.scene(), parent=self)
+            self._args_labels.append(new_arg)
+
+            self._max_arg_width = max(self._max_arg_width,
+                                      new_arg.boundingRect().width())
+
+            new_arg.setPos(self._ARGS_MIN_LEFT_PADD, h)
+            h += new_arg.boundingRect().height() - self._style.arg_border_width
+
+    def updateMetrics(self):
+        name_metrics = QFontMetrics(QFont(self._style.name_font_family,
+                                          self._style.name_font_size))
+        b_padd = self._style.border_width/2
+
+        h = 2*b_padd + 3*self._V_PADD + name_metrics.height()
+        if self._return is None:
+            h += self._NOTCH_VF_SIZE[1]
+
+        for x in self._args_labels:
+            h += x.boundingRect().height()
+
+        self._height = h
+
+    def paint(self, painter, option=None, widget=None):
+        painter.fillRect(self.boundingRect(),
+                         QColor(self._style.background_color))
+
+    def getSize(self):
+        return QSizeF(self._width, self._height)
+
+    def setBackgroundColor(self, color):
+        self._bk_color = color
+        self.repaint()
+
 
 class GxArgLabel(QGraphicsItem):
-    H_PADD = 10       # horizontal padding
+    _CORNER_SIZE = [6, 6]
+    _CORNER_STYLE = 'arc'
 
-    LINE_WIDTH = 2
+    _NOTCH_SIZE = [10, 20]
+    _NOTCH_STYLE = 'trig'
 
-    def __init__(self, name, style_scheme, height, dx_notch,
+    _H_PADD = 15
+    _V_PADD = 5
+
+    def __init__(self, field_info, max_name_size, style,
                  scene=None, parent=None):
+        """
+        :field_info: FieldInfo()
+        :max_name_size: QSize()
+        :style: StyleBlockFunctionCall()
+        """
         QGraphicsItem.__init__(self, parent, scene)
 
-        self._name = str(name)
-        self._style_scheme = style_scheme
+        self._field_info = field_info
+        self._max_name_size = max_name_size
+        self._style = style
 
-        # setting up dimensions
-        self._width, self._height = 200, height
-        self._DX_NOTCH = dx_notch
+        self._width, self._height = 200, 100
+        self.updateMetrics()
 
-        self.setBoundingRegionGranularity(1)
+    def updateMetrics(self):
+        if isinstance(self._max_name_size, QSize):
+            self._width = self._max_name_size.width() + 2*self._H_PADD
+            self._height = self._max_name_size.height() + 2*self._V_PADD
+        else:
+            metrics = QFontMetrics(QFont(self._style.arg_font_family,
+                                         self._style.arg_font_size))
+            self._width = metrics.width(self._field_info.name) + \
+                          2*self._H_PADD + self._NOTCH_SIZE[0]
+            self._height = metrics.height() + 2*self._V_PADD
+            if self._height < self._NOTCH_SIZE[1]:
+                self._height = self._NOTCH_SIZE[1]
 
-        self._updateMetrics()
 
     def boundingRect(self):
         return QRectF(0, 0, self._width, self._height)
 
-    def _updateMetrics(self):
+##    def updateMetrics(self):
+##        name_metrics = QFontMetrics(QFont())
 
-        name_metrics = QFontMetrics(self._style_scheme['font'])
-        self._name_width = name_metrics.boundingRect(self._name).width()
-
-        self._width = 2 * self.H_PADD + self._name_width + self._DX_NOTCH
-
-    def paint(self, painter, option, widget=None):
-
-        padd_width = self.LINE_WIDTH
-
+    def paint(self, painter, option=None, widget=None):
         painter.fillRect(self.boundingRect(), Qt.transparent)
 
-        pen = QPen(self._style_scheme['border_color'], self.LINE_WIDTH,
-                   cap=Qt.RoundCap, join=Qt.RoundJoin)
-        painter.setPen(pen)
-        painter.setBrush(self._style_scheme['backg_color'])
+        painter.setPen(QPen(QColor(self._style.arg_border_color),
+                            self._style.arg_border_width,
+                            Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        painter.setBrush(QColor(self._style.arg_background_color))
 
-        path = QPainterPath(QPointF(padd_width, padd_width))
-        path.lineTo(padd_width, self._height - padd_width)
-        path.lineTo(self._width - padd_width,
-                    self._height - padd_width)
-        path.lineTo(self._width - self._DX_NOTCH, self._height/2)
-        path.lineTo(self._width - padd_width, padd_width)
-        path.lineTo(padd_width, padd_width)
+        b_padd = self._style.arg_border_width/2     # border padding
+        W, H = self._width - b_padd, self._height - b_padd
+        cw, ch = self._CORNER_SIZE
+        nw, nh = self._NOTCH_SIZE
 
-        painter.drawPath(path)
-        
-        painter.setFont(self._style_scheme['font'])
-        painter.setPen(QPen(self._style_scheme['text_color']))
-        painter.drawText(QRect(0, 0,
-                               self._width - self._DX_NOTCH, self._height),
-                         Qt.AlignCenter, self._name)            
+        x0, y0 = W, b_padd
 
+        path = QPainterPath(QPointF(x0, y0))
 
-class GxFunctionCall(QGraphicsItem):
+        path.lineTo(W, H/2 - nh/2)
 
-    H_PADD = 10         # horizontal padding
-    V_PADD = 10         # vertical padding
-    ARG_VPADD = 0       # argument vertical padding
+        path.connectPath(NotchIOPath(path.currentPosition(),
+                                     self._NOTCH_SIZE, self._NOTCH_STYLE))
+        path.lineTo(W, H)
+        path.lineTo(b_padd + cw, H)
+        path.connectPath(CornerPath(QPointF(b_padd, H), 'bottom-left',
+                                    QSize(cw, ch), self._CORNER_STYLE, True))
 
-    DX_NOTCH = 20       # horizontal size of the notch
-    DY_PIPE = 15
-
-    LINE_WIDTH = 2
-
-    def __init__(self, name, args, style_scheme, scene=None, parent=None):
-        QGraphicsItem.__init__(self, parent, scene)
-
-        self._name = str(name)
-        self._style_scheme = style_scheme
-        self._args = []
-        for i, a in enumerate(args):
-            if not isinstance(a, FieldInfo):
-                raise ValueError(
-                    'Argument %d is not instance of FieldInfo.' % i + \
-                    ' Givem %s instead.' % a.__class__.__name__)
-            self._args.append({'info': a})
-
-        self.setFlags(QGraphicsItem.ItemIsFocusable |
-                      QGraphicsItem.ItemIsMovable)
-
-        self.setBoundingRegionGranularity(1)
-        
-        # setting up dimensions
-        self._width, self._height = 200, 100
-        self._draw_pipe = False
-
-        self._updateMetrics()
-        self._setupArgLabels()
-        
-    def _setupArgLabels(self):
-        
-        x, y = self._width , 0
-        
-        if self._draw_pipe:
-            x += 3 * self.DY_PIPE - self.LINE_WIDTH - 5    
-        
-        for a in self._args:
-            a['label'] = GxArgLabel(a['info'].name, 
-                self._style_scheme['input_field'], self._height, 
-                self.DX_NOTCH, self.scene(), self)
-            a['label'].setPos(x, y)
-            y += self._height + self.ARG_VPADD
-            
-
-    def _updateMetrics(self):
-
-        name_metrics = QFontMetrics(self._style_scheme['name']['font'])
-        self._name_width = name_metrics.boundingRect(self._name).width()
-        self._name_height = name_metrics.boundingRect(self._name).height()
-
-        self._width = 2 * self.H_PADD + self._name_width + self.DX_NOTCH
-        self._height = 2 * self.V_PADD + self._name_height
-
-    def boundingRect(self):
-        return QRectF(-5, -5, self._width + 5, self._height + 5)
-
-    def paint(self, painter, option, widget=None):
-
-        padd_width = self.LINE_WIDTH
-
-        painter.fillRect(self.boundingRect(), Qt.transparent)
-        
-#        self._drawPipe(painter)
-
-        pen = QPen(self._style_scheme['name']['border_color'], 
-                   self.LINE_WIDTH, cap=Qt.RoundCap, join=Qt.RoundJoin)
-        painter.setPen(pen)
-        painter.setBrush(self._style_scheme['name']['backg_color'])
-
-        path = QPainterPath(QPointF(self.DX_NOTCH, padd_width))
-        path.lineTo(padd_width, self._height/2)
-        path.lineTo(self.DX_NOTCH, self._height-padd_width)
-        path.lineTo(self._width - padd_width, self._height-padd_width)
-        path.lineTo(self._width - padd_width, padd_width)
-        path.lineTo(self.DX_NOTCH, padd_width)
-
+        path.lineTo(b_padd, b_padd + ch)
+        path.connectPath(CornerPath(QPointF(b_padd, b_padd), 'top-left',
+                                    QSize(cw, ch), self._CORNER_STYLE, True))
+        path.lineTo(W, b_padd)
         painter.drawPath(path)
 
-        painter.setPen(QPen(self._style_scheme['name']['text_color']))
-        painter.setFont(self._style_scheme['name']['font'])
-        painter.drawText(QRect(self.DX_NOTCH, 0,
-                               self._width - self.DX_NOTCH, self._height),
-                         Qt.AlignCenter, self._name)
-                         
-    
-    def _drawPipe(self, painter):
-        padd_width = self.LINE_WIDTH
-        
-        pen = QPen(self._style_scheme['name']['border_color'], 
-                   self.LINE_WIDTH, cap=Qt.RoundCap, join=Qt.RoundJoin)
-        painter.setPen(pen)
-        painter.setBrush(self._style_scheme['name']['pipe_color'])
-    
-        arg_pipe_vspace = (self._height/2 - self.DY_PIPE/2)
-        p = {'x': self._width - padd_width, 
-             'y': self._height/2 - self.DY_PIPE/2}
-        p['path'] = QPainterPath(QPointF(p['x'], p['y']))
-    
-        self._pathLineInc(p, 3*self.DY_PIPE, 0)
-        self._pathLineInc(p, 0, self.DY_PIPE)
-        self._pathLineInc(p, -self.DY_PIPE, 0)        
-        self._pathLineInc(p, 0, 2*arg_pipe_vspace + self.ARG_VPADD)         
-        self._pathLineInc(p, self.DY_PIPE, 0)                
-        self._pathLineInc(p, 0, self.DY_PIPE) 
-        self._pathLineInc(p, -2 * self.DY_PIPE, 0)         
-        self._pathLineInc(p, 0, 
-            -(self.DY_PIPE + 2*arg_pipe_vspace + self.ARG_VPADD))         
-        self._pathLineInc(p, -self.DY_PIPE, 0) 
-        
-        painter.drawPath(p['path'])        
-        
-    def _pathLineInc(self, p, inc_x, inc_y):
-        p['x'] += inc_x
-        p['y'] += inc_y
-        p['path'].lineTo(p['x'], p['y'])
+        painter.setFont(QFont(self._style.arg_font_family,
+                              self._style.arg_font_size))
+        painter.drawText(QRectF(b_padd, b_padd, W - nw, H),
+                         Qt.AlignCenter, self._field_info.name)
 
-def main():
+
+if __name__ == '__main__':
+
     app = QApplication(sys.argv)
     win = QMainWindow()
     win.setGeometry(200, 100, 800, 600)
 
     scene = GxScene()
 
-    font_color_scheme = {'name': {'font': QFont('Verdana', 16),
-                                  'text_color': QColor('white'),
-                                  'backg_color': QColor('blue'),
-                                  'border_color': QColor('black'),
-                                  'pipe_color': QColor('orange')},
-                         'input_field': {'font': QFont('Verdana', 12),
-                                         'text_color': QColor('black'),
-                                         'backg_color': QColor('yellow'),
-                                         'border_color': QColor('black')}}
-
-    block_digital_write = GxFunctionCall('digitalWrite',
+    block_digital_write = GxBlockFunctionCall('digitalWrite',
         [FieldInfo('pin', 'int', '0|13', 'combobox'),
          FieldInfo('value', 'const', 'HIGH,LOW', 'combobox')],
-        font_color_scheme, scene)
-        
+        None, StyleBlockFunctionCall(), scene)
     block_digital_write.setPos(100, 100)
-    
-    block_digital_read = GxFunctionCall('digitalRead',
-        [FieldInfo('pin', 'int', '0|13', 'combobox')],
-        font_color_scheme, scene)
-        
-    block_digital_read.setPos(200, 300)
-    
+    block_digital_write.setFlags(QGraphicsItem.ItemIsMovable)
+
+#    block_digital_read = GxFunctionCall('digitalRead',
+#        [FieldInfo('pin', 'int', '0|13', 'combobox')],
+#        block_style_scheme, scene)
+#
+#    block_digital_read.setPos(200, 300)
+
+    arg_label = GxArgLabel(FieldInfo('value', 'int', '0|13', 'combobox'),
+                           None, StyleBlockFunctionCall(), scene)
+    arg_label.setPos(300, 300)
+    arg_label.setFlags(QGraphicsItem.ItemIsMovable)
+
+#    svg_filename = 'C:\\Users\\nelso\\Desktop\\arg_label.svg'
+#    create_svg_from_gx_item(arg_label, svg_filename)
+#    svg_label = QGraphicsSvgItem(svg_filename)
+#    svg_label.setFlags(QGraphicsItem.ItemIsMovable)
+#    scene.addItem(svg_label)
 
     view = GxView(scene, win)
+
 
     win.setCentralWidget(view)
     win.show()
     sys.exit(app.exec_())
 
-if __name__ == '__main__':
-    main()

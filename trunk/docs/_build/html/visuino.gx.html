@@ -1,0 +1,240 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gx Package &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="gx-package">
+<h1>gx Package<a class="headerlink" href="#gx-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-visuino.gx.dockable_expression">
+<span id="dockable-expression-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">dockable_expression</span></tt> Module<a class="headerlink" href="#module-visuino.gx.dockable_expression" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author: Nelso G. Jost
+&#64;email: <a class="reference external" href="mailto:nelsojost&#37;&#52;&#48;gmail&#46;com">nelsojost<span>&#64;</span>gmail<span>&#46;</span>com</a>
+&#64;project: VISUINO - A visual programming toolkit for Arduino</p>
+<dl class="class">
+<dt id="visuino.gx.dockable_expression.NotchPath">
+<em class="property">class </em><tt class="descclassname">visuino.gx.dockable_expression.</tt><tt class="descname">NotchPath</tt><big>(</big><em>start_point=None</em>, <em>size=(50</em>, <em>100)</em>, <em>shape='trig'</em><big>)</big><a class="headerlink" href="#visuino.gx.dockable_expression.NotchPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QPainterPath</span></tt></p>
+<p>Path with shapes for the left/right puzzle-like slots.</p>
+<p>This path uses relative points so it can be easily connected to others
+paths. It was design for use as male RIGHT connector, and female LEFT.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.gx.dockable_expression.CornerPath">
+<em class="property">class </em><tt class="descclassname">visuino.gx.dockable_expression.</tt><tt class="descname">CornerPath</tt><big>(</big><em>origin</em>, <em>place</em>, <em>size</em>, <em>style='rect'</em><big>)</big><a class="headerlink" href="#visuino.gx.dockable_expression.CornerPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QPainterPath</span></tt></p>
+<p>Path for nice and easy corner drawings, with various shapes supporting.</p>
+<p>Just give it the corner point of the destination shape, and then it
+will figures out the relative dimensions and creates the path. Then
+you can append this with the destination path.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.gx.dockable_expression.GxShapeNotchLeft">
+<em class="property">class </em><tt class="descclassname">visuino.gx.dockable_expression.</tt><tt class="descname">GxShapeNotchLeft</tt><big>(</big><em>notch='rect'</em>, <em>scene=None</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#visuino.gx.dockable_expression.GxShapeNotchLeft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QGraphicsItem</span></tt></p>
+<dl class="method">
+<dt id="visuino.gx.dockable_expression.GxShapeNotchLeft.boundingRect">
+<tt class="descname">boundingRect</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.gx.dockable_expression.GxShapeNotchLeft.boundingRect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="visuino.gx.dockable_expression.GxShapeNotchLeft.paint">
+<tt class="descname">paint</tt><big>(</big><em>painter</em>, <em>option=None</em>, <em>widget=None</em><big>)</big><a class="headerlink" href="#visuino.gx.dockable_expression.GxShapeNotchLeft.paint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-visuino.gx.field_info">
+<span id="field-info-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">field_info</span></tt> Module<a class="headerlink" href="#module-visuino.gx.field_info" title="Permalink to this headline">¶</a></h2>
+<p>Created on Sat Jan 19 14:47:49 2013</p>
+<p>&#64;author: Nelso</p>
+<dl class="class">
+<dt id="visuino.gx.field_info.FieldInfo">
+<em class="property">class </em><tt class="descclassname">visuino.gx.field_info.</tt><tt class="descname">FieldInfo</tt><big>(</big><em>name</em>, <em>type_</em>, <em>range_</em>, <em>widget</em>, <em>description=''</em><big>)</big><a class="headerlink" href="#visuino.gx.field_info.FieldInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">name:</th><td class="field-body">str. Used for text label in arguments.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">type:</th><td class="field-body">str. Used for validation of inputs.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">range:</th><td class="field-body">str. Imposes limits for values of input.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">widget:</th><td class="field-body">str. Set the</td>
+</tr>
+</tbody>
+</table>
+</dd>
+</dl>
+<p>__init__</p>
+<dl class="attribute">
+<dt id="visuino.gx.field_info.FieldInfo.VALID_TYPES">
+<tt class="descname">VALID_TYPES</tt><em class="property"> = ['int', 'float', 'char', 'const']</em><a class="headerlink" href="#visuino.gx.field_info.FieldInfo.VALID_TYPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="visuino.gx.field_info.FieldInfo.getWidget">
+<tt class="descname">getWidget</tt><big>(</big><em>parent=None</em><big>)</big><a class="headerlink" href="#visuino.gx.field_info.FieldInfo.getWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the proper widget for what is configured in self.widget
+attribute. The default widget is QLineEdit().</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parent :</th><td class="field-body">QWidget() &lt;None&gt;.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-visuino.gx.shapes">
+<span id="shapes-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">shapes</span></tt> Module<a class="headerlink" href="#module-visuino.gx.shapes" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author: Nelso G. Jost
+&#64;email: <a class="reference external" href="mailto:nelsojost&#37;&#52;&#48;gmail&#46;com">nelsojost<span>&#64;</span>gmail<span>&#46;</span>com</a>
+&#64;project: VISUINO - A visual programming toolkit for Arduino</p>
+<dl class="class">
+<dt id="visuino.gx.shapes.NotchPath">
+<em class="property">class </em><tt class="descclassname">visuino.gx.shapes.</tt><tt class="descname">NotchPath</tt><big>(</big><em>start_point=None</em>, <em>size=(50</em>, <em>100)</em>, <em>shape='trig'</em><big>)</big><a class="headerlink" href="#visuino.gx.shapes.NotchPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QPainterPath</span></tt></p>
+<p>Path with shapes for the left/right puzzle-like slots.</p>
+<p>This path uses relative points so it can be easily connected to others
+paths. It was design for use as male RIGHT connector, and female LEFT.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.gx.shapes.CornerPath">
+<em class="property">class </em><tt class="descclassname">visuino.gx.shapes.</tt><tt class="descname">CornerPath</tt><big>(</big><em>origin</em>, <em>place</em>, <em>size</em>, <em>style='rect'</em><big>)</big><a class="headerlink" href="#visuino.gx.shapes.CornerPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QPainterPath</span></tt></p>
+<p>Path for nice and easy corner drawings, with various shapes supporting.</p>
+<p>Just give it the corner point of the destination shape, and then it
+will figures out the relative dimensions and creates the path. Then
+you can append this with the destination path.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.gx.shapes.GxShapeNotchLeft">
+<em class="property">class </em><tt class="descclassname">visuino.gx.shapes.</tt><tt class="descname">GxShapeNotchLeft</tt><big>(</big><em>notch='rect'</em>, <em>scene=None</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#visuino.gx.shapes.GxShapeNotchLeft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QGraphicsItem</span></tt></p>
+<dl class="method">
+<dt id="visuino.gx.shapes.GxShapeNotchLeft.boundingRect">
+<tt class="descname">boundingRect</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.gx.shapes.GxShapeNotchLeft.boundingRect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="visuino.gx.shapes.GxShapeNotchLeft.paint">
+<tt class="descname">paint</tt><big>(</big><em>painter</em>, <em>option=None</em>, <em>widget=None</em><big>)</big><a class="headerlink" href="#visuino.gx.shapes.GxShapeNotchLeft.paint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">gx Package</a><ul>
+<li><a class="reference internal" href="#module-visuino.gx.dockable_expression"><tt class="docutils literal"><span class="pre">dockable_expression</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-visuino.gx.field_info"><tt class="docutils literal"><span class="pre">field_info</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-visuino.gx.shapes"><tt class="docutils literal"><span class="pre">shapes</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/visuino.gx.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
