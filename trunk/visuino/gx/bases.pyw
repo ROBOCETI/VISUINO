@@ -20,7 +20,10 @@ import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-__all__ = ['GxView', 'GxScene', 'GxProxyToFront']        
+##from PySide.QtGui import *
+##from PySide.QtCore import *
+
+__all__ = ['GxView', 'GxScene', 'GxProxyToFront']
 
 class GxView(QGraphicsView):
     def __init__(self, scene=None, parent=None, **kwargs):
@@ -31,13 +34,14 @@ class GxView(QGraphicsView):
         kwargs:
          :wheel_zoom: bool <True>. Activates the wheel zooming functionality.
         """
+##        QGraphicsView.__init__(self)
         QGraphicsView.__init__(self, scene, parent)
-        
+
         self.wheel_zoom = kwargs.get('wheel_zoom', True)
-        
+
 #        self._wheel_zoom = getv_kw(
 #            kwargs, 'wheel_zoom', True, (bool, GxScene))
-        
+
         self.zoom_level = 0     # incr/decr by 1 according to scaling calls
 
         self.setRenderHint(QPainter.Antialiasing)
@@ -45,9 +49,11 @@ class GxView(QGraphicsView):
 
         # click on the background to drag the whole scene
         self.setDragMode(QGraphicsView.RubberBandDrag)
-        
+
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        
+        self.setResizeAnchor(QGraphicsView.AnchorViewCenter)
+##        self.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
+
         self.centerOn(0, 0)
 
 
@@ -65,7 +71,7 @@ class GxView(QGraphicsView):
         if self.wheel_zoom:
 
             ##TODO: smooth zooming
-            
+
             factor = 1.41 ** (event.delta() / 240.0)
             self.scale(factor, factor)
 
@@ -73,12 +79,12 @@ class GxView(QGraphicsView):
             else: self.zoom_level += 1
 
             print "Zoom level:", self.zoom_level
-            
+
             #self.centerOn(event.x(), event.y())
-        
+
 
 class GxScene(QGraphicsScene):
-    
+
     BK_COLOR = 'lightgray'  # background color
 
     Z_INCR = 0.0000000001   # increment on zValue for .bringToFront()
@@ -101,9 +107,9 @@ class GxScene(QGraphicsScene):
 
     def _clickToFront(self, event):
         """
-        If the flag self._click_to_front is True, then bring the clicked 
+        If the flag self._click_to_front is True, then bring the clicked
         item to the front.
-        
+
         :event: QGraphicsSceneMouseEvent.
         """
         # read the item on the scene mouse coordinates, and then
@@ -116,7 +122,7 @@ class GxScene(QGraphicsScene):
     def mousePressEvent(self, event):
         """
         Offers the "click to front" functionality.
-        
+
         RE-IMPLEMENTED from QGraphicsScene.
         :event: QGraphicsSceneMouseEvent.
         """
@@ -129,19 +135,19 @@ class GxScene(QGraphicsScene):
         """
         Activates or not the "click to front" functionality, in which the
         clicked item always become the top-most one.
-        
+
         :value: boolean.
         """
         if not isinstance(value, bool):
             raise ValueError('Parameter \'value\' must be of type bool.'+\
                 ' Was given %s.' % value.__class__.__name__)
-            
+
         self._click_to_front = value
 
     def getTopItem(self):
         """
         Return the top-most item on the scene.
-        
+
         :return: QGraphicsItem.
         """
         if self._top_item == None:
@@ -155,18 +161,18 @@ class GxScene(QGraphicsScene):
         """
         Make the given item the top-most on the scene by setting properly
         a new zValue if necessary.
-        
+
         :item: QGraphicsItem().
         """
         if not isinstance(item, QGraphicsItem):
             raise ValueError('Parameter \'item\' must be of type '+\
                 'QGraphicsItem. Was given %s.' % item.__class__.__name__)
-            
+
         if item != self._top_item['item']:
             item.setZValue(self._top_item['z'] + self.Z_INCR)
             self._top_item['z'] = item.zValue()
             self._top_item['item'] = item
-            
+
 class GxProxyToFront(QGraphicsProxyWidget):
     """
     New feature added: when clicked, brings its parent on the top
@@ -174,11 +180,11 @@ class GxProxyToFront(QGraphicsProxyWidget):
     """
     def mousePressEvent(self, event):
         QGraphicsProxyWidget.mousePressEvent(self, event)
-        self.scene().bringToFront(self.parentItem())  
+        self.scene().bringToFront(self.parentItem())
 
-            
+
 def main():
-    
+
     app = QApplication(sys.argv)
     win = QMainWindow()
     win.setGeometry(200, 100, 800, 600)
@@ -201,6 +207,10 @@ def main():
         QBrush(QColor('red')))
     rect.setFlags(QGraphicsItem.ItemIsSelectable |
                   QGraphicsItem.ItemIsMovable)
+
+    car = scene.addPixmap(QPixmap('car.png'))
+    car.setPos(400, 400)
+    car.setFlags(QGraphicsItem.ItemIsMovable)
 
     view = GxView(scene, win, wheel_zoom=34)
 

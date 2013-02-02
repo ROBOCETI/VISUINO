@@ -115,7 +115,7 @@ class CornerPath(QPainterPath):
             elif place == 'top-right':
                 x0, y0 = origin.x() - W, origin.y()
             elif place == 'bottom-right':
-                x0, y0 = origin.x() - W, origin.y() - H
+                x0, y0 = origin.x(), origin.y() - H
 
         else:   # counterclockwise
 
@@ -274,7 +274,7 @@ class NotchVFPath(QPainterPath):
         QPainterPath.__init__(self, start_point)
         x0, y0 = start_point.x(), start_point.y()
 
-        if shape[:-4] == 'trig':
+        if shape[:4] == 'trig':
 
             try:
                 base_fraction = float(shape.split('/')[1])
@@ -321,7 +321,7 @@ if __name__ == '__main__':
 #    scene.addPath(CornerPath(QPointF(400, 100), 'top-left',
 #                             QSizeF(100, 100), 'rect'), pen)
 
-    notch_vf = NotchVFPath(QPointF(400, 100))
+    notch_vf = NotchVFPath(QPointF(400, 100), shape='trig/0.85')
     scene.addPath(notch_vf, pen)
 
     view = GxView(scene, parent=win)
