@@ -32,7 +32,7 @@ class StyleBlockFunctionCall(object):
         self._createKwAttr(kwargs, 'border_width', 2)
 
         self._createKwAttr(kwargs, 'arg_font_family', 'Verdana')
-        self._createKwAttr(kwargs, 'arg_font_size', 10)
+        self._createKwAttr(kwargs, 'arg_font_size', 9)
         self._createKwAttr(kwargs, 'arg_font_color', 'black')
 
         self._createKwAttr(kwargs, 'arg_background_color', 'yellow')
@@ -49,7 +49,7 @@ class GxArgLabel(QGraphicsItem):
     _CORNER_STYLE = 'arc'
 
     _NOTCH_SIZE = [10, 20]
-    _NOTCH_STYLE = 'trig'
+    _NOTCH_STYLE = 'arc'
 
     _H_PADD = 15
     _V_PADD = 5
@@ -115,7 +115,8 @@ class GxArgLabel(QGraphicsItem):
         path.lineTo(W, H/2 - nh/2)
 
         path.connectPath(NotchIOPath(path.currentPosition(),
-                                     self._NOTCH_SIZE, self._NOTCH_STYLE))
+                                     self._NOTCH_SIZE, self._NOTCH_STYLE,
+                                     clockwise=False))
         path.lineTo(W, H)
         path.lineTo(b_padd + cw, H)
         path.connectPath(CornerPath(QPointF(b_padd, H), 'bottom-left',
@@ -142,11 +143,11 @@ class GxBlockFunctionCall(QGraphicsItem):
     _CORNER_SHAPE = 'arc'
 
     _NOTCH_IO_SIZE = [10, 20]
-    _NOTCH_IO_SHAPE = 'trig'
+    _NOTCH_IO_SHAPE = 'arc'
 
-    _NOTCH_VF_SIZE = [45, 7]
+    _NOTCH_VF_SIZE = [40, 5]
     _NOTCH_VF_SHAPE = 'trig/0.85'
-    _NOTCH_VF_START = 0.2
+    _NOTCH_VF_START_X = 20
 
     _ARGS_ALIGN = 'bellow'  # TODO: alternative 'right'
     _ARGS_V_PADD = -2
@@ -186,9 +187,10 @@ class GxBlockFunctionCall(QGraphicsItem):
         self.updateMetrics()
 
         self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+        self.setFlag(QGraphicsItem.ItemClipsToShape, True)
 
     def boundingRect(self):
-        aj = 5.5
+        aj = 0
         return QRectF(-aj, -aj, self._width + aj, self._height + aj)
 
     def getSize(self):
@@ -247,18 +249,21 @@ class GxBlockFunctionCall(QGraphicsItem):
         nw, nh = name_metrics.width(self._name), name_metrics.height()
         malp = self._ARGS_MIN_LEFT_PADD
         aw = self._max_arg_width
+        iow, ioh = self._NOTCH_IO_SIZE
 
-        center_width = max(nw, malp - nhp + aw, vw)
+        center_width = max(nw, malp - nhp + aw, vw + self._NOTCH_VF_START_X)
 
         # setting up the width metrics
-        self._width = center_width + 2*bp + 2*cw + 2*nhp
-
-        # setting up the height metrics (except the argument ones)
-        self._height = max(ch, vh) + 2*bp + 2*nvp + nh + ch + vh
-
-        self._name_rect = QRectF(bp + cw + nhp, bp + max(ch, vh) + nvp,
-                                 self._width - 2*bp - 2*cw - 2*nhp,
-                                 nh)
+        if self._return:
+            self._width = center_width + 2*bp + 2*cw + 2*nhp + iow
+            self._height = 2*bp + 2*ch + 2*nvp + nh
+            self._name_rect = QRectF(bp + iow + cw + nhp, bp + ch + nvp,
+                                     center_width, nh)
+        else:
+            self._width = center_width + 2*bp + 2*cw + 2*nhp
+            self._height = max(ch, vh) + 2*bp + 2*nvp + nh + ch + vh
+            self._name_rect = QRectF(bp + cw + nhp, bp + max(ch, vh) + nvp,
+                                     center_width, nh)
 
         # setting up all things related to arguments, including their
         # positions and height metrics for the global height
@@ -272,12 +277,19 @@ class GxBlockFunctionCall(QGraphicsItem):
 
         # creating the border path, based on the dimesions above
         x0, y0 = bp + cw, bp
+        if self._return:
+            x0 += iow
+
         path = GxPainterPath(QPointF(x0, y0))
-        path.lineToInc(dx = nhp + center_width  * self._NOTCH_VF_START)
-        path.connectPath(NotchVFPath(path.currentPosition(),
-                                     self._NOTCH_VF_SIZE,
-                                     self._NOTCH_VF_SHAPE, clockwise=False))
+
+        if not self._return:
+            path.lineToInc(dx = self._NOTCH_VF_START_X)
+            path.connectPath(NotchVFPath(path.currentPosition(),
+                                         self._NOTCH_VF_SIZE,
+                                         self._NOTCH_VF_SHAPE, clockwise=False))
+
         path.lineTo(self._width - bp - cw, path.currentPosition().y())
+
         path.connectPath(CornerPath(QPointF(self._width - bp, y0), 'top-right',
                                     QSizeF(cw, ch), self._CORNER_SHAPE,
                                     clockwise=True))
@@ -291,24 +303,50 @@ class GxBlockFunctionCall(QGraphicsItem):
             path.lineToInc(dx = self._NOTCH_IO_SIZE[0])
             path.lineToInc(dy = self._ARGS_V_PADD + 3*arg_bw)
 
-        path.connectPath(CornerPath(QPointF(self._width - bp,
-                                            self._height - bp - vh + bw),
-                                    'bottom-right', QSizeF(cw, ch),
-                                    self._CORNER_SHAPE, clockwise=True))
-        path.lineTo(bp + cw + nhp + center_width  * self._NOTCH_VF_START + vw,
-                    path.currentPosition().y())
+        # setup bottom right corner point (br_cp)
+        if self._return:
+            br_cp = QPointF(self._width - bp, self._height - bp + bw)
+        else:
+            br_cp = QPointF(self._width - bp, self._height - bp - vh + bw)
 
-        path.connectPath(NotchVFPath(path.currentPosition(),
-                                     self._NOTCH_VF_SIZE,
-                                     self._NOTCH_VF_SHAPE, clockwise=True))
-        path.lineTo(bp + cw, path.currentPosition().y())
-        path.connectPath(CornerPath(QPointF(bp - bw, self._height - bp - vh + bw),
-                                    'bottom-left', QSizeF(cw, ch),
+        path.connectPath(CornerPath(br_cp, 'bottom-right', QSizeF(cw, ch),
                                     self._CORNER_SHAPE, clockwise=True))
-        path.lineTo(path.currentPosition().x(),
-                    bp + max(ch, vh))
-        path.connectPath(CornerPath(QPointF(bp - bw, bp),
-                                    'top-left', QSizeF(cw, ch),
+        if not self._return:
+            path.lineTo(bp + cw + self._NOTCH_VF_START_X + vw,
+                        path.currentPosition().y())
+
+            path.connectPath(NotchVFPath(path.currentPosition(),
+                                         self._NOTCH_VF_SIZE,
+                                         self._NOTCH_VF_SHAPE, clockwise=True))
+            path.lineTo(bp + cw, path.currentPosition().y())
+
+            # bottom-left corner point
+            bl_cp = QPointF(bp - bw, self._height - bp - vh + bw)
+
+        else:
+            path.lineTo(bp + cw + iow, path.currentPosition().y())
+            bl_cp = QPointF(bp + iow, self._height - bp + bw)
+
+        path.connectPath(CornerPath(bl_cp, 'bottom-left', QSizeF(cw, ch),
+                                    self._CORNER_SHAPE, clockwise=True))
+
+        if self._return:
+            path.lineTo(path.currentPosition().x(),
+                        bp + max(ch, vh) + (2*nvp + nh)/2 - \
+                                            self._NOTCH_IO_SIZE[1]/2
+                        + self._NOTCH_IO_SIZE[1])
+            path.connectPath(NotchIOPath(path.currentPosition(),
+                                         self._NOTCH_IO_SIZE,
+                                         self._NOTCH_IO_SHAPE,
+                                         clockwise=True))
+            path.lineTo(path.currentPosition().x(), bp + ch)
+
+            tp_cp = QPointF(bp + iow, bp)
+        else:
+            path.lineTo(path.currentPosition().x(), bp + max(ch, vh))
+            tp_cp = QPointF(bp - bw, bp)
+
+        path.connectPath(CornerPath(tp_cp, 'top-left', QSizeF(cw, ch),
                                     self._CORNER_SHAPE, clockwise=True))
 
         self._border_path = path
@@ -328,7 +366,10 @@ class GxBlockFunctionCall(QGraphicsItem):
                               self._style.name_font_size))
         painter.setPen(QPen(QColor(self._style.name_font_color)))
 
-        painter.drawText(self._name_rect, Qt.AlignCenter, self._name)
+        painter.drawText(self._name_rect, Qt.AlignLeft, self._name)
+
+    def shape(self):
+        return self._border_path
 
 
 if __name__ == '__main__':
@@ -349,7 +390,8 @@ if __name__ == '__main__':
 
     block_digital_read = GxBlockFunctionCall('digitalRead',
         [FieldInfo('pin', 'int', '0|13', 'combobox')],
-        None, StyleBlockFunctionCall(), scene)
+        FieldInfo('value', 'int', 'HIGH,LOW', 'combobox'),
+        StyleBlockFunctionCall(), scene)
     block_digital_read.setPos(200, 300)
     block_digital_read.setFlags(QGraphicsItem.ItemIsMovable)
 
@@ -360,7 +402,8 @@ if __name__ == '__main__':
     block_delay.setFlags(QGraphicsItem.ItemIsMovable)
 
     block_millis = GxBlockFunctionCall('millis', None,
-        None, StyleBlockFunctionCall(), scene)
+        FieldInfo('milliseconds', 'int', '0|', 'edit'),
+        StyleBlockFunctionCall(), scene)
     block_millis.setPos(400, 100)
     block_millis.setFlags(QGraphicsItem.ItemIsMovable)
 
@@ -371,6 +414,11 @@ if __name__ == '__main__':
 #    scene.addItem(svg_label)
 
     view = GxView(scene, win)
+    view.setCacheMode(QGraphicsView.CacheBackground)
+    view.setOptimizationFlags(QGraphicsView.DontSavePainterState)
+
+##    import PyQt4
+##    view.setViewport(PyQt4.QtOpenGL.QGLWidget())
 
     win.setCentralWidget(view)
     win.show()

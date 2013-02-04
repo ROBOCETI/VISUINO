@@ -66,7 +66,7 @@ class GxShapeNotchLeft(QGraphicsItem):
 
         path.connectPath(NotchIOPath(path.currentPosition(),
                                      size=self._NOTCH_SIZE,
-                                     shape=self._notch))
+                                     shape=self._notch, clockwise=False))
         path.lineTo(x0, H - ch)
 
         path.connectPath(self._getCornerPath('bottom-left', QPointF(x0, H)))
@@ -135,8 +135,8 @@ class CornerPath(QPainterPath):
             if clockwise:
 
                 if place == 'bottom-left':
-                    self.lineTo(x0 + W, y0)
-                    self.lineTo(x0 + W, y0 + H)
+                    self.lineTo(x0 - W, y0)
+                    self.lineTo(x0 - W, y0 - H)
                 elif place == 'top-left':
                     self.lineTo(x0, y0 - H)
                     self.lineTo(x0 + W, y0 - H)
@@ -144,8 +144,8 @@ class CornerPath(QPainterPath):
                     self.lineTo(x0 + W, y0)
                     self.lineTo(x0 + W, y0 + H)
                 elif place == 'bottom-right':
-                    self.lineTo(x0, y0 - H)
-                    self.lineTo(x0 - W, y0 - H)
+                    self.lineTo(x0, y0 + H)
+                    self.lineTo(x0 - W, y0 + H)
 
             else:
 
@@ -221,7 +221,8 @@ class NotchIOPath(QPainterPath):
     like slots, which uses relative points so it can be easily connected
     to another path.
     """
-    def __init__(self, start_point=None, size=(50, 100), shape='trig'):
+    def __init__(self, start_point=None, size=(50, 100), shape='trig',
+                 clockwise=True):
         """
         :start_point: QPointF().
         :size: tuple/list of 2 int. Format: (width, height).
@@ -237,15 +238,22 @@ class NotchIOPath(QPainterPath):
         QPainterPath.__init__(self, start_point)
         x0, y0 = start_point.x(), start_point.y()
 
-        if shape == 'trig':
-            self.lineTo(x0 - DX, y0 + DY/2)
-            self.lineTo(x0, y0 + DY)
-        elif shape == 'rect':
-            self.lineTo(x0 - DX, y0)
-            self.lineTo(x0 - DX, y0 + DY)
-            self.lineTo(x0, y0 + DY)
-        elif shape == 'arc':
-            self.arcTo(x0 - DX, y0, 2*DX, DY, 90, 180)
+        if clockwise:
+            if shape == 'trig':
+                self.lineTo(x0 - DX, y0 - DY/2)
+                self.lineTo(x0, y0 - DY)
+            elif shape == 'arc':
+                self.arcTo(x0 - DX, y0 - DY, 2*DX, DY, -90, -180)
+        else:
+            if shape == 'trig':
+                self.lineTo(x0 - DX, y0 + DY/2)
+                self.lineTo(x0, y0 + DY)
+            elif shape == 'rect':
+                self.lineTo(x0 - DX, y0)
+                self.lineTo(x0 - DX, y0 + DY)
+                self.lineTo(x0, y0 + DY)
+            elif shape == 'arc':
+                self.arcTo(x0 - DX, y0, 2*DX, DY, 90, 180)
 
 
 class NotchVFPath(QPainterPath):
@@ -309,9 +317,11 @@ if __name__ == '__main__':
     rect = scene.addRect(400, 100, 200, 50)
 
     my_path = QPainterPath()
-    my_path.connectPath(NotchIOPath(QPointF(200, 100)))
-    my_path.connectPath(NotchIOPath(my_path.currentPosition(), shape='rect'))
-    my_path.connectPath(NotchIOPath(my_path.currentPosition(), shape='arc'))
+    my_path.connectPath(NotchIOPath(QPointF(200, 100), clockwise=False))
+    my_path.connectPath(NotchIOPath(my_path.currentPosition(), shape='rect',
+        clockwise=False))
+    my_path.connectPath(NotchIOPath(my_path.currentPosition(), shape='arc',
+        clockwise=False))
 
     pen = QPen(QColor('black'), 3, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
     path_item = scene.addPath(my_path, pen)
