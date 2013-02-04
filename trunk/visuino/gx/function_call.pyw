@@ -11,6 +11,7 @@ import sys
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtSvg import *
+from PyQt4.QtOpenGL import QGLWidget
 
 ##from PySide.QtGui import *
 ##from PySide.QtCore import *
@@ -72,7 +73,8 @@ class GxArgLabel(QGraphicsItem):
         self._notch_start_y = 0
         self.updateMetrics()
 
-##        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+        self.setFlag(QGraphicsItem.ItemClipsToShape, True)
 
     def updateMetrics(self):
         if isinstance(self._max_name_size, QSize):
@@ -362,8 +364,14 @@ class GxBlockFunctionCall(QGraphicsItem):
 
         painter.drawPath(self._border_path)
 
-        painter.setFont(QFont(self._style.name_font_family,
-                              self._style.name_font_size))
+        font_name = QFont(self._style.name_font_family,
+                          self._style.name_font_size)
+        font_name.setStyleStrategy(QFont.PreferAntialias |
+                                   QFont.OpenGLCompatible |
+                                   QFont.PreferDevice |
+                                   QFont.PreferQuality)
+        font_name.setHintingPreference(QFont.PreferFullHinting)
+        painter.setFont(font_name)
         painter.setPen(QPen(QColor(self._style.name_font_color)))
 
         painter.drawText(self._name_rect, Qt.AlignLeft, self._name)
@@ -379,6 +387,7 @@ if __name__ == '__main__':
     win.setGeometry(200, 100, 800, 600)
 
     scene = GxScene()
+    scene.setClickToFront(True)
 ##    scene.setItemIndexMethod(QGraphicsScene.NoIndex)
 
     block_digital_write = GxBlockFunctionCall('digitalWrite',
@@ -407,18 +416,17 @@ if __name__ == '__main__':
     block_millis.setPos(400, 100)
     block_millis.setFlags(QGraphicsItem.ItemIsMovable)
 
-#    svg_filename = 'C:\\Users\\nelso\\Desktop\\arg_label.svg'
-#    create_svg_from_gx_item(arg_label, svg_filename)
-#    svg_label = QGraphicsSvgItem(svg_filename)
-#    svg_label.setFlags(QGraphicsItem.ItemIsMovable)
-#    scene.addItem(svg_label)
+##    svg_filename = 'C:\\Users\\nelso\\Desktop\\arg_label.svg'
+##    create_svg_from_gx_item(block_digital_write, svg_filename)
+##    svg_label = QGraphicsSvgItem(svg_filename)
+##    svg_label.setFlags(QGraphicsItem.ItemIsMovable)
+##    scene.addItem(svg_label)
 
     view = GxView(scene, win)
     view.setCacheMode(QGraphicsView.CacheBackground)
     view.setOptimizationFlags(QGraphicsView.DontSavePainterState)
 
-##    import PyQt4
-##    view.setViewport(PyQt4.QtOpenGL.QGLWidget())
+    view.setViewport(QGLWidget())
 
     win.setCentralWidget(view)
     win.show()

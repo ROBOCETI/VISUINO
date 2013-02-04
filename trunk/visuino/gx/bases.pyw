@@ -105,20 +105,6 @@ class GxScene(QGraphicsScene):
         self.setBackgroundBrush(QBrush(QColor(self.BK_COLOR)))
         self.setSceneRect(0, 0, self.WIDTH, self.HEIGHT)
 
-    def _clickToFront(self, event):
-        """
-        If the flag self._click_to_front is True, then bring the clicked
-        item to the front.
-
-        :event: QGraphicsSceneMouseEvent.
-        """
-        # read the item on the scene mouse coordinates, and then
-        # if it is not None, bring it to the front
-
-        item = self.itemAt(event.scenePos())
-        if isinstance(item, QGraphicsItem) and item.isSelected():
-            self.bringToFront(item)
-
     def mousePressEvent(self, event):
         """
         Offers the "click to front" functionality.
@@ -128,8 +114,10 @@ class GxScene(QGraphicsScene):
         """
         QGraphicsScene.mousePressEvent(self, event)
 
-        if self._click_to_front:
-            self._clickToFront(event)
+        grabber = self.mouseGrabberItem()
+
+        if grabber and self._click_to_front:
+            self.bringToFront(grabber)
 
     def setClickToFront(self, value):
         """
