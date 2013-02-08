@@ -43,7 +43,54 @@ class StyleBlockFunctionCall(object):
     def _createKwAttr(self, kwargs, attr_name, default_value):
         setattr(self, attr_name, kwargs.get(attr_name, default_value))
 
+class GxInsertMarkNotchIO(QGraphicsPathItem):
 
+    _DY = 10
+
+    def __init__(self, color, notch_size, notch_shape, scene):
+
+        self.pen = QPen(QColor(color), 8, Qt.SolidLine, Qt.RoundCap,
+            Qt.RoundJoin)
+
+        pw = self.pen.width()
+        iow, ioh = notch_size
+
+        path = GxPainterPath(QPointF(iow + pw, pw))
+        path.lineToInc(dy = self._DY)
+        path.connectPath(NotchIOPath(path.currentPosition(),
+                                     notch_size, notch_shape , False))
+        path.lineToInc(dy = self._DY)
+
+        QGraphicsPathItem.__init__(self, path, None, scene)
+
+        self._width = iow + 2*pw
+        self._height = 2*self._DY + 2*pw + ioh
+
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+
+    def boundingRect(self):
+        return QRectF(0, 0, self._width, self._height)
+
+    def paint(self, painter, option=None, widget=None):
+        painter.fillRect(self.boundingRect(), Qt.transparent)
+        painter.setPen(self.pen)
+        painter.drawPath(self.path())
+
+
+class GxPathColliIoNotch(QGraphicsPathItem):
+    # path line color (set None for transparent)
+    _COLOR = None
+
+    def paint(self, painter, option=None, widget=None):
+        painter.setPen(QPen(Qt.transparent if not self._COLOR else
+                            QColor(self._COLOR)))
+        painter.drawPath(self.path())
+
+class GxPathColliFemaleNotch(GxPathColliIoNotch):
+    pass
+
+class GxPathColliMaleNotch(GxPathColliIoNotch):
+    pass
 
 class GxArgLabel(QGraphicsItem):
     _CORNER_SIZE = [6, 6]
@@ -71,6 +118,7 @@ class GxArgLabel(QGraphicsItem):
 
         self._width, self._height = 200, 100
         self._notch_start_y = 0
+        self._colli_notch = None
         self.updateMetrics()
 
         self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
@@ -90,6 +138,12 @@ class GxArgLabel(QGraphicsItem):
                 self._height = self._NOTCH_SIZE[1]
 
         self._notch_start_y = self._height/2 - self._NOTCH_SIZE[1]/2
+
+        colli_path = QPainterPath(QPointF(0, 0))
+        colli_path.addRect(0, 0, self._NOTCH_SIZE[0] * 1.5, self._NOTCH_SIZE[1])
+        self._colli_notch = GxPathColliFemaleNotch(
+            colli_path, self, self.scene())
+        self._colli_notch.setPos(self._width - self._NOTCH_SIZE[0], self._notch_start_y)
 
     def boundingRect(self):
         return QRectF(0, 0, self._width, self._height)
@@ -155,6 +209,8 @@ class GxBlockFunctionCall(QGraphicsItem):
     _ARGS_V_PADD = -2
     _ARGS_MIN_LEFT_PADD = 10
 
+    _IO_INSERT_MARKER_COLOR = '#111111'
+
     def __init__(self, name, args, return_=None, style=None,
                  scene=None, parent=None):
         """
@@ -176,6 +232,10 @@ class GxBlockFunctionCall(QGraphicsItem):
                 StyleBlockFunctionCall + "Was given %s" % style.__class__)
 
         self._width, self._height = 200, 100
+
+        self._colli_path_output = None
+        self._io_insert_mark = None
+        self._notch_io_start_y = 0
 
         self._name_height = 0
         self._max_arg_width = 0
@@ -238,8 +298,9 @@ class GxBlockFunctionCall(QGraphicsItem):
     def updateMetrics(self):
         self.prepareGeometryChange()
 
-        name_metrics = QFontMetrics(QFont(self._style.name_font_family,
-                                          self._style.name_font_size))
+        self._font_name = QFont(self._style.name_font_family,
+                                self._style.name_font_size)
+        name_metrics = QFontMetrics(self._font_name)
 
         bw = self._style.border_width/2
         arg_bw = self._style.arg_border_width/2
@@ -334,9 +395,8 @@ class GxBlockFunctionCall(QGraphicsItem):
 
         if self._return:
             path.lineTo(path.currentPosition().x(),
-                        bp + max(ch, vh) + (2*nvp + nh)/2 - \
-                                            self._NOTCH_IO_SIZE[1]/2
-                        + self._NOTCH_IO_SIZE[1])
+                        bp + ch + (2*nvp + nh)/2 - ioh/2 + ioh)
+            self._notch_io_start_y = path.currentPosition().y() - ioh
             path.connectPath(NotchIOPath(path.currentPosition(),
                                          self._NOTCH_IO_SIZE,
                                          self._NOTCH_IO_SHAPE,
@@ -353,6 +413,15 @@ class GxBlockFunctionCall(QGraphicsItem):
 
         self._border_path = path
 
+        if self._return:
+            colli_path = QPainterPath(QPointF(0, 0))
+            colli_path.addRect(0, 0, iow/2, ioh)
+            self._colli_path_output = GxPathColliMaleNotch(colli_path,
+                self, self.scene())
+            self._colli_path_output.setPos(bp, self._notch_io_start_y)
+
+    def shape(self):
+        return self._border_path
 
     def paint(self, painter, option=None, widget=None):
         painter.fillRect(self.boundingRect(), Qt.transparent)
@@ -361,23 +430,54 @@ class GxBlockFunctionCall(QGraphicsItem):
                             self._style.border_width,
                             Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
         painter.setBrush(QColor(self._style.background_color))
-
         painter.drawPath(self._border_path)
 
-        font_name = QFont(self._style.name_font_family,
-                          self._style.name_font_size)
-        font_name.setStyleStrategy(QFont.PreferAntialias |
-                                   QFont.OpenGLCompatible |
-                                   QFont.PreferDevice |
-                                   QFont.PreferQuality)
-        font_name.setHintingPreference(QFont.PreferFullHinting)
-        painter.setFont(font_name)
+        painter.setFont(self._font_name)
         painter.setPen(QPen(QColor(self._style.name_font_color)))
-
         painter.drawText(self._name_rect, Qt.AlignLeft, self._name)
 
-    def shape(self):
-        return self._border_path
+    def mouseMoveEvent(self, event):
+        QGraphicsItem.mouseMoveEvent(self, event)
+
+        cout = self._colli_path_output
+
+        if cout:
+            colli = [x for x in self.scene().collidingItems(cout)
+                       if isinstance(x, GxPathColliFemaleNotch)]
+            if colli:
+                print "Found female notch!",
+                c_parent = colli[0].parentItem()
+                print c_parent._field_info.name
+
+                if not self._io_insert_mark:
+                    self._io_insert_mark = GxInsertMarkNotchIO(
+                        self._IO_INSERT_MARKER_COLOR,
+                        self._NOTCH_IO_SIZE, self._NOTCH_IO_SHAPE, self.scene())
+
+                if self._io_insert_mark:
+
+                    mapped_pos = c_parent.parentItem().mapToScene(c_parent.pos())
+                    x, y = mapped_pos.x(), mapped_pos.y()
+                    y -= self._io_insert_mark.boundingRect().height() / 2
+                    y += c_parent.boundingRect().height() / 2
+                    x += c_parent.boundingRect().width() - \
+                        self._io_insert_mark.boundingRect().width() / 1.5
+
+                    self._io_insert_mark.setPos(QPointF(x, y))
+                    self.scene().bringToFront(self._io_insert_mark)
+            else:
+                if self._io_insert_mark:
+                    self.scene().removeItem(self._io_insert_mark)
+                    self._io_insert_mark = None
+
+    def mouseReleaseEvent(self, event):
+        QGraphicsItem.mouseReleaseEvent(self, event)
+
+##        if self._io_insert_mark:
+##            self.scene().removeItem(self._io_insert_mark)
+##            self._io_insert_mark = None
+
+
 
 
 if __name__ == '__main__':
@@ -421,6 +521,10 @@ if __name__ == '__main__':
 ##    svg_label = QGraphicsSvgItem(svg_filename)
 ##    svg_label.setFlags(QGraphicsItem.ItemIsMovable)
 ##    scene.addItem(svg_label)
+
+##    io_marker = GxInsertMarkNotchIO('black', [10, 20], 'arc', scene)
+##    io_marker.setPos(250, 200)
+##    io_marker.setFlags(QGraphicsItem.ItemIsMovable)
 
     view = GxView(scene, win)
     view.setCacheMode(QGraphicsView.CacheBackground)
