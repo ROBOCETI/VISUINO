@@ -711,6 +711,7 @@ class GxBlockFunctionCall(QGraphicsItem):
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
+    app.setStyle(QStyleFactory.create('Plastique'))
 
     win = QMainWindow()
     win.setGeometry(200, 100, 800, 600)

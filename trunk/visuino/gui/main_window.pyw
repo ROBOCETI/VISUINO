@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
 class AppVisuino(QApplication):
     def __init__(self, argv):
         QApplication.__init__(self, argv)
+        self.setStyle(QStyleFactory.create('Plastique'))
 
     def execute(self):
         splash_pix = QPixmap('splash_loading.png')

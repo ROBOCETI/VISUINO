@@ -1,17 +1,24 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Jan 20 13:05:56 2013
-
-@author: Nelso
-"""
-
+#-------------------------------------------------------------------------------
+# Purpose:     Implements Function Call Blocks with full customization and
+#              input/output connections.
+#
+# Author:      Nelso G. Jost (nelsojost@gmail.com)
+#
+#              This file is part of VISUINO project - Copyright (C) 2013
+#
+# Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
+#              tribute ONLY as 100% free and keeping the credits.
+#-------------------------------------------------------------------------------
 from __future__ import division
-import sys, imp
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-from bases import *
+import sys
+
+from visuino.gx.bases import *
 
 __all__ = ['GxExpression']
 
@@ -28,6 +35,7 @@ class GxExpression(QGraphicsItem):
              'backg_color': QColor()}
         """
         QGraphicsItem.__init__(self, parent, scene)
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
 
         self._style_scheme = style_scheme
         self._width, self._height = 0, 0
@@ -107,7 +115,7 @@ class GxExpression(QGraphicsItem):
 
             self._elements.insert(match_index + 1, text_op)
             self._elements.insert(match_index + 2, new_field)
-            print "to the right"
+            print("to the right")
 
             self.reposElements(new_field, text_op.boundingRect().width() + \
                                new_field.boundingRect().width() + self._H_PADD)
@@ -121,7 +129,7 @@ class GxExpression(QGraphicsItem):
 
             self._elements.insert(match_index, new_field)
             self._elements.insert(match_index + 1, text_op)
-            print "to the left"
+            print("to the left")
 
             self.reposElements(text_op, dx + text_op.boundingRect().width() \
                 + self._OP_PADD)
@@ -144,7 +152,7 @@ class GxExpression(QGraphicsItem):
 
         if place == 'right' and not self.isLast(match):
 
-            print "removing right.."
+            print("removing right..")
 
             rem_op = self._elements.pop(match_index + 1)
             rem_field = self._elements.pop(match_index + 1)
@@ -167,7 +175,7 @@ class GxExpression(QGraphicsItem):
 
         if place == 'left' and not self.isFirst(match):
 
-            print "removing left.."
+            print("removing left..")
 
             rem_op = self._elements.pop(match_index - 1)
             rem_field = self._elements.pop(match_index - 2)
@@ -189,7 +197,7 @@ class GxExpression(QGraphicsItem):
 
     def printElements(self):
         for i, x in enumerate(self._elements):
-            print "%d -- %s" % (i, x.__class__.__name__)
+            print("%d -- %s" % (i, x.__class__.__name__))
 
     def reposElements(self, match, dx, include_match=False):
         """
@@ -203,7 +211,7 @@ class GxExpression(QGraphicsItem):
         match_index = self._getMatchIndex(match)
 
         if match_index == -1:
-            print "No match for %d"
+            print("No match for %d")
             return
 
         start_range = match_index + 1
@@ -258,6 +266,7 @@ class GxField(QGraphicsItem):
             {'backg_color': QColor(), 'input_font': QFont()}
         """
         QGraphicsItem.__init__(self, parent, scene)
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
 
         self._parent_expr = parent
 
@@ -419,6 +428,7 @@ class GxOperatorSymbol(QGraphicsItem):
         :style_scheme: dict  {'font': QFont(), 'color': QColor()}
         """
         QGraphicsItem.__init__(self, parent, scene)
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
 
         self._op_symbol = op_symbol
         self._style_scheme = style_scheme
@@ -451,6 +461,7 @@ class GxProxyInputField(QGraphicsProxyWidget):
     """
     def __init__(self, context_menu=None, parent=None):
         QGraphicsProxyWidget.__init__(self, parent)
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
 
         self._context_menu = context_menu
 
