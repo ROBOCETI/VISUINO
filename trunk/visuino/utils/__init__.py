@@ -1,2 +1,4 @@
-from type_check import *
-del type_check
+from .validate import *
+del validate
+
+print('Init utils --> OK!')

@@ -11,15 +11,13 @@
 #
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
 #
-#              VISUINO - Copyright (C) 2013
+#              This file is part of VISUINO project - Copyright (C) 2013
 #
-# Licence:     BEERWARE. Its simple: use and modify as you please, and redis-
-#              tribute ONLY as 100% free and keeping the credits.
-#              If I'm in town, you can buy me a beer sometime.
-#
-#              YOU CANNOT MODIFY THIS AND SELL IT!! IF YOU DO, I'LL MAKE A
-#              DEAL WITH THE DEVIL FOR HIM TO CHASE YOU FOR THE ETERNITY!!!
+# Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
+#              tribute ONLY as 100% free. Also, remember to keep the credits.
 #-------------------------------------------------------------------------------
+
+__all__ = ['GxView', 'GxScene', 'GxProxyToFront']
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -29,8 +27,6 @@ import sys
 
 ##from PySide.QtGui import *        ##TODO: Test porting to PySide (get the
 ##from PySide.QtCore import *       #       pros and cons).
-
-__all__ = ['GxView', 'GxScene', 'GxProxyToFront']
 
 class GxView(QGraphicsView):
     '''
@@ -79,7 +75,7 @@ class GxView(QGraphicsView):
             if factor < 1: self.zoom_level -= 1
             else: self.zoom_level += 1
 
-            print "Zoom level:", self.zoom_level
+            print("Zoom level:", self.zoom_level)
 
             #self.centerOn(event.x(), event.y())
 

@@ -12,7 +12,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4.QtSvg import *
 
-from bases import *
+from visuino.gx import *
 
 __all__ = ['NotchIOPath', 'NotchVFPath', 'CornerPath', 'GxShapeNotchLeft']
 
@@ -36,6 +36,8 @@ class GxShapeNotchLeft(QGraphicsItem):
         self._bk_color = 'yellow'
 
         self._notch = notch
+
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
 
     def boundingRect(self):
         return QRectF(-20, -20, self._width + 30, self._height + 30)
@@ -327,12 +329,13 @@ if __name__ == '__main__':
     path_item = scene.addPath(my_path, pen)
     path_item.setFlags(QGraphicsItem.ItemIsMovable |
                        QGraphicsItem.ItemIsSelectable)
-
+    path_item.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
 #    scene.addPath(CornerPath(QPointF(400, 100), 'top-left',
 #                             QSizeF(100, 100), 'rect'), pen)
 
     notch_vf = NotchVFPath(QPointF(400, 100), shape='trig/0.85')
-    scene.addPath(notch_vf, pen)
+    gx_notch_vf = scene.addPath(notch_vf, pen)
+    gx_notch_vf.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
 
     view = GxView(scene, parent=win)
 

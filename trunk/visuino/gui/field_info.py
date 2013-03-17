@@ -1,9 +1,15 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Jan 19 14:47:49 2013
-
-@author: Nelso
-"""
+#-------------------------------------------------------------------------------
+# Purpose:
+#
+# Author:      Nelso G. Jost (nelsojost@gmail.com)
+#
+#              This file is part of VISUINO project - Copyright (C) 2013
+#
+# Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
+#              tribute ONLY as 100% free and keeping the credits.
+#-------------------------------------------------------------------------------
 
 from PyQt4.QtGui import *
 
@@ -16,7 +22,7 @@ class FieldInfo(object):
         :type: str. Used for validation of inputs.
         :range: str. Imposes limits for values of input.
         :widget: str. Set the
-    
+
     __init__
     """
     VALID_TYPES = ['int', 'float', 'char', 'const']

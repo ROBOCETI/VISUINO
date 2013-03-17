@@ -6,27 +6,26 @@
 #
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
 #
-#              VISUINO - Copyright (C) 2013
+#              This file is part of VISUINO project - Copyright (C) 2013
 #
-# Licence:     BEERWARE. Its simple: use and modify as you please, and redis-
+# Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
-#              If I'm in town, you can buy me a beer sometime.
-#
-#              YOU CANNOT MODIFY THIS AND SELL IT!! IF YOU DO, I'LL MAKE A
-#              DEAL WITH THE DEVIL FOR HIM TO CHASE YOU FOR THE ETERNITY!!!
 #-------------------------------------------------------------------------------
-
 from __future__ import division
-import sys
+
+__all__ = ['StyleBlockFunctionCall', 'GxIoInsertionMarker', 'GxIoColliPath', \
+           'GxArgLabel', 'GxBlockFunctionCall']
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from PyQt4.QtSvg import *
 
-from bases import *
-from field_info import *
-from shapes import *
-from utils import *
+from visuino.gui import FieldInfo
+
+from visuino.gx.bases import *
+from visuino.gx.shapes import *
+from visuino.gx.utils import *
+
+import sys
 
 class StyleBlockFunctionCall(object):
     '''
@@ -71,15 +70,10 @@ class GxIoInsertionMarker(QGraphicsPathItem):
     Insertion marker meant to be shown when of the collision male/female
     IO notches.
     '''
-
     def __init__(self, color, notch_size, notch_shape, scene):
+        ''' (QColor, QSize, str in NotchIOPath.VALID_SHAPES,
+             QGraphicsScene) -> NoneType
         '''
-        :color: any valid for QColor.__init__().
-        :notch_size: QSize.
-        :notch_shape: str, valid for <shapes.NotchIOPath>.
-        :scene: QGraphicsScene.
-        '''
-
         self._pen = QPen(QColor(color), 8, Qt.SolidLine, Qt.RoundCap,
                          Qt.RoundJoin)
 
@@ -90,8 +84,8 @@ class GxIoInsertionMarker(QGraphicsPathItem):
         path = GxPainterPath(QPointF(iow + pw, pw))
         path.lineToInc(dy = DY)
         self.io_notch_start_y = path.currentPosition().y()
-        path.connectPath(NotchIOPath(path.currentPosition(),
-                                     notch_size, notch_shape , False))
+        path.connectPath(NotchPath(path.currentPosition(), QSizeF(iow, ioh),
+                         notch_shape, '+j', facing='left'))
         path.lineToInc(dy = DY)
 
         QGraphicsPathItem.__init__(self, path, None, scene)
@@ -297,17 +291,17 @@ class GxArgLabel(QGraphicsItem):
 
         path = GxPainterPath(QPointF(W, bw))    # start: top-right corner
         path.lineTo(self._io_notch_start)
-        path.connectPath(NotchIOPath(path.currentPosition(), (iow, ioh),
-                         self._style.io_notch_shape, clockwise=False))
+        path.connectPath(NotchPath(path.currentPosition(), QSizeF(iow, ioh),
+                         self._style.io_notch_shape, '+j', facing='left'))
         path.lineTo(W, H)
         path.lineTo(bw + cw, H)
-        path.connectPath(CornerPath(QPointF(bw, H), 'bottom-left',
-                                    QSize(cw, ch), self._style.arg_corner_shape,
-                                    clockwise=True))
+        path.connectPath(CornerPath(path.currentPosition(), QSizeF(cw, ch),
+                                    self._style.arg_corner_shape,
+                                    'bottom-left', clockwise=True))
         path.lineTo(bw, bw + ch)
-        path.connectPath(CornerPath(QPointF(bw, bw), 'top-left',
-                                    QSize(cw, ch), self._style.arg_corner_shape,
-                                    clockwise=True))
+        path.connectPath(CornerPath(path.currentPosition(), QSizeF(cw, ch),
+                                    self._style.arg_corner_shape,
+                                    'top-left', clockwise=True))
         path.lineTo(W, bw)
         path.moveTo(W, H)   # end point is the bottom-right corner
 
@@ -534,15 +528,14 @@ class GxBlockFunctionCall(QGraphicsItem):
 
         if not self._return:
             path.lineToInc(dx = self._style.vf_notch_x0)
-            path.connectPath(NotchVFPath(path.currentPosition(),
-                                         self._style.vf_notch_size,
-                                         self._style.vf_notch_shape,
-                                         clockwise=False))
+            path.connectPath(NotchPath(path.currentPosition(), QSizeF(vfw, vfh),
+                         self._style.vf_notch_shape, '+i', facing='down'))
 
         path.lineTo(W - cw, path.currentPosition().y())
 
-        path.connectPath(CornerPath(QPointF(W, y0), 'top-right', QSizeF(cw, ch),
-                                    self._style.corner_shape, clockwise=True))
+        path.connectPath(CornerPath(path.currentPosition(), QSizeF(cw, ch),
+                                    self._style.corner_shape,
+                                    'top-right', clockwise=True))
 
         if self._args:
             path.lineTo(path.currentPosition().x(),
@@ -557,25 +550,20 @@ class GxBlockFunctionCall(QGraphicsItem):
             path.lineTo(path.currentPosition().x(),
                         self._name_rect.bottom() - ch)
 
-        # setup bottom right corner point (br_cp)
-        path.connectPath(CornerPath(
-            QPointF(path.currentPosition().x(),
-                    path.currentPosition().y() + ch),
-            'bottom-right', QSizeF(cw, ch), self._style.corner_shape,
-            clockwise=True))
+        path.connectPath(CornerPath(path.currentPosition(), QSizeF(cw, ch),
+                                    self._style.corner_shape,
+                                    'bottom-right', clockwise=True))
 
         if not self._return:
             path.lineTo(x0 + self._style.vf_notch_x0 + vfw,
                         path.currentPosition().y())
-            path.connectPath(NotchVFPath(path.currentPosition(),
-                                         self._style.vf_notch_size,
-                                         self._style.vf_notch_shape,
-                                         clockwise=True))
+            path.connectPath(NotchPath(path.currentPosition(), QSizeF(vfw, vfh),
+                         self._style.vf_notch_shape, '-i', facing='down'))
 
         path.lineTo(x0, path.currentPosition().y())
-        path.connectPath(CornerPath(QPointF(x0 - cw, path.currentPosition().y()),
-                                    'bottom-left', QSizeF(cw, ch),
-                                    shape_corner_io, clockwise=True))
+        path.connectPath(CornerPath(path.currentPosition(), QSizeF(cw, ch),
+                                    self._style.corner_shape,
+                                    'bottom-left', clockwise=True))
 
         if self._return:
             path.lineTo(path.currentPosition().x(),
@@ -583,17 +571,15 @@ class GxBlockFunctionCall(QGraphicsItem):
                         + ioh/2)
             self._io_notch_start = QPointF(path.currentPosition().x(),
                                            path.currentPosition().y() - ioh)
-            path.connectPath(NotchIOPath(path.currentPosition(),
-                                         self._style.io_notch_size,
-                                         self._style.io_notch_shape,
-                                         clockwise=True))
+            path.connectPath(NotchPath(path.currentPosition(), QSizeF(iow, ioh),
+                             self._style.io_notch_shape, '-j', facing='left'))
             path.lineTo(path.currentPosition().x(), y0 + ch)
         else:
             path.lineTo(path.currentPosition().x(), y0 + max(ch, vfh))
 
-        path.connectPath(CornerPath(QPointF(path.currentPosition().x(), y0),
-                                    'top-left', QSizeF(cw, ch),
-                                    shape_corner_io, clockwise=True))
+        path.connectPath(CornerPath(path.currentPosition(), QSizeF(cw, ch),
+                                    self._style.corner_shape,
+                                    'top-left', clockwise=True))
         self._border_path = path
 
         # -------------------------------------------------------------
@@ -688,8 +674,8 @@ class GxBlockFunctionCall(QGraphicsItem):
                 # saves the parent object for effactuation of the IO link
                 self._io_parent = colli_path.parentItem()
 
-                print "%s ---> %s" % (self._name,
-                                      self._io_parent._field_info.name)
+                print("%s ---> %s" % (self._name,
+                                      self._io_parent._field_info.name))
 
             if self._io_insert_mark:
                 # keep the marker's position updated and also, upfront
@@ -725,6 +711,7 @@ class GxBlockFunctionCall(QGraphicsItem):
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
+
     win = QMainWindow()
     win.setGeometry(200, 100, 800, 600)
 
@@ -775,10 +762,6 @@ if __name__ == '__main__':
         StyleBlockFunctionCall(), scene)
     block_pulse_in.setPos(400, 0)
     block_pulse_in.setFlags(QGraphicsItem.ItemIsMovable)
-
-##    io_marker = GxInsertMarkNotchIO('black', [10, 20], 'arc', scene)
-##    io_marker.setPos(250, 200)
-##    io_marker.setFlags(QGraphicsItem.ItemIsMovable)
 
     view = GxView(scene, parent=win)
 
