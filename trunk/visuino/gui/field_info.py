@@ -10,10 +10,9 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
+__all__ = ['FieldInfo']
 
 from PyQt4.QtGui import *
-
-__all__ = ['FieldInfo']
 
 class FieldInfo(object):
     """

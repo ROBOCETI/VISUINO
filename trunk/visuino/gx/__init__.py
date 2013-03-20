@@ -1,8 +1,4 @@
-print('Init gx...')
-
-from . import bases
-from . import shapes
-from . import blocks
-from . import utils
-
-print('Loaded gx!')
+'''
+Provides all things related to the Graphics View Framework of PyQt.
+Mainly, we talk about objects that inherit QGraphicsItem.
+'''

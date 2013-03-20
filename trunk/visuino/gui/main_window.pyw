@@ -10,63 +10,49 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
-
 __all__ = ['MainWindow', 'AppVisuino']
 
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-
+from PyQt4 import QtGui, QtCore
 import sys
 
-from visuino.gx.bases import *
+from visuino.gx.palette import *
+from visuino.gx.blocks import *
 
-class BlocksView(GxView):
-    def __init__(self, parent):
-        QGraphicsView.__init__(self, GxScene(parent=parent), parent)
-        self.wheel_zoom = False
 
-class MainWindow(QMainWindow):
+class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
-        QMainWindow.__init__(self, parent)
+        QtGui.QMainWindow.__init__(self, parent)
         self.initUI()
 
     def initUI(self):
 
         # --- Blocks Area ------------------------------------------------
 
-        self.wg_area_blocks = QWidget(self)
-
-        self.wg_blocks_view = BlocksView(parent=self)
-        self.wg_pallete_area = QWidget(self)
-        self.wg_pallete_area.setFixedWidth(200)
-
-        hl = QHBoxLayout()
-        hl.addWidget(self.wg_pallete_area)
-        hl.addWidget(self.wg_blocks_view)
-        self.wg_area_blocks.setLayout(hl)
+        self.wg_blocks_view = QtGui.QWidget(self)
+        self.wg_blocks_view = GxPaletteView(parent=self)
 
         # --- Code Area --------------------------------------------------
 
-        self.wg_area_code = QWidget(self)
+        self.wg_area_code = QtGui.QWidget(self)
 
         # ----------------------------------------------------------------
 
-        self.wg_main_tab = QTabWidget()
-        self.wg_main_tab.addTab(self.wg_area_blocks, 'Blocks')
+        self.wg_main_tab = QtGui.QTabWidget()
+        self.wg_main_tab.addTab(self.wg_blocks_view, 'Blocks')
         self.wg_main_tab.addTab(self.wg_area_code, 'Code')
 
         self.setCentralWidget(self.wg_main_tab)
         self.setGeometry(200, 100, 1000, 600)
 
 
-class AppVisuino(QApplication):
+class AppVisuino(QtGui.QApplication):
     def __init__(self, argv):
-        QApplication.__init__(self, argv)
-        self.setStyle(QStyleFactory.create('Plastique'))
+        QtGui.QApplication.__init__(self, argv)
+        self.setStyle(QtGui.QStyleFactory.create('Plastique'))
 
     def execute(self):
-        splash_pix = QPixmap('splash_loading.png')
-        splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
+        splash_pix = QtGui.QPixmap('splash_loading.png')
+        splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
         splash.setMask(splash_pix.mask())
         splash.show()
         self.processEvents()

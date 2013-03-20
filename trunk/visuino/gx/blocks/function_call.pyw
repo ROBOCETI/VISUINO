@@ -18,14 +18,13 @@ __all__ = ['StyleBlockFunctionCall', 'GxIoInsertionMarker', 'GxIoColliPath', \
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+import sys
 
 from visuino.gui import FieldInfo
-
 from visuino.gx.bases import *
 from visuino.gx.shapes import *
 from visuino.gx.utils import *
 
-import sys
 
 class StyleBlockFunctionCall(object):
     '''
@@ -346,6 +345,11 @@ class GxArgLabel(QGraphicsItem):
 
             self.updateMetrics(restore_height=True)
 
+    def cloneMe(self):
+        parent = self.parentItem()
+        if isinstance(parent, GxBlockFunctionCall):
+            return parent.cloneMe()
+
 
 
 class GxBlockFunctionCall(QGraphicsItem):
@@ -614,6 +618,10 @@ class GxBlockFunctionCall(QGraphicsItem):
 ##        painter.setBrush(Qt.transparent)
 ##        painter.drawRect(self.boundingRect())
 
+    def cloneMe(self):
+        return GxBlockFunctionCall(self._name, self._args, self._return,
+                                   self._style)
+
     def mousePressEvent(self, event):
         ''' QGraphicsItem.mousePressEvent(QGraphicsSceneMouseEvent)
             -> NoneType
@@ -636,6 +644,16 @@ class GxBlockFunctionCall(QGraphicsItem):
             -> NoneType
         '''
         QGraphicsItem.mouseReleaseEvent(self, event)
+
+##        mouse_grabber = self.scene().mouseGrabberItem()
+##        if mouse_grabber and mouse_grabber is self:
+##            self.ungrabMouse()
+##
+##        colli_palette = [x for x in self.scene().collidingItems(self)
+##                           if isinstance(x, GxPalette)]
+##        if colli_palette:
+##            self.scene().removeItem(self)
+
         if self._return:
             self._ioConnect()
 

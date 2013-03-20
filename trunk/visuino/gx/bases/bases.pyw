@@ -16,7 +16,6 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free. Also, remember to keep the credits.
 #-------------------------------------------------------------------------------
-
 __all__ = ['GxView', 'GxScene', 'GxProxyToFront']
 
 from PyQt4.QtGui import *
@@ -24,9 +23,6 @@ from PyQt4.QtCore import *
 from PyQt4.QtOpenGL import QGLWidget
 
 import sys
-
-##from PySide.QtGui import *        ##TODO: Test porting to PySide (get the
-##from PySide.QtCore import *       #       pros and cons).
 
 class GxView(QGraphicsView):
     '''

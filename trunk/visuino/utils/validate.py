@@ -12,7 +12,6 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
-
 __all__ = ['validate_arg']
 
 def validate_arg(arg_name, value, type_, restricted=None, range_=None):

@@ -10,7 +10,6 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
-
 __all__ = ['GxPainterPath', 'gx_item_to_svg']
 
 from PyQt4.QtGui import *

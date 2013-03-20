@@ -1,9 +1,7 @@
-print('Init visuino...')
-
-from . import gx
-from . import gui
+'''
+The VISUINO project presents an a friendly user interface for visual
+programming of the Arduino platform.
+'''
 
 from .main import *
 del main
-
-print('Loaded visuino!')

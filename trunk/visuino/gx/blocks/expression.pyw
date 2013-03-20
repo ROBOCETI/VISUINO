@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Purpose:     Implements Function Call Blocks with full customization and
-#              input/output connections.
+# Purpose:
 #
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
 #
@@ -15,7 +14,6 @@ from __future__ import division
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-
 import sys
 
 from visuino.gx.bases import *

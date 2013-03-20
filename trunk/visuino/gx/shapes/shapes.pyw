@@ -15,16 +15,16 @@
 #-------------------------------------------------------------------------------
 from __future__ import division
 
-import sys
+__all__ = ['CornerPath', 'NotchPath', '_AppExampleShapes']
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+import sys
 
 from visuino.gx.bases import *
-from visuino.utils import *
 from visuino.gx.utils import *
+from visuino.utils import *
 
-__all__ = ['CornerPath', 'NotchPath']
 
 class CornerPath(GxPainterPath):
     '''
@@ -678,10 +678,19 @@ class ExampleMainWindow(QMainWindow):
                 (follow_corner, dimension)).setValue(value)
         self.gx_example_path.updateMetrics()
 
-if __name__ == '__main__':
 
+def _AppExampleShapes():
+    ''' () -> NoneType
+
+    Executes some simple example PyQt application that uses the resources
+    of this module.
+    '''
     app = QApplication(sys.argv)
-    app.setStyle(QtGui.QStyleFactory.create("plastique"))
-    win = ExampleMainWindow()
-    win.show()
+    app.setStyle(QStyleFactory.create("plastique"))
+    window = ExampleMainWindow()
+    window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    _AppExampleShapes()

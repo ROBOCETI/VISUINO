@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Purpose:     Implements Function Call Blocks with full customization and
-#              input/output connections.
+# Purpose:     Simply calls the VISUINO application. Also makes available the
+#              execute() function, from which you can simply do:
+#                  >>> import visuino
+#                  >>> visuino.execute()     # will launch the application
 #
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
 #
@@ -11,15 +13,16 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
-
 __all__ = ['execute']
 
-import visuino
 import sys
 
+from visuino.gui import AppVisuino
+
+
 def execute():
-    app = visuino.gui.AppVisuino(sys.argv)
-    app.execute()
+    AppVisuino(sys.argv).execute()
+
 
 if __name__ == '__main__':
     execute()
