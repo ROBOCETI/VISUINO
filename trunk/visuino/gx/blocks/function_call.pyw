@@ -210,6 +210,14 @@ class GxArgLabel(QGraphicsItem):
         '''
         return self._border_path
 
+    def pos(self):
+        ''' () -> QPointF
+        '''
+        if self.parentItem():
+            return self.parentItem().pos()
+        else:
+            return QGraphicsItem.pos(self)
+
     def paint(self, painter, option=None, widget=None):
         ''' QGraphicsItem.paint(QPainter, QStyleOptionGrpahicsItem,
                                 QWidget) -> NoneType
@@ -319,7 +327,8 @@ class GxArgLabel(QGraphicsItem):
         Its metrics are updated to match the height of the child, and also
         the child position is also aligned properly.
         '''
-        self._io_child = child
+        if not isinstance(child, QGraphicsItem): return
+
         child.setParentItem(self)
 
         self.updateMetrics(None, child.getIoNotchStart().y() \
@@ -330,20 +339,21 @@ class GxArgLabel(QGraphicsItem):
                      -child.getIoNotchStart().y() + child._MARGIN_PADDING
                      - self._style.border_width)
 
-    def plugOut(self):
+    def plugOut(self, child):
         ''' () -> NoneType
 
         Remove the child block connected to it, if any.
         Its height is then restored.
         '''
-        if self._io_child:
-            pos = self.mapToScene(self._io_child.pos())
-            self._io_child.setParentItem(None)
-            self._io_child.setPos(pos)
-            self._io_child.updateMetrics()
-            self._io_child = None
+        if not isinstance(child, QGraphicsItem): return
 
-            self.updateMetrics(restore_height=True)
+        pos = self.mapToScene(child.pos())
+        child.setParentItem(None)
+        child.setPos(pos)
+        child.scene().addItem(child)
+        child.updateMetrics()
+
+        self.updateMetrics(restore_height=True)
 
     def cloneMe(self):
         parent = self.parentItem()
@@ -383,6 +393,8 @@ class GxBlockFunctionCall(QGraphicsItem):
         self._args = args
         self._return = return_
         self._style = style
+        self.new_block = False
+        self.palette = None
 
         self._width, self._height = 200, 100
 
@@ -627,6 +639,7 @@ class GxBlockFunctionCall(QGraphicsItem):
             -> NoneType
         '''
         QGraphicsItem.mousePressEvent(self, event)
+        self._paletteCollide()
         if self._return:
             self._ioRemove()
             self._ioCollide()
@@ -636,8 +649,10 @@ class GxBlockFunctionCall(QGraphicsItem):
             -> NoneType
         '''
         QGraphicsItem.mouseMoveEvent(self, event)
+        self._paletteCollide()
         if self._return:
             self._ioCollide()
+
 
     def mouseReleaseEvent(self, event):
         ''' QGraphicsItem.mouseReleaseEvent(QGraphicsSceneMouseEvent)
@@ -645,14 +660,13 @@ class GxBlockFunctionCall(QGraphicsItem):
         '''
         QGraphicsItem.mouseReleaseEvent(self, event)
 
-##        mouse_grabber = self.scene().mouseGrabberItem()
-##        if mouse_grabber and mouse_grabber is self:
-##            self.ungrabMouse()
-##
-##        colli_palette = [x for x in self.scene().collidingItems(self)
-##                           if isinstance(x, GxPalette)]
-##        if colli_palette:
-##            self.scene().removeItem(self)
+        mouse_grabber = self.scene().mouseGrabberItem()
+        if mouse_grabber and mouse_grabber is self:
+            self.ungrabMouse()
+
+        if [x for x in self.scene().collidingItems(self)
+            if x.__class__.__name__ == 'GxPalette']:
+            self.scene().removeItem(self)
 
         if self._return:
             self._ioConnect()
@@ -712,6 +726,7 @@ class GxBlockFunctionCall(QGraphicsItem):
         '''
         if isinstance(self._io_parent, GxArgLabel):
             self._io_parent.plugIn(self)
+            print(self.parentItem())
 
         self._cleanInsertMarker()
 
@@ -720,10 +735,21 @@ class GxBlockFunctionCall(QGraphicsItem):
 
         Remove the io_parent, if any, by calling plugOut() on it.
         '''
-        parent = self.parentItem()
-
         if isinstance(self.parentItem(), GxArgLabel):
-            parent.plugOut()
+            self.parentItem().plugOut(self)
+
+    def _paletteCollide(self):
+        ''' () -> NoneType
+        '''
+        if [x for x in self.scene().collidingItems(self)
+            if x.__class__.__name__ == 'GxPalette']:
+            if not self.new_block and self.palette:
+                self.setCursor(self.palette.cursor_collide)
+        else:
+            self.new_block = False
+            self.setCursor(QCursor(Qt.ArrowCursor))
+
+
 
 
 if __name__ == '__main__':

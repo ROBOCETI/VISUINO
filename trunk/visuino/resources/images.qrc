@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0"> 
+<qresource prefix="/"> 
+        <file>add.ico</file> 
+</qresource> 
+<qresource prefix="/"> 
+        <file>trash-icon.png</file> 
+</qresource> 
+</RCC> 

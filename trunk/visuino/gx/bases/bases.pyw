@@ -151,6 +151,21 @@ class GxScene(QGraphicsScene):
             self._top_item['z'] = item.zValue()
             self._top_item['item'] = item
 
+    def drawBackground(self, painter, rect):
+        ''' QtGui.QGraphicsScene.drawBrackground(
+            QPainter, QRectF) -> NoneType
+
+        rect: Exposed rectangle.
+        '''
+        painter.setPen(QPen(QColor(203, 203, 203)))
+        painter.fillRect(rect, QColor(219, 219, 219))
+
+        W, H = self.sceneRect().width(), self.sceneRect().height()
+        for i in range(1, int(W), 20):
+            painter.drawLine(i, 0, i, H)
+        for j in range(1, int(H), 20):
+            painter.drawLine(0, j, W, j)
+
 
 class GxProxyToFront(QGraphicsProxyWidget):
     '''
