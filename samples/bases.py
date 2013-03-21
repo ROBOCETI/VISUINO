@@ -1,10 +1,10 @@
-﻿#-------------------------------------------------------------------------------
-# Name:        bases.py
-# Author:      Nelso G. Jost (nelsojost@gmail.com)
-#
-# Purpose:     Holds basic implementations for views and scenes.
+﻿#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-#!/usr/bin/env python
+# Purpose:
+#
+# Author:      Nelso G. Jost (nelsojost@gmail.com)
+#-------------------------------------------------------------------------------
 
 import sys
 
@@ -37,7 +37,7 @@ class BaseView(QGraphicsView):
 
         # click on the background to drag the whole scene
         self.setDragMode(QGraphicsView.RubberBandDrag)
-        
+
         self.centerOn(0, 0)
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
@@ -62,14 +62,14 @@ class BaseView(QGraphicsView):
 
             if factor < 1: self.zoom_level -= 1
             else: self.zoom_level += 1
-            
+
 #            grabber = self.scene().mouseGrabberItem()
 #            print "Grabber: ", grabber
 #            if grabber:
 #                self.centerOn(grabber.pos())
 #                print "Centralizou no grabber.."
 
-            print "Zoom level:", self.zoom_level
+            print("Zoom level:", self.zoom_level)
 
 
 class BaseScene(QGraphicsScene):
@@ -100,11 +100,11 @@ class BaseScene(QGraphicsScene):
 #
 #        item = self.itemAt(event.scenePos())
 #        if isinstance(item, QGraphicsItem) and item.isSelected():
-            
+
 
     def mousePressEvent(self, event):
         QGraphicsScene.mousePressEvent(self, event)
-        
+
         grabber = self.mouseGrabberItem()
 
         if grabber and self._click_to_front:
@@ -163,7 +163,7 @@ if __name__ == '__main__':
                   QGraphicsItem.ItemIsMovable)
 
     view = BaseView(scene, parent=win)
-    
+
     win.setCentralWidget(view)
     win.show()
     sys.exit(app.exec_())

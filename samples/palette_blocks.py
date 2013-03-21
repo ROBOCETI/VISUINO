@@ -1,9 +1,10 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Jan 25 21:44:12 2013
-
-@author: Nelso
-"""
+#-------------------------------------------------------------------------------
+# Purpose:
+#
+# Author:      Nelso G. Jost (nelsojost@gmail.com)
+#-------------------------------------------------------------------------------
 
 import sys
 from PyQt4.QtGui import *
@@ -76,7 +77,7 @@ class GxBlock(QGraphicsItem):
         colli = [x for x in self.scene().collidingItems(self)
                    if isinstance(x, GxBlock)]
         if colli and colli[0] is not self._last_colli:
-            print "Collided with \'%s\' (%d)." % (colli[0]._name, id(colli[0]))
+            print("Collided with \'%s\' (%d)." % (colli[0]._name, id(colli[0])))
             self._last_colli = colli[0]
 
     def mouseReleaseEvent(self, event):
@@ -131,18 +132,19 @@ class GxPalette(QGraphicsProxyWidget):
 
             if xml.isStartElement() and xml.name() == "blocks":
                 attr = xml.attributes()
+
                 if attr.hasAttribute("font_family"):
-                    font_blocks["family"] = attr.value("font_family").toString()
+                    font_blocks["family"] = attr.value("font_family")
                 if attr.hasAttribute("font_size"):
-                    font_blocks["size"] = attr.value("font_size").toString()
+                    font_blocks["size"] = attr.value("font_size")
 
             if xml.isStartElement() and xml.name() == "block":
                 attr = xml.attributes()
 
                 blocks.append({
-                    "name": attr.value("name").toString(),
-                    "bk_color": attr.value("bk_color").toString(),
-                    "font_color": attr.value("font_color").toString()})
+                    "name": attr.value("name"),
+                    "bk_color": attr.value("bk_color"),
+                    "font_color": attr.value("font_color")})
 
             xml.readNextStartElement()
 
@@ -171,7 +173,7 @@ class GxPalette(QGraphicsProxyWidget):
         new_block.setPos(block_icon.pos().x() + 1, block_icon.pos().y() + 1)
         new_block.grabMouse()
 
-        print "Created new block..."
+        print("Created new block...")
 
 
 if __name__ == '__main__':
