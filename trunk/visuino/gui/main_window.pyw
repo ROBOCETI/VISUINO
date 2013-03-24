@@ -17,6 +17,7 @@ import sys
 
 from visuino.gx.palette import *
 from visuino.gx.blocks import *
+from visuino.resources import *
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -29,7 +30,7 @@ class MainWindow(QtGui.QMainWindow):
         # --- Blocks Area ------------------------------------------------
 
         self.wg_blocks_view = QtGui.QWidget(self)
-        self.wg_blocks_view = GxPaletteView(parent=self)
+        self.wg_blocks_view = GxViewPalette(parent=self)
 
         # --- Code Area --------------------------------------------------
 
@@ -51,7 +52,7 @@ class AppVisuino(QtGui.QApplication):
         self.setStyle(QtGui.QStyleFactory.create('Plastique'))
 
     def execute(self):
-        splash_pix = QtGui.QPixmap('splash_loading.png')
+        splash_pix = QtGui.QPixmap(':splash_loading.png')
         splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
         splash.setMask(splash_pix.mask())
         splash.show()

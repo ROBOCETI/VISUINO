@@ -10,7 +10,7 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
-__all__ = ['GxPalette', 'GxPaletteView']
+__all__ = ['GxPalette', 'GxViewPalette']
 
 from PyQt4 import QtGui, QtCore
 import sys
@@ -27,17 +27,13 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
 
         self._scene = QtGui.QGraphicsScene()
         self._scene.setSceneRect(0, 0, 200, 1000)
-##        self._scene.setBackgroundBrush(QtGui.QBrush(
-##            QtGui.QColor(208, 214, 219)))
-##        self._scene.setBackgroundBrush(QtGui.QBrush(
-##            QtGui.QImage('slab.jpg')))
 
         grad = QtGui.QLinearGradient(QtCore.QPointF(0, 0),
                                      QtCore.QPointF(200, 0))
+        grad.setColorAt(0, QtGui.QColor('#444444'))
+        grad.setColorAt(0.3, QtCore.Qt.gray)
         grad.setColorAt(1, QtGui.QColor('#444444'))
-        grad.setColorAt(0, QtCore.Qt.gray)
         self._scene.setBackgroundBrush(QtGui.QBrush(grad))
-
 
         self._view = GxView(self._scene)
         self._view.wheel_zoom = False
@@ -46,9 +42,11 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
 
         self.setWidget(self._view)
 
-        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, False)
+        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, True)
 
         self.cursor_collide = QtGui.QCursor(QtGui.QPixmap(':trash-icon.png'))
+        self.cursor_add = QtGui.QCursor(
+            QtGui.QPixmap(':add-icon.png').scaled(48, 48))
 
         if isinstance(scene, QtGui.QGraphicsScene):
             scene.addItem(self)
@@ -110,33 +108,36 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
 
             icon_pos = QtCore.QPointF(block_icon.pos().x() + 2,
                                       block_icon.pos().y() + 2)
-
-            new_block.setPos(self._view.mapFromScene(icon_pos))
+            icon_mapped_pos = self._view.mapFromScene(block_icon.pos())
+            new_block.setPos(QtCore.QPointF(
+                self.pos().x() + icon_mapped_pos.x() + 2,
+                self.pos().y() + icon_mapped_pos.y() + 2))
 
             new_block.grabMouse()
-            new_block.setCursor(QtGui.QCursor(
-                QtGui.QPixmap(':add.ico').scaled(48, 48)))
+            new_block.setCursor(self.cursor_add)
 
 
-class GxPaletteView(GxView):
+class GxViewPalette(GxView):
     def __init__(self, parent=None, opengl=True):
         GxView.__init__(self, GxScene(), parent, opengl)
 
-        self.scene().setSceneRect(0, 0, 1000, 2000)
+        self.scene().setSceneRect(0, 0, 3000, 3000)
         self.scene().setParent(self)
         self.wheel_zoom = False
 
         self.palette = GxPalette(self.scene())
 
-        my_style = StyleBlockFunctionCall()
-
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
     def scrollContentsBy(self, x, y):
         QtGui.QGraphicsView.scrollContentsBy(self, x, y)
-        if x == 0:
-            self.palette.setPos(self.palette.pos().x(),
-                                self.mapToScene(0, 0).y())
+        self.palette.setPos(self.mapToScene(0, 0).x(),
+                            self.mapToScene(0, 0).y())
+        if x != 0:
+            self.scene().bringToFront(self.palette)
+
+    def resizeEvent(self, event):
+        QtGui.QGraphicsView.resizeEvent(self, event)
+        self.palette._view.setFixedHeight(self.height())
 
 
 if __name__ == '__main__':
@@ -146,7 +147,7 @@ if __name__ == '__main__':
     win = QtGui.QMainWindow()
     win.setGeometry(100, 100, 900, 600)
 
-    gx_palette_view = GxPaletteView(parent=win)
+    gx_palette_view = GxViewPalette(parent=win)
 
     win.setCentralWidget(gx_palette_view)
     win.show()

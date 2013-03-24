@@ -1,8 +1,7 @@
-<!DOCTYPE RCC><RCC version="1.0"> 
-<qresource prefix="/"> 
-        <file>add.ico</file> 
-</qresource> 
-<qresource prefix="/"> 
-        <file>trash-icon.png</file> 
-</qresource> 
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+    <file>add-icon.png</file>
+    <file>splash_loading.png</file>
+    <file>trash-icon.png</file></qresource>
+<!-- compile this from the command line "pyrcc4 -py3 images.qrc -o images.py" -->
 </RCC> 

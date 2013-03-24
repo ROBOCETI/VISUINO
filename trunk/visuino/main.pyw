@@ -18,6 +18,7 @@ __all__ = ['execute']
 import sys
 
 from visuino.gui import AppVisuino
+from visuino.resources import *
 
 
 def execute():
