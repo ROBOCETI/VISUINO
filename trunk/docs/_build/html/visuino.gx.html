@@ -48,137 +48,14 @@
             
   <div class="section" id="gx-package">
 <h1>gx Package<a class="headerlink" href="#gx-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-visuino.gx.dockable_expression">
-<span id="dockable-expression-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">dockable_expression</span></tt> Module<a class="headerlink" href="#module-visuino.gx.dockable_expression" title="Permalink to this headline">¶</a></h2>
-<p>&#64;author: Nelso G. Jost
-&#64;email: <a class="reference external" href="mailto:nelsojost&#37;&#52;&#48;gmail&#46;com">nelsojost<span>&#64;</span>gmail<span>&#46;</span>com</a>
-&#64;project: VISUINO - A visual programming toolkit for Arduino</p>
-<dl class="class">
-<dt id="visuino.gx.dockable_expression.NotchPath">
-<em class="property">class </em><tt class="descclassname">visuino.gx.dockable_expression.</tt><tt class="descname">NotchPath</tt><big>(</big><em>start_point=None</em>, <em>size=(50</em>, <em>100)</em>, <em>shape='trig'</em><big>)</big><a class="headerlink" href="#visuino.gx.dockable_expression.NotchPath" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QPainterPath</span></tt></p>
-<p>Path with shapes for the left/right puzzle-like slots.</p>
-<p>This path uses relative points so it can be easily connected to others
-paths. It was design for use as male RIGHT connector, and female LEFT.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="visuino.gx.dockable_expression.CornerPath">
-<em class="property">class </em><tt class="descclassname">visuino.gx.dockable_expression.</tt><tt class="descname">CornerPath</tt><big>(</big><em>origin</em>, <em>place</em>, <em>size</em>, <em>style='rect'</em><big>)</big><a class="headerlink" href="#visuino.gx.dockable_expression.CornerPath" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QPainterPath</span></tt></p>
-<p>Path for nice and easy corner drawings, with various shapes supporting.</p>
-<p>Just give it the corner point of the destination shape, and then it
-will figures out the relative dimensions and creates the path. Then
-you can append this with the destination path.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="visuino.gx.dockable_expression.GxShapeNotchLeft">
-<em class="property">class </em><tt class="descclassname">visuino.gx.dockable_expression.</tt><tt class="descname">GxShapeNotchLeft</tt><big>(</big><em>notch='rect'</em>, <em>scene=None</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#visuino.gx.dockable_expression.GxShapeNotchLeft" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QGraphicsItem</span></tt></p>
-<dl class="method">
-<dt id="visuino.gx.dockable_expression.GxShapeNotchLeft.boundingRect">
-<tt class="descname">boundingRect</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.gx.dockable_expression.GxShapeNotchLeft.boundingRect" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="visuino.gx.dockable_expression.GxShapeNotchLeft.paint">
-<tt class="descname">paint</tt><big>(</big><em>painter</em>, <em>option=None</em>, <em>widget=None</em><big>)</big><a class="headerlink" href="#visuino.gx.dockable_expression.GxShapeNotchLeft.paint" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
+<div class="section" id="dockable-expression-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">dockable_expression</span></tt> Module<a class="headerlink" href="#dockable-expression-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-visuino.gx.field_info">
-<span id="field-info-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">field_info</span></tt> Module<a class="headerlink" href="#module-visuino.gx.field_info" title="Permalink to this headline">¶</a></h2>
-<p>Created on Sat Jan 19 14:47:49 2013</p>
-<p>&#64;author: Nelso</p>
-<dl class="class">
-<dt id="visuino.gx.field_info.FieldInfo">
-<em class="property">class </em><tt class="descclassname">visuino.gx.field_info.</tt><tt class="descname">FieldInfo</tt><big>(</big><em>name</em>, <em>type_</em>, <em>range_</em>, <em>widget</em>, <em>description=''</em><big>)</big><a class="headerlink" href="#visuino.gx.field_info.FieldInfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
-<dl class="docutils">
-<dt>Attributes:</dt>
-<dd><table class="first last docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">name:</th><td class="field-body">str. Used for text label in arguments.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">type:</th><td class="field-body">str. Used for validation of inputs.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">range:</th><td class="field-body">str. Imposes limits for values of input.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">widget:</th><td class="field-body">str. Set the</td>
-</tr>
-</tbody>
-</table>
-</dd>
-</dl>
-<p>__init__</p>
-<dl class="attribute">
-<dt id="visuino.gx.field_info.FieldInfo.VALID_TYPES">
-<tt class="descname">VALID_TYPES</tt><em class="property"> = ['int', 'float', 'char', 'const']</em><a class="headerlink" href="#visuino.gx.field_info.FieldInfo.VALID_TYPES" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="visuino.gx.field_info.FieldInfo.getWidget">
-<tt class="descname">getWidget</tt><big>(</big><em>parent=None</em><big>)</big><a class="headerlink" href="#visuino.gx.field_info.FieldInfo.getWidget" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the proper widget for what is configured in self.widget
-attribute. The default widget is QLineEdit().</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parent :</th><td class="field-body">QWidget() &lt;None&gt;.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="field-info-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">field_info</span></tt> Module<a class="headerlink" href="#field-info-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-visuino.gx.shapes">
 <span id="shapes-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">shapes</span></tt> Module<a class="headerlink" href="#module-visuino.gx.shapes" title="Permalink to this headline">¶</a></h2>
-<p>&#64;author: Nelso G. Jost
-&#64;email: <a class="reference external" href="mailto:nelsojost&#37;&#52;&#48;gmail&#46;com">nelsojost<span>&#64;</span>gmail<span>&#46;</span>com</a>
-&#64;project: VISUINO - A visual programming toolkit for Arduino</p>
-<dl class="class">
-<dt id="visuino.gx.shapes.NotchPath">
-<em class="property">class </em><tt class="descclassname">visuino.gx.shapes.</tt><tt class="descname">NotchPath</tt><big>(</big><em>start_point=None</em>, <em>size=(50</em>, <em>100)</em>, <em>shape='trig'</em><big>)</big><a class="headerlink" href="#visuino.gx.shapes.NotchPath" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QPainterPath</span></tt></p>
-<p>Path with shapes for the left/right puzzle-like slots.</p>
-<p>This path uses relative points so it can be easily connected to others
-paths. It was design for use as male RIGHT connector, and female LEFT.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="visuino.gx.shapes.CornerPath">
-<em class="property">class </em><tt class="descclassname">visuino.gx.shapes.</tt><tt class="descname">CornerPath</tt><big>(</big><em>origin</em>, <em>place</em>, <em>size</em>, <em>style='rect'</em><big>)</big><a class="headerlink" href="#visuino.gx.shapes.CornerPath" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QPainterPath</span></tt></p>
-<p>Path for nice and easy corner drawings, with various shapes supporting.</p>
-<p>Just give it the corner point of the destination shape, and then it
-will figures out the relative dimensions and creates the path. Then
-you can append this with the destination path.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="visuino.gx.shapes.GxShapeNotchLeft">
-<em class="property">class </em><tt class="descclassname">visuino.gx.shapes.</tt><tt class="descname">GxShapeNotchLeft</tt><big>(</big><em>notch='rect'</em>, <em>scene=None</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#visuino.gx.shapes.GxShapeNotchLeft" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QGraphicsItem</span></tt></p>
-<dl class="method">
-<dt id="visuino.gx.shapes.GxShapeNotchLeft.boundingRect">
-<tt class="descname">boundingRect</tt><big>(</big><big>)</big><a class="headerlink" href="#visuino.gx.shapes.GxShapeNotchLeft.boundingRect" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="visuino.gx.shapes.GxShapeNotchLeft.paint">
-<tt class="descname">paint</tt><big>(</big><em>painter</em>, <em>option=None</em>, <em>widget=None</em><big>)</big><a class="headerlink" href="#visuino.gx.shapes.GxShapeNotchLeft.paint" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </div>
 </div>
 
@@ -191,8 +68,8 @@ you can append this with the destination path.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">gx Package</a><ul>
-<li><a class="reference internal" href="#module-visuino.gx.dockable_expression"><tt class="docutils literal"><span class="pre">dockable_expression</span></tt> Module</a></li>
-<li><a class="reference internal" href="#module-visuino.gx.field_info"><tt class="docutils literal"><span class="pre">field_info</span></tt> Module</a></li>
+<li><a class="reference internal" href="#dockable-expression-module"><tt class="docutils literal"><span class="pre">dockable_expression</span></tt> Module</a></li>
+<li><a class="reference internal" href="#field-info-module"><tt class="docutils literal"><span class="pre">field_info</span></tt> Module</a></li>
 <li><a class="reference internal" href="#module-visuino.gx.shapes"><tt class="docutils literal"><span class="pre">shapes</span></tt> Module</a></li>
 </ul>
 </li>

@@ -538,10 +538,6 @@ class GxBlockFunctionCall(QGraphicsItem):
 
         path = GxPainterPath(QPointF(x0, y0))   # start: top-left corner
 
-        shape_corner_io = self._style.corner_shape
-        if self._return and self.parentItem():
-            shape_corner_io = 'rect'
-
         if not self._return:
             path.lineToInc(dx = self._style.vf_notch_x0)
             path.connectPath(NotchPath(path.currentPosition(), QSizeF(vfw, vfh),

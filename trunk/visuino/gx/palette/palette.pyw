@@ -126,7 +126,7 @@ class GxViewPalette(GxView):
         self.wheel_zoom = False
 
         self.palette = GxPalette(self.scene())
-
+        
 
     def scrollContentsBy(self, x, y):
         QtGui.QGraphicsView.scrollContentsBy(self, x, y)
@@ -134,6 +134,7 @@ class GxViewPalette(GxView):
                             self.mapToScene(0, 0).y())
         if x != 0:
             self.scene().bringToFront(self.palette)
+
 
     def resizeEvent(self, event):
         QtGui.QGraphicsView.resizeEvent(self, event)
