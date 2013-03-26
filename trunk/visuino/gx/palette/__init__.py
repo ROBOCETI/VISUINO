@@ -1,2 +1,2 @@
 from .palette import *
-del palette
+#del palette

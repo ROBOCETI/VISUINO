@@ -21,9 +21,9 @@ from visuino.gui import AppVisuino
 from visuino.resources import *
 
 
-def execute():
-    AppVisuino(sys.argv).execute()
+def execute(opengl=False):
+    AppVisuino(sys.argv).execute(opengl)
 
 
 if __name__ == '__main__':
-    execute()
+    execute(opengl=True if sys.argv.count('-gl') else False)

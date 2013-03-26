@@ -21,16 +21,16 @@ from visuino.resources import *
 
 
 class MainWindow(QtGui.QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, opengl=False):
         QtGui.QMainWindow.__init__(self, parent)
-        self.initUI()
+        self.initUI(opengl)
 
-    def initUI(self):
+    def initUI(self, opengl):
 
         # --- Blocks Area ------------------------------------------------
 
         self.wg_blocks_view = QtGui.QWidget(self)
-        self.wg_blocks_view = GxViewPalette(parent=self)
+        self.wg_blocks_view = GxViewPalette(parent=self, opengl=opengl)
 
         # --- Code Area --------------------------------------------------
 
@@ -51,14 +51,14 @@ class AppVisuino(QtGui.QApplication):
         QtGui.QApplication.__init__(self, argv)
         self.setStyle(QtGui.QStyleFactory.create('Plastique'))
 
-    def execute(self):
+    def execute(self, opengl=False):
         splash_pix = QtGui.QPixmap(':splash_loading.png')
         splash = QtGui.QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
         splash.setMask(splash_pix.mask())
         splash.show()
         self.processEvents()
 
-        main_win = MainWindow()
+        main_win = MainWindow(opengl=opengl)
         main_win.show()
         splash.finish(main_win)
         sys.exit(self.exec_())

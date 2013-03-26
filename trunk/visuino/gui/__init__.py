@@ -1,5 +1,5 @@
 from .field_info import *
-del field_info
+#del field_info
 
 from .main_window import *
-del main_window
+#del main_window

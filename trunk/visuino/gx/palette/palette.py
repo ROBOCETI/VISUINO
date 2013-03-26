@@ -22,7 +22,7 @@ from visuino.resources import *
 
 
 class GxPalette(QtGui.QGraphicsProxyWidget):
-    def __init__(self, scene=None):
+    def __init__(self, scene=None, opengl=False):
         QtGui.QGraphicsProxyWidget.__init__(self)
 
         self._scene = QtGui.QGraphicsScene()
@@ -35,7 +35,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
         grad.setColorAt(1, QtGui.QColor('#444444'))
         self._scene.setBackgroundBrush(QtGui.QBrush(grad))
 
-        self._view = GxView(self._scene)
+        self._view = GxView(self._scene, opengl=opengl)
         self._view.wheel_zoom = False
         self._view.setGeometry(0, 0, 200, 600)
         self._view.setFrameShape(QtGui.QFrame.NoFrame)
@@ -118,14 +118,14 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
 
 
 class GxViewPalette(GxView):
-    def __init__(self, parent=None, opengl=True):
+    def __init__(self, parent=None, opengl=False):
         GxView.__init__(self, GxScene(), parent, opengl)
 
         self.scene().setSceneRect(0, 0, 3000, 3000)
         self.scene().setParent(self)
         self.wheel_zoom = False
 
-        self.palette = GxPalette(self.scene())
+        self.palette = GxPalette(self.scene(), opengl)
         
 
     def scrollContentsBy(self, x, y):

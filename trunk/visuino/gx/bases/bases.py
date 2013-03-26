@@ -20,7 +20,10 @@ __all__ = ['GxView', 'GxScene', 'GxProxyToFront']
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from PyQt4.QtOpenGL import QGLWidget
+try:
+    from PyQt4.QtOpenGL import QGLWidget
+except:
+    QGLWidget = None
 
 import sys
 
@@ -29,7 +32,7 @@ class GxView(QGraphicsView):
     Holds desired optimization flags for the project in general, and also
     offers wheel zooming functionality.
     '''
-    def __init__(self, scene=None, parent=None, opengl=True):
+    def __init__(self, scene=None, parent=None, opengl=False):
         ''' (QGraphicsScene, QWidget, bool) -> NoneType
         '''
         QGraphicsView.__init__(self, scene, parent)
@@ -39,7 +42,7 @@ class GxView(QGraphicsView):
         self.zoom_level = 0     # incr/decr by 1 according to scaling calls
                                 # just for monitoring purposes
 
-        if opengl:
+        if QGLWidget and opengl:
             self.setViewport(QGLWidget())     # uses OpenGL for rendering
 
 ##        self.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
