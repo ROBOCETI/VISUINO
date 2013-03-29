@@ -49,4 +49,5 @@ else:
 	print('\nFailed to compile the "%s" file!' % QRC_FILENAME)
 	print('Output "%s" was not created!' % OUTPUT_FILENAME)
 	
+print('\nFinished the tasks! Press any key to exit...')
 input()

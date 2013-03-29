@@ -1,10 +1,10 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Purpose:     Used to build an windows executable for the project, by using 
+# Purpose:     Used to build an windows executable for the project, by using
 #              cx_Freeze (http://cx-freeze.sourceforge.net/).
-#              Just run the following on the command line: 
-#              
+#              Just run the following on the command line:
+#
 #              > python setup.py build
 #
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
@@ -20,10 +20,11 @@ from cx_Freeze import setup, Executable
 includes = ['sip', 're', 'PyQt4.QtCore', 'PyQt4.QtGui']
 
 exe = Executable(
-    script='visuino/main.pyw',
+    script='visuino/main.py',
     base='Win32GUI',
 	compress=True,
-	targetName='visuino.exe'
+	targetName='Visuino.exe',
+	icon='visuino/resources/python_arduino.ico'
 )
 
 setup(
