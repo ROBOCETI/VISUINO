@@ -16,10 +16,11 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free. Also, remember to keep the credits.
 #-------------------------------------------------------------------------------
-__all__ = ['GxView', 'GxScene', 'GxProxyToFront']
+__all__ = ['GxView', 'GxScene']
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+
 try:
     from PyQt4.QtOpenGL import QGLWidget
 except:
@@ -29,16 +30,18 @@ import sys
 
 class GxView(QGraphicsView):
     '''
-    Holds desired optimization flags for the project in general, and also
+    Holds optimization flags for the project in general, and also
     offers wheel zooming functionality.
     '''
-    def __init__(self, scene=None, parent=None, opengl=False):
+    def __init__(self, scene=None, parent=None, opengl=False,
+                 wheel_zoom=False):
         ''' (QGraphicsScene, QWidget, bool) -> NoneType
         '''
         QGraphicsView.__init__(self, scene, parent)
 ##        QGraphicsView.__init__(self)  # for PySide
 
-        self.wheel_zoom = True  # activates wheel zooming functionality
+        # activates wheel zooming functionality
+        self.wheel_zoom = wheel_zoom
         self.zoom_level = 0     # incr/decr by 1 according to scaling calls
                                 # just for monitoring purposes
 
@@ -93,6 +96,10 @@ class GxScene(QGraphicsScene):
         '''
         QGraphicsScene.__init__(self, parent)
 
+        self.setSceneRect(0, 0, 800, 600)
+        self.setItemIndexMethod(QGraphicsScene.NoIndex)
+
+
 ##        scene.setItemIndexMethod(QGraphicsScene.NoIndex)
 
         # information about the top-most item (changes with "bringToFront")
@@ -103,9 +110,33 @@ class GxScene(QGraphicsScene):
         # if true, perform "self.bringToFront()" on the clicked item
         self._click_to_front = True
 
+        # holds all the collidable items
+        self._collides = set()
+
+        self._background_grid = True
+
         ##TODO: background grid option (is possible with brush styles?)
         self.setBackgroundBrush(QBrush(QColor(self._BK_COLOR)))
-        self.setSceneRect(0, 0, 800, 600)
+
+    def addCollidable(self, item):
+        ''' (QGraphicsItem) -> bool
+
+        Returns 'True' if successful.
+        '''
+        if isinstance(item, QGraphicsItem):
+            self._collides.add(item)
+            return True
+        return False
+
+    def getCollidables(self):
+        ''' () -> set()
+        '''
+        return self._collidables
+
+    def removeCollidable(self, item):
+        ''' (QGraphicsItem) -> NoneType
+        '''
+        self._collidables.remove(item)
 
     def mousePressEvent(self, event):
         ''' QGraphicsScene.mousePressEvent(QGraphicsSceneMouseEvent)
@@ -155,36 +186,17 @@ class GxScene(QGraphicsScene):
             self._top_item['item'] = item
 
     def drawBackground(self, painter, rect):
-        ''' QtGui.QGraphicsScene.drawBrackground(
-            QPainter, QRectF) -> NoneType
-
-        rect: Exposed rectangle.
+        ''' QGraphicsScene.drawBrackground(QPainter, QRectF) -> NoneType
         '''
-        painter.setPen(QPen(QColor(203, 203, 203)))
-        painter.fillRect(rect, QColor(219, 219, 219))
+        if self._background_grid:
+            painter.setPen(QPen(QColor(203, 203, 203)))
+            painter.fillRect(rect, QColor(219, 219, 219))
 
-        W, H = self.sceneRect().width(), self.sceneRect().height()
-        for i in range(1, int(W), 20):
-            painter.drawLine(i, 0, i, H)
-        for j in range(1, int(H), 20):
-            painter.drawLine(0, j, W, j)
-
-
-class GxProxyToFront(QGraphicsProxyWidget):
-    '''
-    When clicked on the scene, brings its parent item to the front.
-
-    Ps: Only works on GxScene.
-    '''
-    def mousePressEvent(self, event):
-        ''' QGraphicsItem.mousePressEvent(QGraphicsSceneMouseEvent)
-            -> NoneType
-        '''
-        QGraphicsProxyWidget.mousePressEvent(self, event)
-
-        if self.scene() and isinstance(self.scene(), GxScene) and \
-            self.parentItem():
-            self.scene().bringToFront(self.parentItem())
+            W, H = self.sceneRect().width(), self.sceneRect().height()
+            for i in range(1, int(W), 20):
+                painter.drawLine(i, 0, i, H)
+            for j in range(1, int(H), 20):
+                painter.drawLine(0, j, W, j)
 
 # -------------------------------------------------------------------------
 # all the defintions from here are just for demonstration, and not for
@@ -233,7 +245,7 @@ def config_item(item, pos=None, opengl=True):
         item.setPos(pos[0], pos[1])
 
 
-if __name__ == '__main__':
+def main():
 
     app = QApplication(sys.argv)
 
@@ -261,17 +273,17 @@ if __name__ == '__main__':
     example_item = GxExampleItem(scene)
     config_item(example_item, [420, 150])
 
-    # here is how you put a widget on the scene: first create the widget,
-    # then create a QGraphicsProxyWidget and set its parent to some item
-    # already on the scene
-    combobox = QComboBox()
-    combobox.addItems(['hello', 'pyqt', 'world'])
-    combobox.setFont(QFont('Verdana', 20))
-    proxy = GxProxyToFront(example_item)
-    proxy.setWidget(combobox)
-    proxy.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-    proxy.setPos(50, 20)    # note that those coordinates are in respect
-                            # with the proxy parent item (example_item)
+##    # here is how you put a widget on the scene: first create the widget,
+##    # then create a QGraphicsProxyWidget and set its parent to some item
+##    # already on the scene
+##    combobox = QComboBox()
+##    combobox.addItems(['hello', 'pyqt', 'world'])
+##    combobox.setFont(QFont('Verdana', 20))
+##    proxy = GxProxyToFront(example_item)
+##    proxy.setWidget(combobox)
+##    proxy.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+##    proxy.setPos(50, 20)    # note that those coordinates are in respect
+##                            # with the proxy parent item (example_item)
 
     # ---------------------------------------------------------------------
 
@@ -284,3 +296,6 @@ if __name__ == '__main__':
                                 # related to the size of the scene!
     win.show()
     sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    main()
