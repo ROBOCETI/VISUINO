@@ -10,11 +10,8 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-
-	modules.rst
-	visuino.gx.rst
-	visuino.rst
-	visuino.utils.rst
+   
+   modules.rst
 
 Indices and tables
 ==================

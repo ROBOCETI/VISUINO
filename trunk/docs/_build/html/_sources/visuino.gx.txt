@@ -1,27 +1,22 @@
 gx Package
 ==========
 
-:mod:`dockable_expression` Module
----------------------------------
+:mod:`gx` Package
+-----------------
 
-.. automodule:: visuino.gx.dockable_expression
+.. automodule:: visuino.gx
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`field_info` Module
-------------------------
+Subpackages
+-----------
 
-.. automodule:: visuino.gx.field_info
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. toctree::
 
-:mod:`shapes` Module
---------------------
-
-.. automodule:: visuino.gx.shapes
-    :members:
-    :undoc-members:
-    :show-inheritance:
+    visuino.gx.bases
+    visuino.gx.blocks
+    visuino.gx.palette
+    visuino.gx.shapes
+    visuino.gx.utils
 

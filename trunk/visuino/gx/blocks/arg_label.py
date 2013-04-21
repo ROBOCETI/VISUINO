@@ -86,6 +86,9 @@ class GxArgLabel(QGraphicsItem):
     def getWidth(self):
         return self._border_path.boundingRect().width()
 
+    def getHeight(self):
+        return self._border_path.boundingRect().height()
+
     def setFixedWidth(self, width):
         self._fixed_width = width
         self.updateMetrics()
@@ -109,9 +112,9 @@ class GxArgLabel(QGraphicsItem):
         painter.drawText(self._name_rect, Qt.AlignCenter, self._name)
 
         # drawing the name rectangle (for debugging purposes)
-        painter.setPen(Qt.DashLine)
-        painter.setBrush(Qt.transparent)
-        painter.drawRect(self._name_rect)
+##        painter.setPen(Qt.DashLine)
+##        painter.setBrush(Qt.transparent)
+##        painter.drawRect(self._name_rect)
 
 
     def updateMetrics(self):
@@ -135,8 +138,9 @@ class GxArgLabel(QGraphicsItem):
         cw, ch = self._style_label.getCornerSize()
         iow, ioh = self._style_notch.getIoNotchSize()
 
-        notch_shape = self._style_notch.io_notch_shape + '/' \
-                      + str(self._style_notch.io_notch_basis)
+        io_notch_shape = self._style_notch.io_notch_shape + '/' + \
+                         str(self._style_notch.io_notch_basis)
+        io_notch_size = QSizeF(iow, ioh)
         corner_shape = self._style_label.corner_shape
 
         # corner corrections (occours if corner rect intercepts name rect)
@@ -160,18 +164,10 @@ class GxArgLabel(QGraphicsItem):
 
         # starts on the top-right corner
         path = GxPainterPath(QPointF(W + bw, bw))
-
         path.lineToInc(dx = - W + cw)
-
-        path.connectPath(CornerPath(path.currentPosition(), corner_size,
-                                    corner_shape, 'top-left',
-                                    clockwise=False))
-
+        CornerPath.connect(path, corner_size, corner_shape, 'top-left', False)
         path.lineToInc(dy = H - 2*ch)
-
-        path.connectPath(CornerPath(path.currentPosition(), corner_size,
-                                    corner_shape, 'bottom-left',
-                                    clockwise=False))
+        CornerPath.connect(path, corner_size, corner_shape, 'bottom-left', False)
         path.lineToInc(dx = W - cw)
 
         if self._fixed_io_notch_y0 is None:
@@ -179,8 +175,7 @@ class GxArgLabel(QGraphicsItem):
         else:
             path.lineToInc(dy = - (H - self._fixed_io_notch_y0 - ioh))
 
-        path.connectPath(NotchPath(path.currentPosition(), QSizeF(iow, ioh),
-                                   notch_shape, '-j', 'left'))
+        NotchPath.connect(path, io_notch_size, io_notch_shape, '-j', 'left')
         self._io_notch_start = path.currentPosition()
         io_y0 = self._io_notch_start.y()
 
@@ -193,7 +188,7 @@ class GxArgLabel(QGraphicsItem):
         self._name_rect = QRectF(2*bw, io_y0 + fvc - ((nh - ioh)/2),
                                  W - iow - bw, nh)
 
-        self.update()
+        self.update(self.boundingRect())
 
     def plugIn(self, child):
         self._fixed_height = child.getHeight()
@@ -251,11 +246,6 @@ class WinCustomizeArgLabel(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
 
         self.scene = GxScene()
-
-        text_item = self.scene.addText('\u265E', QFont('Times New Roman', 40))
-        text_item.setFlags(QGraphicsItem.ItemIsMovable)
-        text_item.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-
 
         sa = self.style_arg_label = StyleArgLabel()
         sn = self.style_notch = StyleNotch()

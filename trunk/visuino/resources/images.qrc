@@ -1,10 +1,12 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/">
-    <file>add-icon.png</file>
-    <file>martin_berube_snake.ico</file>
-    <file>python_arduino.ico</file>
-    <file>python_arduino.png</file>
     <file>splash_loading.png</file>
-    <file>trash-icon.png</file></qresource>
+    <file>delete_icon.png</file>
+    <file>python_arduino.ico</file>
+    <file>martin_berube_snake.ico</file>
+    <file>add_icon.png</file>
+    <file>python_arduino.png</file>
+    <file>trash-icon.png</file>
+    <file>add-icon.png</file></qresource>
 <!-- compile this from the command line "pyrcc4 -py3 images.qrc -o images.py" -->
 </RCC> 

@@ -17,3 +17,11 @@ utils Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`validate` Module
+----------------------
+
+.. automodule:: visuino.utils.validate
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

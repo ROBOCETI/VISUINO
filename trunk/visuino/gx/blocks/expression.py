@@ -10,7 +10,9 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
-from __future__ import division
+from __future__ import division, print_function
+
+__all__ = ['GxExpression']
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -18,7 +20,6 @@ import sys
 
 from visuino.gx.bases import *
 
-__all__ = ['GxExpression']
 
 class GxExpression(QGraphicsItem):
 

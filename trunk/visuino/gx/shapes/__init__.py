@@ -1,2 +1,2 @@
 from .shapes import *
-#del shapes
+del shapes

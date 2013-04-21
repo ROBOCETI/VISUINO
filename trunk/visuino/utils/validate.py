@@ -12,9 +12,9 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
-__all__ = ['validate_arg']
+__all__ = ['vlarg']
 
-def validate_arg(arg_name, value, type_, restricted=None, range_=None):
+def vlarg(arg_name, value, type_, restricted=None, range_=None):
     if not isinstance(value, type_):
         if isinstance(type_, (tuple, list)):
             types_str = "<class '%s'>" % type_[0].__name__

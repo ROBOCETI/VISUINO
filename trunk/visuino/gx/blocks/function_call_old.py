@@ -24,6 +24,9 @@ from visuino.gui import FieldInfo
 from visuino.gx.bases import *
 from visuino.gx.shapes import *
 from visuino.gx.utils import *
+from visuino.gx.connections import *
+from visuino.gx.styles import *
+
 
 
 class StyleBlockFunctionCall(object):
@@ -64,108 +67,6 @@ class StyleBlockFunctionCall(object):
         self.arg_font_size = 10
 
 
-class GxIoInsertionMarker(QGraphicsPathItem):
-    '''
-    Insertion marker meant to be shown when of the collision male/female
-    IO notches.
-    '''
-    def __init__(self, color, notch_size, notch_shape, scene):
-        ''' (QColor, QSize, str in NotchIOPath.VALID_SHAPES,
-             QGraphicsScene) -> NoneType
-        '''
-        self._pen = QPen(QColor(color), 8, Qt.SolidLine, Qt.RoundCap,
-                         Qt.RoundJoin)
-
-        pw = self._pen.width()
-        iow, ioh = notch_size
-        DY = ioh/2
-
-        path = GxPainterPath(QPointF(iow + pw, pw))
-        path.lineToInc(dy = DY)
-        self.io_notch_start_y = path.currentPosition().y()
-        path.connectPath(NotchPath(path.currentPosition(), QSizeF(iow, ioh),
-                         notch_shape, '+j', facing='left'))
-        path.lineToInc(dy = DY)
-
-        QGraphicsPathItem.__init__(self, path, None, scene)
-
-        self._width = iow + 2*pw
-        self._height = 2*DY + 2*pw + ioh
-
-        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-
-    def boundingRect(self):
-        ''' QGraphicsItem.boundingRect() -> QRectF
-        '''
-        return QRectF(0, 0, self._width, self._height)
-
-    def paint(self, painter, option=None, widget=None):
-        ''' QGraphicsItem.paint(QPainter, QStyleOptionGrpahicsItem,
-                                QWidget) -> NoneType
-        '''
-        painter.fillRect(self.boundingRect(), Qt.transparent)
-
-        painter.setPen(self._pen)
-        painter.setBrush(Qt.transparent)
-        painter.drawPath(self.path())
-
-##        painter.setPen(QPen(Qt.black))
-##        painter.setBrush(Qt.transparent)
-##        painter.drawRect(self.boundingRect())
-
-
-class GxIoColliPath(QGraphicsPathItem):
-    '''
-    Path used for detecting IO notch collisions.
-
-    Can be of the kind male ('M') or female ('F)', according with the type
-    of notch associated with it. The intersection of a moving male with a
-    female is collision-detected an then the insertion marker can be activated.
-    '''
-    _OUTLINE_COLOR = Qt.transparent
-
-    def __init__(self, kind, io_notch_size, io_notch_start, scene=None,
-                 parent=None):
-        ''' ('M'/'F', QSizeF, QPointF, QGraphicsScene,
-             QGraphicsItem) -> NoneType
-        '''
-        self._kind = str(kind).upper()
-        self._pen = QPen(QColor(self._OUTLINE_COLOR))
-
-        iow, ioh = io_notch_size.width(), io_notch_size.height()
-
-        if self.isFemale():
-            W, H = 1.3*iow, ioh/2
-        else:
-            W, H = 6, 4*ioh/5
-
-        path = QPainterPath()
-        path.addRect(0, 0, W, H)
-
-        QGraphicsPathItem.__init__(self, path, parent, scene)
-
-        self.setPos(io_notch_start.x() - W/2,
-                    io_notch_start.y() + ioh/2 - H/2)
-
-    def isMale(self):
-        ''' () -> bool
-        '''
-        return self._kind.upper() == 'M'
-
-    def isFemale(self):
-        ''' () -> bool
-        '''
-        return self._kind.upper() == 'F'
-
-    def paint(self, painter, option=None, widget=None):
-        ''' QGraphicsItem.paint(QPainter, QStyleOptionGrpahicsItem,
-                                QWidget) -> NoneType
-        '''
-        painter.setPen(self._pen)
-        painter.setBrush(Qt.transparent)
-        painter.drawPath(self.path())
-
-
 class GxArgLabel(QGraphicsItem):
     '''
     Label with the name of the an argument for the function call block.
@@ -197,6 +98,7 @@ class GxArgLabel(QGraphicsItem):
 
         self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
 ##        self.setFlag(QGraphicsItem.ItemClipsToShape, True)
+##        self.setVisible(False)
 
         self.child = None
 
@@ -795,16 +697,28 @@ if __name__ == '__main__':
     block_do_something.setPos(300, 500)
     block_do_something.setFlags(QGraphicsItem.ItemIsMovable)
 
-    block_pulse_in = GxBlockFunctionCall('pulseIn',
+    block_pulse_in_pai = GxBlockFunctionCall('pulseIn',
         [FieldInfo('pin', 'int', '0|', 'edit'),
          FieldInfo('value', 'int', '0|', 'edit'),
          FieldInfo('timeout', 'int', '0|', 'edit')],
         FieldInfo('pulse_lenght', 'int', '0|', 'edit'),
         StyleBlockFunctionCall(), scene)
-    block_pulse_in.setPos(400, 0)
-    block_pulse_in.setFlags(QGraphicsItem.ItemIsMovable)
+    block_pulse_in_pai.setFlags(QGraphicsItem.ItemIsMovable)
 
-    view = GxView(scene, parent=win)
+##    for i in range(1000):
+##        block_pulse_in = GxBlockFunctionCall('pulseIn',
+##            [FieldInfo('pin', 'int', '0|', 'edit'),
+##             FieldInfo('value', 'int', '0|', 'edit'),
+##             FieldInfo('timeout', 'int', '0|', 'edit')],
+##            FieldInfo('pulse_lenght', 'int', '0|', 'edit'),
+##            StyleBlockFunctionCall(), scene)
+##        block_pulse_in.setPos(400, 0)
+##        block_pulse_in.setFlags(QGraphicsItem.ItemIsMovable)
+##
+##        block_pulse_in.setParentItem(block_pulse_in_pai)
+##        block_pulse_in.setPos(40 + i*10, 40 + i * 10)
+
+    view = GxView(scene, parent=win, opengl=True)
 
     win.setCentralWidget(view)
     win.show()

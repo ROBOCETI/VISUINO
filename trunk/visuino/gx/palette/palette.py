@@ -17,6 +17,7 @@ import sys
 
 from visuino.gx.bases import *
 from visuino.gx.blocks import *
+from visuino.gx.styles import *
 from visuino.gui import *
 from visuino.resources import *
 
@@ -39,14 +40,16 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
         self._view.wheel_zoom = False
         self._view.setGeometry(0, 0, 200, 600)
         self._view.setFrameShape(QtGui.QFrame.NoFrame)
+        self._view.setDragMode(QtGui.QGraphicsView.NoDrag)
 
         self.setWidget(self._view)
 
         self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, True)
 
-        self.cursor_collide = QtGui.QCursor(QtGui.QPixmap(':trash-icon.png'))
+        self.cursor_collide = QtGui.QCursor(
+            QtGui.QPixmap(':delete_icon.png').scaled(64, 64))
         self.cursor_add = QtGui.QCursor(
-            QtGui.QPixmap(':add-icon.png').scaled(48, 48))
+            QtGui.QPixmap(':add_icon.png').scaled(64, 64))
 
         if isinstance(scene, QtGui.QGraphicsScene):
             scene.addItem(self)
@@ -54,42 +57,70 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
         self.setupBlocks()
 
     def setupBlocks(self):
+        sa = self._style_arg_label = StyleArgLabel()
+        sn = self._style_notch = StyleNotch()
+        sfc = self._style_function_call = StyleFunctionCall()
+
         y = 10
 
         block_pin_mode = GxBlockFunctionCall('pinMode',
             [FieldInfo('pin', 'int', '0|13', 'combobox'),
              FieldInfo('mode', 'const', 'INPUT,OUTPUT', 'combobox')],
-            None, StyleBlockFunctionCall(), self._scene)
+            None, sa, sn, sfc, self._scene)
         block_pin_mode.setPos(20, y)
+        block_pin_mode.setCursor(QtCore.Qt.OpenHandCursor)
+        block_pin_mode.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         y += block_pin_mode.boundingRect().height() + 10
 
         block_digital_read = GxBlockFunctionCall('digitalRead',
             [FieldInfo('pin', 'int', '0|13', 'combobox')],
             FieldInfo('value', 'int', 'HIGH,LOW', 'combobox'),
-            StyleBlockFunctionCall(), self._scene)
+            sa, sn, sfc, self._scene)
         block_digital_read.setPos(10, y)
+        block_digital_read.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         y += block_digital_read.boundingRect().height() + 10
 
         block_digital_write = GxBlockFunctionCall('digitalWrite',
             [FieldInfo('pin', 'int', '0|13', 'combobox'),
              FieldInfo('value', 'const', 'HIGH,LOW', 'combobox')],
-            None, StyleBlockFunctionCall(), self._scene)
+            None, sa, sn, sfc, self._scene)
         block_digital_write.setPos(20, y)
+        block_digital_write.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         y += block_digital_write.boundingRect().height() + 10
 
         block_analog_read = GxBlockFunctionCall('analogRead',
             [FieldInfo('pin', 'int', '0|13', 'combobox')],
             FieldInfo('value', 'int', '0|1023', 'combobox'),
-            StyleBlockFunctionCall(), self._scene)
+            sa, sn, sfc, self._scene)
         block_analog_read.setPos(10, y)
+        block_analog_read.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         y += block_analog_read.boundingRect().height() + 10
 
         block_analog_write = GxBlockFunctionCall('analogWrite',
             [FieldInfo('pin', 'int', '0|13', 'combobox'),
              FieldInfo('value', 'const', '0|255', 'combobox')],
-            None, StyleBlockFunctionCall(), self._scene)
+            None, sa, sn, sfc, self._scene)
         block_analog_write.setPos(20, y)
+        block_analog_write.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         y += block_analog_write.boundingRect().height() + 10
+
+        block_pulse_in = GxBlockFunctionCall('pulseIn',
+            [FieldInfo('pin', 'int', '0|', 'edit'),
+             FieldInfo('value', 'int', '0|', 'edit'),
+             FieldInfo('timeout', 'int', '0|', 'edit')],
+            FieldInfo('pulse_lenght', 'int', '0|', 'edit'),
+            sa, sn, sfc, self._scene)
+        block_pulse_in.setPos(10, y)
+        block_pulse_in.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+        y += block_pulse_in.boundingRect().height() + 10
+
+        block_millis = GxBlockFunctionCall('millis', None,
+            FieldInfo('milliseconds', 'int', '0|', 'edit'),
+            sa, sn, sfc, self._scene)
+        block_millis.setPos(10, y)
+        block_millis.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+        y += block_millis.boundingRect().height() + 10
+
 
     def mousePressEvent(self, event):
         ''' QtGui.QGraphicsProxyWidget.mousePressEvent(
@@ -126,7 +157,7 @@ class GxViewPalette(GxView):
         self.wheel_zoom = False
 
         self.palette = GxPalette(self.scene(), opengl)
-        
+
 
     def scrollContentsBy(self, x, y):
         QtGui.QGraphicsView.scrollContentsBy(self, x, y)
@@ -148,7 +179,7 @@ if __name__ == '__main__':
     win = QtGui.QMainWindow()
     win.setGeometry(100, 100, 900, 600)
 
-    gx_palette_view = GxViewPalette(parent=win)
+    gx_palette_view = GxViewPalette(parent=win, opengl=True)
 
     win.setCentralWidget(gx_palette_view)
     win.show()

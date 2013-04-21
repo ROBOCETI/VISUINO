@@ -37,12 +37,12 @@ class StyleArgLabel(object):
         self.border_color ='black'
         self.border_width = 2
         self.corner_shape = 'arc'
-        self.corner_width = 12
-        self.corner_height = 12
+        self.corner_width = 10
+        self.corner_height = 10
 
         self.font_color = 'black'
         self.font_family = 'Verdana'
-        self.font_size = 12
+        self.font_size = 10
         self.font_vcorrection = -1
 
         self.hpadd = 10
@@ -70,12 +70,17 @@ class StyleFunctionCall(object):
 
         self.name_font_color = 'white'
         self.name_font_family = 'Verdana'
-        self.name_font_size = 10
-        self.name_hpadd = 10
-        self.name_vpadd = 10
+        self.name_font_size = 12
+        self.name_hpadd = 8
+        self.name_vpadd = 5
+        self.name_font_vcorrection = 0
 
         self.arg_min_left_padd = 40
-        self.arg_spacing = -2
+        self.arg_spacing = 0
+        self.bottom_padd = 5
 
     def getNamePadding(self):
         return (self.name_hpadd, self.name_vpadd)
+
+    def getCornerSize(self):
+        return (self.corner_width, self.corner_height)

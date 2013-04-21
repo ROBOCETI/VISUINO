@@ -4,4 +4,4 @@ programming of the Arduino platform.
 '''
 
 from .main import *
-#del main
+del main
