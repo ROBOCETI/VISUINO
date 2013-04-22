@@ -234,7 +234,7 @@ class WinCustomizeArgLabel(QMainWindow):
     '''
     def __init__(self, parent=None):
         super(WinCustomizeArgLabel, self).__init__(parent)
-        self.ui = uic.loadUi('form_arg_label_customize_.ui')
+        self.ui = uic.loadUi('form_customize_arg_label.ui')
         self.setupUI()
 
     def setupUI(self):
