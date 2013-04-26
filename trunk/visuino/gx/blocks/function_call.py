@@ -19,10 +19,13 @@ from visuino.gx.bases import *
 from visuino.gx.shapes import *
 from visuino.gx.utils import *
 from visuino.gx.styles import *
+
 from visuino.gx.blocks.arg_label import GxArgLabel
+from visuino.gx.connections import *
+
 from visuino.gui import FieldInfo
 
-class GxBlockFunctionCall(QGraphicsItem):
+class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
 
     MSG_ERR_TYPE_ARGS = \
         "On GxBlockFunctionCall.__init__(), parameter 'args' must be a "\
@@ -38,6 +41,7 @@ class GxBlockFunctionCall(QGraphicsItem):
              StyleFunctionCall, GxScene, QGraphicsItem)
         '''
         QGraphicsItem.__init__(self, parent_item, scene)
+        PluggableBlock.__init__(self)
 
         self._width, self._height = 300, 300
 
@@ -60,6 +64,8 @@ class GxBlockFunctionCall(QGraphicsItem):
 
         self._border_path = None
         self.updateMetrics()
+
+        print(self.__dict__)
 
 
     def boundingRect(self):
@@ -187,11 +193,13 @@ class GxBlockFunctionCall(QGraphicsItem):
             CornerPath.connect(path, corner_size, corner_shape, 'bottom-left')
             path.lineTo(path.x, name_y0 + ioh + (nh - ioh)/2 + 2)
             NotchPath.connect(path, io_size, io_shape, '-j', 'left')
+            self.io_male_start = path.currentPosition()
             path.closeSubpath()
 
             self._name_rect = QRectF(bw + iow + hp, name_y0 + fvc,
                                      W - 2*hp - iow, nh)
         else:
+            self.io_male_start = None
             # height from the top up to the args y0
             args_y0 = vfh + 2*vp + nh
 
@@ -252,6 +260,26 @@ class GxBlockFunctionCall(QGraphicsItem):
             self.scene().removeItem(arg)
         self.setupArgLabels()
         self.updateMetrics()
+
+    def cloneMe(self):
+        return GxBlockFunctionCall(self._name, self._args, self._return,
+                                   self._style_arg_label, self._style_notch,
+                                   self._style_function_call)
+
+    def mouseReleaseEvent(self, event):
+        ''' QGraphicsItem.mouseReleaseEvent(QGraphicsSceneMouseEvent)
+            -> NoneType
+        '''
+        QGraphicsItem.mouseReleaseEvent(self, event)
+
+        mouse_grabber = self.scene().mouseGrabberItem()
+        if mouse_grabber and mouse_grabber is self:
+            self.ungrabMouse()
+
+##        if [x for x in self.scene().collidingItems(self)
+##            if x.__class__.__name__ == 'GxPalette']:
+##            self.scene().removeItem(self)
+
 
 
 class WinCustomizeFunctionCall(QMainWindow):
@@ -410,6 +438,9 @@ class WinCustomizeFunctionCall(QMainWindow):
         else:
             self._updateStyle(style, attr, str(old_color.name()))
 
+    def mouseMoveEvent(self, event):
+        QGraphicsItem.mouseMoveEvent(self, event)
+        print('oe')
 
 def main():
     app = QApplication(sys.argv)

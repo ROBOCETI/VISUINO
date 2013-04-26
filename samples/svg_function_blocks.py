@@ -216,7 +216,7 @@ class GxSVGFunctionBlock(GxSVGItem, AbstractGlueableItem):
         self.setPos(QPointF(pos[0], pos[1]))
         self.setFlags(QGraphicsItem.ItemIsSelectable |
                       QGraphicsItem.ItemIsMovable)
-    
+
     def paint(self, painter, option, widget=None):
         GxSVGItem.paint(self, painter, option, widget)
 #        painter.setFont(self.font)
@@ -253,6 +253,10 @@ def main():
 
     block_analog_write = GxSVGFunctionBlock('analogWrite', '#009900',
          (150, 250), gb_scene)
+
+    for i in range(0, 20):
+        new_block = GxSVGFunctionBlock('analogWrite', '#009900',
+            (150 + i * 10, 250 + i * 10), gb_scene)
 
     view = BaseView(gb_scene, parent=win)
     view.setDragMode(QGraphicsView.ScrollHandDrag)

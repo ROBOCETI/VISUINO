@@ -129,10 +129,14 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
         QtGui.QGraphicsProxyWidget.mousePressEvent(self, event)
 
         block_icon = self._view.itemAt(event.pos().toPoint())
+        print(block_icon)
         if hasattr(block_icon, 'cloneMe'):
+
+            print('Clonning..')
 
             new_block = block_icon.cloneMe()
             new_block.setFlags(QtGui.QGraphicsItem.ItemIsMovable)
+            new_block.setCacheMode(QtGui.QGraphicsItem.ItemCoordinateCache)
             self.scene().addItem(new_block)
             new_block.new_block = True
             new_block.palette = self
@@ -145,7 +149,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
                 self.pos().y() + icon_mapped_pos.y() + 2))
 
             new_block.grabMouse()
-            new_block.setCursor(self.cursor_add)
+            new_block.setCursor(QtCore.Qt.OpenHandCursor)
 
 
 class GxViewPalette(GxView):

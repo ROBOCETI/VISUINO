@@ -21,9 +21,10 @@ from visuino.gx.bases import *
 from visuino.gx.shapes import *
 from visuino.gx.utils import *
 from visuino.gx.styles import *
+from visuino.gx.connections import *
 
 
-class GxArgLabel(QGraphicsItem):
+class GxArgLabel(QGraphicsItem, PluggableBlock):
     '''
     Shape that represents argument names to be used on function call blocks.
     It has a female IO notch on the right, and supports resizing according
@@ -40,6 +41,7 @@ class GxArgLabel(QGraphicsItem):
             @ fixed_io_notch_y0: number <None>
         '''
         QGraphicsItem.__init__(self, parent_item, scene)
+        PluggableBlock.__init__(self)
 
         self._width, self._height = 0, 0
         self._child = None
@@ -176,7 +178,7 @@ class GxArgLabel(QGraphicsItem):
             path.lineToInc(dy = - (H - self._fixed_io_notch_y0 - ioh))
 
         NotchPath.connect(path, io_notch_size, io_notch_shape, '-j', 'left')
-        self._io_notch_start = path.currentPosition()
+        self.io_female_start = self._io_notch_start = path.currentPosition()
         io_y0 = self._io_notch_start.y()
 
         path.closeSubpath()
@@ -203,6 +205,11 @@ class GxArgLabel(QGraphicsItem):
         self._fixed_io_notch_y0 = None
         self._childim = None
         self.updateMetrics()
+
+    def cloneMe(self):
+        parent = self.parentItem()
+        if parent and hasattr(parent, 'cloneMe'):
+            return parent.cloneMe()
 
 
 class HollowItem:

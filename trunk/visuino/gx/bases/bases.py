@@ -111,32 +111,21 @@ class GxScene(QGraphicsScene):
         self._click_to_front = True
 
         # holds all the collidable items
-        self._collides = set()
+        self._vf_colli_paths = set()
+        self._io_colli_paths = set()
 
         self._background_grid = True
 
         ##TODO: background grid option (is possible with brush styles?)
         self.setBackgroundBrush(QBrush(QColor(self._BK_COLOR)))
 
-    def addCollidable(self, item):
-        ''' (QGraphicsItem) -> bool
+    @property
+    def vf_colli_paths(self):
+        return self._vf_colli_paths
 
-        Returns 'True' if successful.
-        '''
-        if isinstance(item, QGraphicsItem):
-            self._collides.add(item)
-            return True
-        return False
-
-    def getCollidables(self):
-        ''' () -> set()
-        '''
-        return self._collidables
-
-    def removeCollidable(self, item):
-        ''' (QGraphicsItem) -> NoneType
-        '''
-        self._collidables.remove(item)
+    @property
+    def io_colli_paths(self):
+        return self._vf_colli_paths
 
     def mousePressEvent(self, event):
         ''' QGraphicsScene.mousePressEvent(QGraphicsSceneMouseEvent)

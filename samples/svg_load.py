@@ -156,7 +156,7 @@ class GxSVGItem(QGraphicsPixmapItem):
         if svg_data and len(svg_data) > 0 and svg_data[0] == '<':
             # here, its a raw SVG data
             self.svg_renderer = QSvgRenderer(
-                QByteArray().append(QString(svg_data)))
+                QByteArray().append(svg_data))
         else:
             # here, its a filename
             self.svg_renderer = QSvgRenderer(svg_data)
@@ -218,8 +218,7 @@ def main():
     # This will result in a RED (#ff0000) star item.
     q_svg_item = QGraphicsSvgItem()
     q_svg_item.setSharedRenderer(QSvgRenderer(
-        QByteArray().append(QString(
-        SVG_STAR.replace('@FILL_COLOR@', '#ff0000')))))
+        QByteArray().append(SVG_STAR.replace('@FILL_COLOR@', '#ff0000'))))
     q_svg_item.setFlags(QGraphicsItem.ItemIsSelectable |
                         QGraphicsItem.ItemIsMovable)
     q_svg_item.setPos(100, 100)
@@ -235,7 +234,7 @@ def main():
 
     view = BaseView(scene, parent=win)
     view.setDragMode(QGraphicsView.RubberBandDrag)
-    
+
     win.setCentralWidget(view)
     win.show()
     sys.exit(app.exec_())
