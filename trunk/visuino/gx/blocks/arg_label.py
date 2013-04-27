@@ -188,6 +188,7 @@ class GxArgLabel(QGraphicsItem, PluggableBlock):
         self._name_rect = QRectF(2*bw, io_y0 + fvc - ((nh - ioh)/2),
                                  W - iow - bw, nh)
 
+        print('Updating connectors GxArgLabel', self._name)
         self.updateConnectors()
         self.update(self.boundingRect())
 
@@ -204,6 +205,9 @@ class GxArgLabel(QGraphicsItem, PluggableBlock):
         self._fixed_io_notch_y0 = None
         self._childim = None
         self.updateMetrics()
+
+    def prepareRemove(self):
+        self.removeConnections()
 
 
 class HollowItem:

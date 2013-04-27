@@ -138,7 +138,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
             new_block.setFlags(QtGui.QGraphicsItem.ItemIsMovable)
             new_block.setCacheMode(QtGui.QGraphicsItem.ItemCoordinateCache)
 
-            new_block.palette = self
+            new_block.palette_blocks = self
 
             icon_pos = QtCore.QPointF(block_icon.pos().x() + 2,
                                       block_icon.pos().y() + 2)
@@ -175,9 +175,9 @@ class GxViewPalette(GxView):
         self.palette._view.setFixedHeight(self.height())
 
 
-if __name__ == '__main__':
+def main():
     app = QtGui.QApplication(sys.argv)
-##    app.setStyle(QtGui.QStyleFactory.create('Plastique'))
+    app.setStyle(QtGui.QStyleFactory.create('Plastique'))
 
     win = QtGui.QMainWindow()
     win.setGeometry(100, 100, 900, 600)
@@ -187,3 +187,6 @@ if __name__ == '__main__':
     win.setCentralWidget(gx_palette_view)
     win.show()
     sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    main()

@@ -101,6 +101,9 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
             raise TypeError(self.MSG_ERR_TYPE_ARGS)
 
         sa, sn = self._style_arg_label, self._style_notch
+
+        for x in self._arg_labels:
+            self.scene().removeItem(x)
         self._arg_labels = []
 
         max_width = 0
@@ -233,6 +236,7 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
         self._border_path = path
         self._width, self._height = W + bw, H + bw
 
+        print('Updating connectors GxBlockFunctionCall')
         self.updateConnectors()
         self.update(self.boundingRect())
 
@@ -257,8 +261,6 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
 
     def setArgs(self, args):
         self._args = args
-        for arg in self._arg_labels:
-            self.scene().removeItem(arg)
         self.setupArgLabels()
         self.updateMetrics()
 
@@ -267,8 +269,15 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
                                    self._style_arg_label, self._style_notch,
                                    self._style_function_call, scene)
 
+    def prepareRemove(self):
+        for arg in self._arg_labels:
+            arg.prepareRemove()
+        self.removeConnections()
+
     def mousePressEvent(self, event):
         QGraphicsItem.mousePressEvent(self, event)
+        print('IO Colli Paths: ', len(self.scene().io_colli_paths))
+        print('VF Colli Paths: ', len(self.scene().vf_colli_paths))
 
     def mouseReleaseEvent(self, event):
         ''' QGraphicsItem.mouseReleaseEvent(QGraphicsSceneMouseEvent)
@@ -280,13 +289,14 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
         if mouse_grabber and mouse_grabber is self:
             self.ungrabMouse()
 
-##        if [x for x in self.scene().collidingItems(self)
-##            if x.__class__.__name__ == 'GxPalette']:
-##            self.scene().removeItem(self)
+        if hasattr(self, 'palette_blocks'):
+            if self.collidesWithItem(self.palette_blocks):
+                self.prepareRemove()
+                self.scene().removeItem(self)
 
-##    def mouseMoveEvent(self, event):
-##        QGraphicsItem.mouseMoveEvent(self, event)
-##        self.collideNotches()
+    def mouseMoveEvent(self, event):
+        QGraphicsItem.mouseMoveEvent(self, event)
+        self.collideNotches()
 
 
 

@@ -139,15 +139,16 @@ class PluggableBlock(object):
             setattr(self, x + '_colli_path', None)
 
     def updateConnectors(self):
-        self.clean()
+        self.cleanConnections()
         for x in self.NOTCHES:
             self._updateNotch(x)
 
     def _updateNotch(self, notch):
         ''' (str)
         '''
-        notch_start = getattr(self, notch + '_start', None)
         kind, gender = notch[:2], notch[3].upper()
+        notch_start = getattr(self, notch + '_start', None)
+        colli_path = getattr(self, notch + '_colli_path', None)
 
         if notch_start is not None:
 
@@ -185,19 +186,28 @@ class PluggableBlock(object):
                    vf_female.collidesWithItem(x):
                     print('VF female->male collision detected!')
 
-    def clean(self):
+    def cleanConnections(self):
 ##        print('Cleaning PluggableBlock attributes...')
-        for x in self.NOTCHES:
-            colli = getattr(self, x + '_colli_path', 'baka')
-##            print('Trying to remove ', x + '_colli_path', colli)
+        io_colli_paths = self.scene().io_colli_paths
+        vf_colli_paths = self.scene().vf_colli_paths
+        for notch in self.NOTCHES:
+            colli = getattr(self, notch + '_colli_path', 'baka')
+##            print('Trying to remove ', notch + '_colli_path', colli)
             if isinstance(colli, GxColliPath):
-                try:
-                    self.scene().io_colli_paths.remove(colli)
-                    self.scene().vf_colli_paths.remove(colli)
-                except:
-                    pass
-##                print('Removed ', x + '_colli_path')
+                if notch[:2] == 'io' and colli in io_colli_paths:
+                    io_colli_paths.remove(colli)
+                elif notch[:2] == 'vf' and colli in vf_colli_paths:
+                    vf_colli_paths.remove(colli)
+                setattr(self, notch + '_colli_path', None)
+##                print('Removed ', notch + '_colli_path')
                 self.scene().removeItem(colli)
+
+    def removeConnections(self):
+        self.io_male_start = None
+        self.io_female_start = None
+        self.vf_male_start = None
+        self.vf_female_start = None
+        self.cleanConnections()
 
     def _startInsertionEffect(self, notch_type, notch_gender):
         print('IO Collision detected!')
