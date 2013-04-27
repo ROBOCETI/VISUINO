@@ -73,7 +73,7 @@ class StyleFunctionCall(object):
         self.name_font_size = 12
         self.name_hpadd = 8
         self.name_vpadd = 5
-        self.name_font_vcorrection = 0
+        self.name_font_vcorrection = -1
 
         self.arg_min_left_padd = 40
         self.arg_spacing = 0

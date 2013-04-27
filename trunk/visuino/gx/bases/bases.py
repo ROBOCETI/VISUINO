@@ -81,6 +81,19 @@ class GxView(QGraphicsView):
 
             #self.centerOn(event.x(), event.y())
 
+##    def drawBackground(self, painter, rect):
+##        ''' QGraphicsScene.drawBrackground(QPainter, QRectF) -> NoneType
+##        '''
+##
+##        painter.setPen(QPen(QColor(203, 203, 203)))
+##        painter.fillRect(rect, QColor(219, 219, 219))
+##
+##        W, H = rect.width(), rect.height()
+##        for i in range(1, int(W), 20):
+##            painter.drawLine(i, 0, i, H)
+##        for j in range(1, int(H), 20):
+##            painter.drawLine(0, j, W, j)
+
 
 class GxScene(QGraphicsScene):
     '''
@@ -91,14 +104,13 @@ class GxScene(QGraphicsScene):
     _BK_COLOR = 'lightgray'  # background color
     _Z_INCR = 0.0000000001   # increment on zValue for self.bringToFront()
 
-    def __init__(self, parent=None):
+    def __init__(self, background_grid= True, parent=None):
         ''' (QObject) -> NoneType
         '''
         QGraphicsScene.__init__(self, parent)
 
         self.setSceneRect(0, 0, 800, 600)
-        self.setItemIndexMethod(QGraphicsScene.NoIndex)
-
+##        self.setItemIndexMethod(QGraphicsScene.NoIndex)
 
 ##        scene.setItemIndexMethod(QGraphicsScene.NoIndex)
 
@@ -114,7 +126,7 @@ class GxScene(QGraphicsScene):
         self._vf_colli_paths = set()
         self._io_colli_paths = set()
 
-        self._background_grid = True
+        self._background_grid = background_grid
 
         ##TODO: background grid option (is possible with brush styles?)
         self.setBackgroundBrush(QBrush(QColor(self._BK_COLOR)))
@@ -125,7 +137,7 @@ class GxScene(QGraphicsScene):
 
     @property
     def io_colli_paths(self):
-        return self._vf_colli_paths
+        return self._io_colli_paths
 
     def mousePressEvent(self, event):
         ''' QGraphicsScene.mousePressEvent(QGraphicsSceneMouseEvent)
@@ -177,6 +189,7 @@ class GxScene(QGraphicsScene):
     def drawBackground(self, painter, rect):
         ''' QGraphicsScene.drawBrackground(QPainter, QRectF) -> NoneType
         '''
+        QGraphicsScene.drawBackground(self, painter, rect)
         if self._background_grid:
             painter.setPen(QPen(QColor(203, 203, 203)))
             painter.fillRect(rect, QColor(219, 219, 219))
@@ -278,7 +291,7 @@ def main():
 
     # remember: this one is just and special kind of QAbstractScrollArea
     # which suports vizualizing the scene, i.e., it does not handle the items
-    view = GxView(scene, parent=win)
+    view = GxView(scene, parent=win, wheel_zoom=True)
 
     win.setCentralWidget(view)  # therefore, the size of the view will be the
                                 # size of the window, and both are not

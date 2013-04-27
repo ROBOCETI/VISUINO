@@ -65,9 +65,6 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
         self._border_path = None
         self.updateMetrics()
 
-        print(self.__dict__)
-
-
     def boundingRect(self):
         ''' QGraphicsItem.boundingRect() -> QRectF
         '''
@@ -152,7 +149,6 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
         vfw, vfh = self._style_notch.getVfNotchSize()
         vfs = bw + self._style_notch.vf_notch_x0
 
-
         # some nice short names for more attributes
         corner_shape = self._style_function_call.corner_shape
         corner_size = QSizeF(cw, ch)
@@ -198,8 +194,9 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
 
             self._name_rect = QRectF(bw + iow + hp, name_y0 + fvc,
                                      W - 2*hp - iow, nh)
+            self.vf_female_start = None
+            self.vf_male_start = None
         else:
-            self.io_male_start = None
             # height from the top up to the args y0
             args_y0 = vfh + 2*vp + nh
 
@@ -213,6 +210,7 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
             path = GxPainterPath(QPointF(bw, bw + ch))
             CornerPath.connect(path, corner_size, corner_shape, 'top-left')
             path.lineToInc(vfs - cw)
+            self.vf_female_start = path.currentPosition()
             NotchPath.connect(path, vf_size, vf_shape, '+i', 'down')
             path.lineTo(W - cw, path.y)
             CornerPath.connect(path, corner_size, corner_shape, 'top-right')
@@ -223,16 +221,19 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
             CornerPath.connect(path, corner_size, corner_shape, 'bottom-right')
             path.lineToInc(dx = -W + vfs + cw + vfw)
             NotchPath.connect(path, vf_size, vf_shape, '-i', 'down')
+            self.vf_male_start = path.currentPosition()
             path.lineTo(bw + cw, path.y)
             CornerPath.connect(path, corner_size, corner_shape, 'bottom-left')
             path.closeSubpath()
 
             self._name_rect = QRectF(bw + hp, args_y0 - vp - nh + fvc,
                                      W - 2*hp, nh)
+            self.io_male_start = None
 
         self._border_path = path
         self._width, self._height = W + bw, H + bw
 
+        self.updateConnectors()
         self.update(self.boundingRect())
 
     def _placeArgs(self, path, iow, bw, W, asp):
@@ -261,10 +262,13 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
         self.setupArgLabels()
         self.updateMetrics()
 
-    def cloneMe(self):
+    def cloneMe(self, scene=None):
         return GxBlockFunctionCall(self._name, self._args, self._return,
                                    self._style_arg_label, self._style_notch,
-                                   self._style_function_call)
+                                   self._style_function_call, scene)
+
+    def mousePressEvent(self, event):
+        QGraphicsItem.mousePressEvent(self, event)
 
     def mouseReleaseEvent(self, event):
         ''' QGraphicsItem.mouseReleaseEvent(QGraphicsSceneMouseEvent)
@@ -279,6 +283,10 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
 ##        if [x for x in self.scene().collidingItems(self)
 ##            if x.__class__.__name__ == 'GxPalette']:
 ##            self.scene().removeItem(self)
+
+##    def mouseMoveEvent(self, event):
+##        QGraphicsItem.mouseMoveEvent(self, event)
+##        self.collideNotches()
 
 
 
@@ -438,9 +446,6 @@ class WinCustomizeFunctionCall(QMainWindow):
         else:
             self._updateStyle(style, attr, str(old_color.name()))
 
-    def mouseMoveEvent(self, event):
-        QGraphicsItem.mouseMoveEvent(self, event)
-        print('oe')
 
 def main():
     app = QApplication(sys.argv)

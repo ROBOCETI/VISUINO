@@ -72,45 +72,47 @@ class GxColliPath(QGraphicsPathItem):
     of notch associated with it. The intersection of a moving male with a
     female is collision-detected an then the insertion marker can be activated.
     '''
-    _OUTLINE_COLOR = Qt.transparent
+    _OUTLINE_COLOR = Qt.black
 
-    def __init__(self, kind, gender, start_point, scene=None, parent=None):
-        ''' ('M'/'F', QSizeF, QPointF, QGraphicsScene,
-             QGraphicsItem) -> NoneType
+    def __init__(self, kind, gender, start_point, style_notch,
+                 scene=None, parent=None):
+        ''' ('io'/'vf', 'M'/'F', QPointF, StyleNotch, QGraphicsScene,
+             QGraphicsItem)
         '''
-        self._kind = str(kind).upper()
-        self._pen = QPen(QColor(self._OUTLINE_COLOR))
+        self._kind, self._gender = kind, gender
+        sp = start_point
 
-        iow, ioh = io_notch_size.width(), io_notch_size.height()
+        iow, ioh = style_notch.io_notch_width, style_notch.io_notch_height
+        vfw, vfh = style_notch.vf_notch_width, style_notch.vf_notch_height
 
-        if self.isFemale():
-            W, H = 1.3*iow, ioh/2
+        if kind.lower() == 'io':
+            W, H = iow, 2/3 * ioh
+            pos = QPointF(sp.x() - iow, sp.y() + (ioh - H)/2)
         else:
-            W, H = 6, 4*ioh/5
+            W, H = vfw, vfh
+            pos = start_point
 
         path = QPainterPath()
         path.addRect(0, 0, W, H)
-
         QGraphicsPathItem.__init__(self, path, parent, scene)
-
-        self.setPos(io_notch_start.x() - W/2,
-                    io_notch_start.y() + ioh/2 - H/2)
+        self.setPos(pos)
+##        self.setVisible(False)
 
     def isMale(self):
         ''' () -> bool
         '''
-        return self._kind.upper() == 'M'
+        return self._gender == 'M'
 
     def isFemale(self):
         ''' () -> bool
         '''
-        return self._kind.upper() == 'F'
+        return self._gender == 'F'
 
     def paint(self, painter, option=None, widget=None):
         ''' QGraphicsItem.paint(QPainter, QStyleOptionGrpahicsItem,
                                 QWidget) -> NoneType
         '''
-        painter.setPen(self._pen)
+        painter.setPen(QPen(QColor(self._OUTLINE_COLOR)))
         painter.setBrush(Qt.transparent)
         painter.drawPath(self.path())
 
@@ -136,35 +138,69 @@ class PluggableBlock(object):
             setattr(self, x + '_start', None)
             setattr(self, x + '_colli_path', None)
 
-    def update(self):
+    def updateConnectors(self):
+        self.clean()
         for x in self.NOTCHES:
-            self._setupUpdateNotch(x)
+            self._updateNotch(x)
 
-    def _setupUpdateNotch(self, notch):
+    def _updateNotch(self, notch):
         ''' (str)
         '''
         notch_start = getattr(self, notch + '_start', None)
+        kind, gender = notch[:2], notch[3].upper()
 
         if notch_start is not None:
-            colli_path = getattr(self, notch + '_colli_path', None)
-            if colli_path:
-                colli_path.update() #TODO
-            else:
-                setattr(self, notch + '_colli_path',
-                        GxColliPath(notch[:2], notch[3].upper(),
-                                    notch_start, self.scene, parent=self))
-                self.scene().io_colli_paths.add(getattr(self, notch +
-                                                        '_colli_path'))
 
-    def testCollide(self):
-        if self.io_male_colli_path:
+            new_colli_path = GxColliPath(kind, gender, notch_start,
+                                         self._style_notch, self.scene(),
+                                         parent=self)
+
+            setattr(self, notch + '_colli_path', new_colli_path)
+
+            if kind == 'io' and gender == 'F':
+                self.scene().io_colli_paths.add(new_colli_path)
+            elif kind == 'vf':
+                self.scene().vf_colli_paths.add(new_colli_path)
+
+
+    def collideNotches(self):
+        io_male, io_female = self.io_male_colli_path, self.io_female_colli_path
+        vf_male, vf_female = self.vf_male_colli_path, self.vf_female_colli_path
+
+        if io_male:
             for x in self.scene().io_colli_paths:
-                if x.isFemale() and self.io_male_colli_path.collideWith(x):
+                if io_male.collidesWithItem(x):
                     self._startInsertionEffect('io', 'M')
                     break
 
+        if vf_male:
+            for x in self.scene().vf_colli_paths:
+                if x is not vf_male and x.isFemale() and \
+                   vf_male.collidesWithItem(x):
+                    print('VF male->female collision detected!')
+
+        if vf_female:
+            for x in self.scene().vf_colli_paths:
+                if x is not vf_female and x.isMale() and \
+                   vf_female.collidesWithItem(x):
+                    print('VF female->male collision detected!')
+
+    def clean(self):
+##        print('Cleaning PluggableBlock attributes...')
+        for x in self.NOTCHES:
+            colli = getattr(self, x + '_colli_path', 'baka')
+##            print('Trying to remove ', x + '_colli_path', colli)
+            if isinstance(colli, GxColliPath):
+                try:
+                    self.scene().io_colli_paths.remove(colli)
+                    self.scene().vf_colli_paths.remove(colli)
+                except:
+                    pass
+##                print('Removed ', x + '_colli_path')
+                self.scene().removeItem(colli)
+
     def _startInsertionEffect(self, notch_type, notch_gender):
-        pass
+        print('IO Collision detected!')
 
     def _endInsertionEffect(self):
         pass

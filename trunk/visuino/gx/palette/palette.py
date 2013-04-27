@@ -26,7 +26,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
     def __init__(self, scene=None, opengl=False):
         QtGui.QGraphicsProxyWidget.__init__(self)
 
-        self._scene = QtGui.QGraphicsScene()
+        self._scene = GxScene(background_grid=False)
         self._scene.setSceneRect(0, 0, 200, 1000)
 
         grad = QtGui.QLinearGradient(QtCore.QPointF(0, 0),
@@ -129,16 +129,15 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
         QtGui.QGraphicsProxyWidget.mousePressEvent(self, event)
 
         block_icon = self._view.itemAt(event.pos().toPoint())
-        print(block_icon)
+        if block_icon and block_icon.parentItem():
+            block_icon = block_icon.parentItem()
+
         if hasattr(block_icon, 'cloneMe'):
 
-            print('Clonning..')
-
-            new_block = block_icon.cloneMe()
+            new_block = block_icon.cloneMe(self.scene())
             new_block.setFlags(QtGui.QGraphicsItem.ItemIsMovable)
             new_block.setCacheMode(QtGui.QGraphicsItem.ItemCoordinateCache)
-            self.scene().addItem(new_block)
-            new_block.new_block = True
+
             new_block.palette = self
 
             icon_pos = QtCore.QPointF(block_icon.pos().x() + 2,

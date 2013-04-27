@@ -178,9 +178,7 @@ class GxArgLabel(QGraphicsItem, PluggableBlock):
             path.lineToInc(dy = - (H - self._fixed_io_notch_y0 - ioh))
 
         NotchPath.connect(path, io_notch_size, io_notch_shape, '-j', 'left')
-        self.io_female_start = self._io_notch_start = path.currentPosition()
-        io_y0 = self._io_notch_start.y()
-
+        self.io_female_start, io_y0 = path.currentPosition(), path.y
         path.closeSubpath()
         self._border_path = path
 
@@ -190,6 +188,7 @@ class GxArgLabel(QGraphicsItem, PluggableBlock):
         self._name_rect = QRectF(2*bw, io_y0 + fvc - ((nh - ioh)/2),
                                  W - iow - bw, nh)
 
+        self.updateConnectors()
         self.update(self.boundingRect())
 
     def plugIn(self, child):
@@ -205,11 +204,6 @@ class GxArgLabel(QGraphicsItem, PluggableBlock):
         self._fixed_io_notch_y0 = None
         self._childim = None
         self.updateMetrics()
-
-    def cloneMe(self):
-        parent = self.parentItem()
-        if parent and hasattr(parent, 'cloneMe'):
-            return parent.cloneMe()
 
 
 class HollowItem:
