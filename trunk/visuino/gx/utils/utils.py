@@ -13,7 +13,6 @@
 __all__ = ['GxPainterPath', 'GxProxyToFront', 'item_to_svg',]
 
 from PyQt4 import QtGui, QtCore, QtSvg
-from visuino.gx.bases import GxScene
 
 class GxPainterPath(QtGui.QPainterPath):
     '''

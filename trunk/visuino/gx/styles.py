@@ -11,7 +11,8 @@
 
 class StyleNotch(object):
     def __init__(self):
-        self.io_insertion_marker_color = '#111111'
+        self.insertion_marker_color = '#111111'
+        self.insertion_marker_width = 10
 
         self.io_notch_shape = 'arc'
         self.io_notch_width = 10
@@ -84,3 +85,9 @@ class StyleFunctionCall(object):
 
     def getCornerSize(self):
         return (self.corner_width, self.corner_height)
+
+class StyleBlocks(object):
+    def __init__(self):
+        self.notch = StyleNotch()
+        self.arg_label = StyleArgLabel()
+        self.function_call = StyleFunctionCall()

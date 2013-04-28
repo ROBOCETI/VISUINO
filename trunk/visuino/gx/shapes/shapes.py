@@ -13,7 +13,7 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
-from __future__ import division
+from __future__ import division, print_function
 
 __all__ = ['CornerPath', 'NotchPath', '_AppExampleShapes']
 
@@ -21,7 +21,7 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt, QSizeF, QPointF, QRectF
 import sys
 
-from visuino.gx.bases import GxScene, GxView
+from visuino.gx.bases import GxSceneBlocks, GxView
 from visuino.gx.utils import GxPainterPath
 from visuino.utils import vlarg
 
@@ -451,7 +451,7 @@ class ExampleMainWindow(QtGui.QMainWindow):
         '''
         QtGui.QMainWindow.__init__(self, parent)
 
-        self.scene = GxScene()
+        self.scene = GxSceneBlocks()
         self.gx_example_path = GxExamplePaths(self.scene)
 
         self.initUI()

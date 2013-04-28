@@ -18,14 +18,24 @@ import sys
 from visuino.gx.bases import *
 from visuino.gx.shapes import *
 from visuino.gx.utils import *
-from visuino.gx.styles import *
-
-from visuino.gx.blocks.arg_label import GxArgLabel
 from visuino.gx.connections import *
+from visuino.gx.blocks.arg_label import GxArgLabel
 
 from visuino.gui import FieldInfo
 
-class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
+class GxBlockFunctionCall(ModelBlock, PluggableBlock):
+    '''
+    Bloco para chamada de função. Pode possuir zero ou mais argumentos,
+    cada qual com um conector IO fêmea. Caso possua retorno, também apre-
+    sentará um conector IO macho na lateral esquerda e nenhum conetor VF
+    (ou seja, funções com retorno não poderão ser conectadas diretamente
+    no fluxo vertical do programa). Caso contrário, apresentará conetores
+    VF fêmea (parte superior) e macho (parte inferior).
+
+    Atributos:
+        _width: int. Width of the bounding rectangle.
+        _height: int. Height of the bounding rectangle.
+    '''
 
     MSG_ERR_TYPE_ARGS = \
         "On GxBlockFunctionCall.__init__(), parameter 'args' must be a "\
@@ -35,64 +45,42 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
         "On GxBlockFunctionCall.__init__(), parameter 'args', invalid value"\
         " in position %d. Expected <class 'FieldInfo'>, but was given %s."
 
-    def __init__(self, name, args, return_, style_arg_label, style_notch,
-                 style_function_call, scene=None, parent_item=None):
-        ''' (str, list of FieldInfo, FieldInfo, StyleArgLabel, StyleNotch,
-             StyleFunctionCall, GxScene, QGraphicsItem)
+    def __init__(self, name, args, return_, scene, parent=None):
+        ''' (str, list of FieldInfo, FieldInfo, GxSceneBlocks, QGraphicsItem)
         '''
-        QGraphicsItem.__init__(self, parent_item, scene)
+        ModelBlock.__init__(self, scene, parent)
         PluggableBlock.__init__(self)
-
-        self._width, self._height = 300, 300
-
-        self._style_arg_label = style_arg_label \
-            if isinstance(style_arg_label, StyleArgLabel) else StyleArgLabel()
-
-        self._style_function_call = style_function_call \
-            if isinstance(style_function_call, StyleFunctionCall) \
-            else StyleFunctionCall()
-
-        self._style_notch = style_notch \
-            if isinstance(style_notch, StyleNotch) else StyleNotch()
 
         self._name, self._args, self._return = name, args, return_
         self._name_rect = self.boundingRect()
-        self._arg_labels = []
-        self._arg_name_font = None
+        self._args_labels = []
         self._args_height = 0
         self.setupArgLabels()
 
-        self._border_path = None
         self.updateMetrics()
-
-    def boundingRect(self):
-        ''' QGraphicsItem.boundingRect() -> QRectF
-        '''
-        return QRectF(0, 0, self._width, self._height)
 
     def paint(self, painter, option=None, widget=None):
         ''' QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
                                 QWidget widget=None) -> NoneType
         '''
+        sfc = self.scene().style.function_call
+
         painter.fillRect(self.boundingRect(), Qt.transparent)
 
         painter.setPen(QPen(
-            QBrush(QColor(self._style_function_call.border_color)),
-            self._style_function_call.border_width,
+            QBrush(QColor(sfc.border_color)), sfc.border_width,
             Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-        painter.setBrush(QColor(self._style_function_call.background_color))
+        painter.setBrush(QColor(sfc.background_color))
         painter.drawPath(self._border_path)
 
         painter.setFont(self._name_font)
-        painter.setPen(QPen(QColor(self._style_function_call.name_font_color)))
+        painter.setPen(QPen(QColor(sfc.name_font_color)))
         painter.drawText(self._name_rect, Qt.AlignCenter, self._name)
 
 ##        painter.setPen(Qt.DashLine)
 ##        painter.setBrush(Qt.transparent)
 ##        painter.drawRect(self._name_rect)
 
-    def shape(self):
-        return self._border_path
 
     def setupArgLabels(self):
         if self._args is None:
@@ -100,78 +88,82 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
         elif not isinstance(self._args, (tuple, list)):
             raise TypeError(self.MSG_ERR_TYPE_ARGS)
 
-        sa, sn = self._style_arg_label, self._style_notch
+        sa, sn = self.scene().style.arg_label, self.scene().style.notch
 
-        for x in self._arg_labels:
-            self.scene().removeItem(x)
-        self._arg_labels = []
+        for arg in self._args_labels:
+            arg.prepareRemove()
+            self.scene().removeItem(arg)
+        self._args_labels = []
 
         max_width = 0
+        self._args_height = 0
         for i, x in enumerate(self._args):
             if not isinstance(x, FieldInfo):
                raise TypeError(self.MSG_ERR_NOT_FIELD_INFO % (i, x.__class__))
             else:
-                new_label = GxArgLabel(x.name, sa, sn, self.scene(),
-                                       parent_item=self)
+                new_label = GxArgLabel(x.name, self.scene(), parent=self)
                 new_label.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
                 new_label.setPos(0, i*50)
 ##                new_label.setVisible(False)
                 w, h = new_label.getWidth(), new_label.getHeight()
 
                 max_width = w if w > max_width else max_width
-                self._arg_labels.append(new_label)
+                self._args_labels.append(new_label)
                 self._args_height += h
 
         if self._args:
             self._args_height += (len(self._args) - 1) * \
-                self._style_function_call.arg_spacing
+                self.scene().style.function_call.arg_spacing
 
-        for x in self._arg_labels:
+        for x in self._args_labels:
             x.setFixedWidth(max_width)
 
     def updateMetrics(self):
         self.prepareGeometryChange()
         self.old_size = self.boundingRect().size()
 
-        # half of the border width, for use as correction
-        bw = self._style_function_call.border_width/2
+        style_fc = self.scene().style.function_call
+        style_notch = self.scene().style.notch
 
-        self._name_font = QFont(self._style_function_call.name_font_family,
-                                self._style_function_call.name_font_size)
+        # half of the border width, for use as correction
+        bw = style_fc.border_width/2
+
+        self._name_font = QFont(style_fc.name_font_family,
+                                style_fc.name_font_size)
         name_metrics = QFontMetricsF(self._name_font)
 
         # setting up nice short names for all the metrics
         nw, nh = name_metrics.width(self._name), name_metrics.height()
-        fvc = self._style_function_call.name_font_vcorrection
-        hp, vp = self._style_function_call.getNamePadding()
-        bp = self._style_function_call.bottom_padd
-        cw, ch = self._style_function_call.getCornerSize()
-        malp = self._style_function_call.arg_min_left_padd
-        asp = self._style_function_call.arg_spacing
-        iow, ioh = self._style_notch.getIoNotchSize()
-        vfw, vfh = self._style_notch.getVfNotchSize()
-        vfs = bw + self._style_notch.vf_notch_x0
+        fvc = style_fc.name_font_vcorrection
+        hp, vp = style_fc.getNamePadding()
+        bp = style_fc.bottom_padd
+        cw, ch = style_fc.getCornerSize()
+        malp = style_fc.arg_min_left_padd
+        asp = style_fc.arg_spacing
+        iow, ioh = style_notch.getIoNotchSize()
+        vfw, vfh = style_notch.getVfNotchSize()
+        vfs = bw + style_notch.vf_notch_x0
 
         # some nice short names for more attributes
-        corner_shape = self._style_function_call.corner_shape
+        corner_shape = style_fc.corner_shape
         corner_size = QSizeF(cw, ch)
-        io_shape = self._style_notch.io_notch_shape + '/' + \
-                   str(self._style_notch.io_notch_basis)
+        io_shape = style_notch.io_notch_shape + '/' + \
+                   str(style_notch.io_notch_basis)
         io_size = QSizeF(iow, ioh)
-        vf_shape = self._style_notch.vf_notch_shape + '/' + \
-                   str(self._style_notch.vf_notch_basis)
+        vf_shape = style_notch.vf_notch_shape + '/' + \
+                   str(style_notch.vf_notch_basis)
         vf_size = QSizeF(vfw, vfh)
 
         maw = 0    # minimum width to comport arguments, if any
-        if self._arg_labels:
-            maw = malp + self._arg_labels[0].getWidth()
+        if self._args_labels:
+            maw = malp + self._args_labels[0].getWidth()
+        else:
+            fvc += 1
 
         if self._return:
             # height from the top up to the args y0
             args_y0 = max(vp, ch) + nh + vp
             name_y0 = args_y0 - vp - nh
-            if not self._args:
-                name_y0 += 1
 
             # there are two metrics to limit the width:
             #   - name width + horizontal padding (2*max(hp, cw) + nw)
@@ -241,7 +233,7 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
         self.update(self.boundingRect())
 
     def _placeArgs(self, path, iow, bw, W, asp):
-        for arg in self._arg_labels:
+        for arg in self._args_labels:
             arg.setPos(W - arg.getWidth() - bw, path.y - bw)
             path.lineToInc(dx = -iow - 3*bw)
             path.lineToInc(dy = arg.getHeight())
@@ -264,20 +256,25 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
         self.setupArgLabels()
         self.updateMetrics()
 
-    def cloneMe(self, scene=None):
+    def cloneMe(self, scene):
+        ''' (GxSceneBlocks) -> GxBlockFunctionCall
+        '''
         return GxBlockFunctionCall(self._name, self._args, self._return,
-                                   self._style_arg_label, self._style_notch,
-                                   self._style_function_call, scene)
+                                   scene)
 
     def prepareRemove(self):
-        for arg in self._arg_labels:
+        for arg in self._args_labels:
             arg.prepareRemove()
         self.removeConnections()
 
     def mousePressEvent(self, event):
         QGraphicsItem.mousePressEvent(self, event)
-        print('IO Colli Paths: ', len(self.scene().io_colli_paths))
-        print('VF Colli Paths: ', len(self.scene().vf_colli_paths))
+        print('IO Female Colli Paths: ',
+              len(self.scene().io_female_colli_paths))
+        print('VF Female Colli Paths: ',
+              len(self.scene().vf_female_colli_paths))
+        print('VF Male Colli Paths: ',
+              len(self.scene().vf_male_colli_paths))
 
     def mouseReleaseEvent(self, event):
         ''' QGraphicsItem.mouseReleaseEvent(QGraphicsSceneMouseEvent)
@@ -299,7 +296,6 @@ class GxBlockFunctionCall(QGraphicsItem, PluggableBlock):
         self.collideNotches()
 
 
-
 class WinCustomizeFunctionCall(QMainWindow):
     def __init__(self, parent=None):
         super(WinCustomizeFunctionCall, self).__init__(parent)
@@ -314,15 +310,15 @@ class WinCustomizeFunctionCall(QMainWindow):
         '''
         self.setGeometry(100, 100, 800, 600)
 
-        self.scene = GxScene()
+        self.scene = GxSceneBlocks()
 
-        sfc = self.style_function_call = StyleFunctionCall()
-        sa = self.style_arg_label = StyleArgLabel()
-        sn = self.style_notch = StyleNotch()
+        sfc = self.scene.style.function_call
+        sa = self.scene.style.arg_label
+        sn = self.scene.style.notch
         self.args = ['pin', 'value']
 
         self.block_function_call = GxBlockFunctionCall('digitalWrite',
-            self._strToFieldInfo(self.args), None, sa, sn, sfc, self.scene)
+            self._strToFieldInfo(self.args), None, self.scene)
         self.block_function_call.setPos(100, 100)
         self.block_function_call.setFlags(QGraphicsItem.ItemIsMovable)
         self.block_function_call.setCursor(Qt.OpenHandCursor)
@@ -388,7 +384,7 @@ class WinCustomizeFunctionCall(QMainWindow):
 
     def _updateStyle(self, style, attr, value):
         setattr(style, attr, value)
-        if isinstance(style, StyleFunctionCall) or not self.args:
+        if not self.args:
             self.block_function_call.updateMetrics()
         elif self.args:
             self.block_function_call.setArgs(

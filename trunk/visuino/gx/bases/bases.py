@@ -16,7 +16,7 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free. Also, remember to keep the credits.
 #-------------------------------------------------------------------------------
-__all__ = ['GxView', 'GxScene']
+__all__ = ['GxSceneBlocks', 'ModelBlock','GxView']
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -27,11 +27,16 @@ except:
     QGLWidget = None
 
 import sys
+from visuino.gx.styles import *
 
 class GxView(QGraphicsView):
     '''
-    Holds optimization flags for the project in general, and also
+    Holds optimization flags for the project in general and also
     offers wheel zooming functionality.
+
+    Attributes:
+        wheel_zoom: bool. Enable/disable "wheel zooming" feature.
+        zoom_level: int. Indicates the current zoom magnification.
     '''
     def __init__(self, scene=None, parent=None, opengl=False,
                  wheel_zoom=False):
@@ -95,16 +100,24 @@ class GxView(QGraphicsView):
 ##            painter.drawLine(0, j, W, j)
 
 
-class GxScene(QGraphicsScene):
+class GxSceneBlocks(QGraphicsScene):
     '''
-    Basically offers the "bring to front" functionality, where the itens
-    can be brought to the front of the scene (by changing zValues).
-    See also the "click to front" functionality.
-    '''
-    _BK_COLOR = 'lightgray'  # background color
-    _Z_INCR = 0.0000000001   # increment on zValue for self.bringToFront()
+    In addition to the bring to front functionality, manages resources for
+    the blocks, such as its styles and colli paths.
 
-    def __init__(self, background_grid= True, parent=None):
+    Attributes:
+        Z_INCR: float
+        _top_item: QGraphicsItem <None>. Item with the highest zValue.
+        _top_z: float. zValue of the top most item.
+        _click_to_front: bool. Enable/disable "click to front" feature.
+        _background_grid: bool. Enable/disable the background grid.
+        style: StyleBlocks.
+        #io_colli_paths: set of GxColliPath, of kind 'io'.
+        #vf_colli_paths: set of GxColliPath, of kind 'vf'.
+    '''
+    Z_INCREMENT = 0.0000000001   # increment on zValue for self.bringToFront()
+
+    def __init__(self, background_grid=True, parent=None):
         ''' (QObject) -> NoneType
         '''
         QGraphicsScene.__init__(self, parent)
@@ -112,32 +125,51 @@ class GxScene(QGraphicsScene):
         self.setSceneRect(0, 0, 800, 600)
 ##        self.setItemIndexMethod(QGraphicsScene.NoIndex)
 
-##        scene.setItemIndexMethod(QGraphicsScene.NoIndex)
+        self.style = StyleBlocks()
 
         # information about the top-most item (changes with "bringToFront")
-        # {'z': float (item "stack" coordinate),
-        #  'item': QGraphicsItem <None> (top-most item)}
-        self._top_item = {'z': 0.0, 'item': None}
+        self._top_item = None
+        self._top_z = 0.0
 
         # if true, perform "self.bringToFront()" on the clicked item
         self._click_to_front = True
 
         # holds all the collidable items
-        self._vf_colli_paths = set()
-        self._io_colli_paths = set()
+        self._vf_male_colli_paths = set()
+        self._vf_female_colli_paths = set()
+        self._io_female_colli_paths = set()
 
         self._background_grid = background_grid
-
-        ##TODO: background grid option (is possible with brush styles?)
-        self.setBackgroundBrush(QBrush(QColor(self._BK_COLOR)))
+        self.setBackgroundBrush(QBrush(QColor('lightgray')))
 
     @property
-    def vf_colli_paths(self):
-        return self._vf_colli_paths
+    def vf_male_colli_paths(self):
+        return self._vf_male_colli_paths
 
     @property
-    def io_colli_paths(self):
-        return self._io_colli_paths
+    def vf_female_colli_paths(self):
+        return self._vf_female_colli_paths
+
+    @property
+    def io_female_colli_paths(self):
+        return self._io_female_colli_paths
+
+    def drawBackground(self, painter, rect):
+        ''' QGraphicsScene.drawBrackground(QPainter, QRectF) -> NoneType
+
+        If self._background_grid flag is True, then draws a series of vertical
+        and horizontal paralell lines to form a squared grid.
+        '''
+        QGraphicsScene.drawBackground(self, painter, rect)
+        if self._background_grid:
+            painter.setPen(QPen(QColor(203, 203, 203)))
+            painter.fillRect(rect, QColor(219, 219, 219))
+
+            W, H = self.sceneRect().width(), self.sceneRect().height()
+            for i in range(1, int(W), 20):
+                painter.drawLine(i, 0, i, H)
+            for j in range(1, int(H), 20):
+                painter.drawLine(0, j, W, j)
 
     def mousePressEvent(self, event):
         ''' QGraphicsScene.mousePressEvent(QGraphicsSceneMouseEvent)
@@ -157,56 +189,86 @@ class GxScene(QGraphicsScene):
         Activates or not the "click to front" functionality, in which the
         clicked item always become the top-most one.
         '''
-        if not isinstance(value, bool):
-            raise ValueError('Parameter \'value\' must be of type bool.'+\
-                ' Was given %s.' % value.__class__.__name__)
-
         self._click_to_front = value
 
     def getTopItem(self):
-        ''' (None) -> QGraphicsItem
+        ''' () -> QGraphicsItem
 
         Return the top-most item on the scene.
         '''
-        if self._top_item == None:
+        if self._top_item:
+            return self._top_item
+        else:
             items = self.items()
             if items:
                 return items[0]
-        else:
-            return self._top_item['item']
 
     def bringToFront(self, item):
         ''' (QGraphicsItem) -> NoneType
 
         Make the given item the top-most on the scene by setting properly
-        a new zValue if necessary.
+        a new zValue (if necessary).
         '''
-        if item != self._top_item['item']:
-            item.setZValue(self._top_item['z'] + self._Z_INCR)
-            self._top_item['z'] = item.zValue()
-            self._top_item['item'] = item
+        if item != self._top_item:
+            item.setZValue(self._top_z + self.Z_INCREMENT)
+            self._top_z = item.zValue()
+            self._top_item = item
 
-    def drawBackground(self, painter, rect):
-        ''' QGraphicsScene.drawBrackground(QPainter, QRectF) -> NoneType
+
+class ModelBlock(QGraphicsItem):
+    def __init__(self, scene, parent=None):
+        QGraphicsItem.__init__(self, parent, scene)
+        self._width, self._height = 200, 100
+        self._border_path = QPainterPath()
+
+    def boundingRect(self):
+        ''' QGraphicsItem.boundingRect() -> QRectF
         '''
-        QGraphicsScene.drawBackground(self, painter, rect)
-        if self._background_grid:
-            painter.setPen(QPen(QColor(203, 203, 203)))
-            painter.fillRect(rect, QColor(219, 219, 219))
+        return QRectF(0, 0, self._width, self._height)
 
-            W, H = self.sceneRect().width(), self.sceneRect().height()
-            for i in range(1, int(W), 20):
-                painter.drawLine(i, 0, i, H)
-            for j in range(1, int(H), 20):
-                painter.drawLine(0, j, W, j)
+    def shape(self):
+        ''' QGraphicsItem.shape() -> QPainterPath
+        '''
+        return self._border_path
+
+    def paint(self, painter, option=None, widget=None):
+        ''' QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
+                                QWidget widget=None) -> NoneType
+
+        TO BE REIMPLEMENTED
+        '''
+        pass
+
+    def getWidth(self):
+        return self._border_path.boundingRect().width()
+
+    def getHeight(self):
+        return self._border_path.boundingRect().height()
+
+    def updateMetrics(self):
+        ''' TO BE REIMPLEMENTED
+        '''
+        pass
+
+    def prepareRemove(self):
+        ''' TO BE REIMPLEMENTED
+        '''
+        pass
+
+    def cloneMe(self, scene):
+        ''' (GxSceneBlocks)
+
+        REIMPLEMENT IF YOU WANT THIS BLOCK TO BE ON THE PALETTE
+        '''
+        pass
+
 
 # -------------------------------------------------------------------------
-# all the defintions from here are just for demonstration, and not for
-# the project
+# all the defintions from here are just for demonstration purposes
 
 class GxExampleItem(QGraphicsItem):
     '''
-    Shows how to create an graphics item from scratch.
+    Shows how to create a graphics item from scratch.
 
     There are two mandatory virtual methods to be re-implemented:
         - boundingRect(), which returns the rectangle that defines the
@@ -256,8 +318,8 @@ def main():
     win = QMainWindow()
     win.setGeometry(200, 100, 800, 600)     # screen positon (200, 100)
 
-    scene = GxScene()   # remember: this one is not a QWidget-based object
-                        # it only acts as an indexing-manager container
+    scene = GxSceneBlocks()   # remember: this one is not a QWidget-based object
+                              # it only acts as an indexing-manager container
 
     # ---- sample items ---------------------------------------------------
 
@@ -274,18 +336,6 @@ def main():
 
     example_item = GxExampleItem(scene)
     config_item(example_item, [420, 150])
-
-##    # here is how you put a widget on the scene: first create the widget,
-##    # then create a QGraphicsProxyWidget and set its parent to some item
-##    # already on the scene
-##    combobox = QComboBox()
-##    combobox.addItems(['hello', 'pyqt', 'world'])
-##    combobox.setFont(QFont('Verdana', 20))
-##    proxy = GxProxyToFront(example_item)
-##    proxy.setWidget(combobox)
-##    proxy.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-##    proxy.setPos(50, 20)    # note that those coordinates are in respect
-##                            # with the proxy parent item (example_item)
 
     # ---------------------------------------------------------------------
 

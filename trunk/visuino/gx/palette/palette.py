@@ -26,7 +26,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
     def __init__(self, scene=None, opengl=False):
         QtGui.QGraphicsProxyWidget.__init__(self)
 
-        self._scene = GxScene(background_grid=False)
+        self._scene = GxSceneBlocks(background_grid=False)
         self._scene.setSceneRect(0, 0, 200, 1000)
 
         grad = QtGui.QLinearGradient(QtCore.QPointF(0, 0),
@@ -57,16 +57,12 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
         self.setupBlocks()
 
     def setupBlocks(self):
-        sa = self._style_arg_label = StyleArgLabel()
-        sn = self._style_notch = StyleNotch()
-        sfc = self._style_function_call = StyleFunctionCall()
-
         y = 10
 
         block_pin_mode = GxBlockFunctionCall('pinMode',
             [FieldInfo('pin', 'int', '0|13', 'combobox'),
              FieldInfo('mode', 'const', 'INPUT,OUTPUT', 'combobox')],
-            None, sa, sn, sfc, self._scene)
+            None, self._scene)
         block_pin_mode.setPos(20, y)
         block_pin_mode.setCursor(QtCore.Qt.OpenHandCursor)
         block_pin_mode.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
@@ -75,7 +71,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
         block_digital_read = GxBlockFunctionCall('digitalRead',
             [FieldInfo('pin', 'int', '0|13', 'combobox')],
             FieldInfo('value', 'int', 'HIGH,LOW', 'combobox'),
-            sa, sn, sfc, self._scene)
+            self._scene)
         block_digital_read.setPos(10, y)
         block_digital_read.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         y += block_digital_read.boundingRect().height() + 10
@@ -83,7 +79,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
         block_digital_write = GxBlockFunctionCall('digitalWrite',
             [FieldInfo('pin', 'int', '0|13', 'combobox'),
              FieldInfo('value', 'const', 'HIGH,LOW', 'combobox')],
-            None, sa, sn, sfc, self._scene)
+            None, self._scene)
         block_digital_write.setPos(20, y)
         block_digital_write.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         y += block_digital_write.boundingRect().height() + 10
@@ -91,7 +87,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
         block_analog_read = GxBlockFunctionCall('analogRead',
             [FieldInfo('pin', 'int', '0|13', 'combobox')],
             FieldInfo('value', 'int', '0|1023', 'combobox'),
-            sa, sn, sfc, self._scene)
+            self._scene)
         block_analog_read.setPos(10, y)
         block_analog_read.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         y += block_analog_read.boundingRect().height() + 10
@@ -99,7 +95,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
         block_analog_write = GxBlockFunctionCall('analogWrite',
             [FieldInfo('pin', 'int', '0|13', 'combobox'),
              FieldInfo('value', 'const', '0|255', 'combobox')],
-            None, sa, sn, sfc, self._scene)
+            None, self._scene)
         block_analog_write.setPos(20, y)
         block_analog_write.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         y += block_analog_write.boundingRect().height() + 10
@@ -109,14 +105,14 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
              FieldInfo('value', 'int', '0|', 'edit'),
              FieldInfo('timeout', 'int', '0|', 'edit')],
             FieldInfo('pulse_lenght', 'int', '0|', 'edit'),
-            sa, sn, sfc, self._scene)
+            self._scene)
         block_pulse_in.setPos(10, y)
         block_pulse_in.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         y += block_pulse_in.boundingRect().height() + 10
 
         block_millis = GxBlockFunctionCall('millis', None,
             FieldInfo('milliseconds', 'int', '0|', 'edit'),
-            sa, sn, sfc, self._scene)
+            self._scene)
         block_millis.setPos(10, y)
         block_millis.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
         y += block_millis.boundingRect().height() + 10
@@ -153,7 +149,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
 
 class GxViewPalette(GxView):
     def __init__(self, parent=None, opengl=False):
-        GxView.__init__(self, GxScene(), parent, opengl)
+        GxView.__init__(self, GxSceneBlocks(), parent, opengl)
 
         self.scene().setSceneRect(0, 0, 3000, 3000)
         self.scene().setParent(self)
