@@ -24,7 +24,7 @@ from visuino.gx.styles import *
 from visuino.gx.connections import *
 
 
-class GxArgLabel(ModelBlock, PluggableBlock):
+class GxArgLabel(GxPluggableBlock):
     '''
     Shape that represents argument names to be used on function call blocks.
     It has a female IO notch on the right, and supports resizing according
@@ -36,26 +36,23 @@ class GxArgLabel(ModelBlock, PluggableBlock):
 
         kwargs:
             @ fixed_width: number <None>
-            @ fixed_height: number <None>
-            @ fixed_io_notch_y0: number <None>
+            @ update_parent: True <False>
         '''
-        QGraphicsItem.__init__(self, parent, scene)
-        PluggableBlock.__init__(self)
+        GxPluggableBlock.__init__(self, scene, parent, mouse_active=False)
 
         self._width, self._height = 0, 0
-
-        self._fixed_height = kwargs.get('fixed_height', None)
         self._fixed_width = kwargs.get('fixed_width', None)
-        self._fixed_io_female_y0 = kwargs.get('fixed_io_notch_y0', None)
+        self.update_parent = kwargs.get('update_parent', True)
 
         self._name = name
         self._name_rect = QRectF(0, 0, self._width, self._height)
         self._name_font = None
-        self._border_path = QPainterPath()
 
         self.updateMetrics()
 
     def setFixedWidth(self, width):
+        ''' (number) -> NoneType
+        '''
         self._fixed_width = width
         self.updateMetrics()
 
@@ -81,7 +78,6 @@ class GxArgLabel(ModelBlock, PluggableBlock):
 ##        painter.setPen(Qt.DashLine)
 ##        painter.setBrush(Qt.transparent)
 ##        painter.drawRect(self._name_rect)
-
 
     def updateMetrics(self):
         ''' () -> NoneType
@@ -126,8 +122,8 @@ class GxArgLabel(ModelBlock, PluggableBlock):
 
         corner_size = QSizeF(cw, ch)
 
-        if self._fixed_height is not None:
-            H = self._fixed_height
+        if self.child_io:
+            H = self.child_io.getHeight()
         if self._fixed_width is not None:
             W = self._fixed_width
 
@@ -139,10 +135,10 @@ class GxArgLabel(ModelBlock, PluggableBlock):
         CornerPath.connect(path, corner_size, corner_shape, 'bottom-left', False)
         path.lineToInc(dx = W - cw)
 
-        if self._fixed_io_female_y0 is None:
-            path.lineToInc(dy = - (H - ioh)/2)
+        if self.child_io:
+            path.lineToInc(dy = - (H - self.child_io.io_male_start.y() - ioh))
         else:
-            path.lineToInc(dy = - (H - self._fixed_io_female_y0 - ioh))
+            path.lineToInc(dy = - (H - ioh)/2)
 
         NotchPath.connect(path, io_notch_size, io_notch_shape, '-j', 'left')
         self.io_female_start, io_y0 = path.currentPosition(), path.y
@@ -156,25 +152,16 @@ class GxArgLabel(ModelBlock, PluggableBlock):
                                  W - iow - bw, nh)
 
         print('Updating connectors GxArgLabel', self._name)
-        self.updateConnectors()
+        self.updateConnections()
+        
         self.update(self.boundingRect())
 
-    def plugIn(self, child):
-        self._fixed_height = child.getHeight()
-        self._fixed_io_female_y0 = child.getIoNotchStart().y()
+        if self.update_parent:
+            if isinstance(self.parentItem(), GxBlock):
+                self.parentItem().updateMetrics()
 
-        child.setParentItem(self)
-        self._child = child
-        self.updateMetrics()
-
-    def plugOut(self):
-        self._fixed_height = None
-        self._fixed_io_notch_y0 = None
-        self._child = None
-        self.updateMetrics()
-
-    def prepareRemove(self):
-        self.removeConnections()
+    def __repr__(self):
+        return "ArgLabel: %s" % self._name
 
 
 class HollowItem:

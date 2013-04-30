@@ -15,8 +15,9 @@ from __future__ import division, print_function
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-__all__ = ['PluggableBlock']
+__all__ = ['GxPluggableBlock']
 
+from visuino.gx.bases import GxBlock
 from visuino.gx.shapes import *
 from visuino.gx.utils import *
 
@@ -29,10 +30,9 @@ class GxColliPath(QGraphicsPathItem):
     female is collision-detected an then the insertion marker can be activated.
     '''
     def __init__(self, kind, gender, start_point, scene, parent=None):
-        ''' ('io'/'vf', 'M'/'F', QPointF, GxSceneBlocks,
-             QGraphicsItem)
+        ''' ('io'/'vf', 'M'/'F', QPointF, GxSceneBlocks, QGraphicsItem)
         '''
-        self._kind, self._gender = kind, gender
+        self._kind, self._gender = kind.lower(), gender.upper()
         sp = self._start_point = start_point
         sn = scene.style.notch
 
@@ -50,7 +50,13 @@ class GxColliPath(QGraphicsPathItem):
         path.addRect(0, 0, W, H)
         QGraphicsPathItem.__init__(self, path, parent, scene)
         self.setPos(pos)
-##        self.setVisible(False)
+        self.setVisible(False)
+
+        # inserts itself on the correct set of colli paths (on the scene)
+        colli_set = self.kind + '_' + self.gender_ext + '_colli_paths'
+        if hasattr(self.scene(), colli_set):
+            getattr(self.scene(), colli_set).add(self)
+#            print('Created colli path on self.scene.', colli_set, sep='')
 
     def isMale(self):
         ''' () -> bool
@@ -67,11 +73,30 @@ class GxColliPath(QGraphicsPathItem):
         '''
         return self.parentItem().mapToScene(self._start_point)
 
-    def getGenderE(self):
+    @property
+    def kind(self):
+        return self._kind.lower()
+
+    @property
+    def gender(self):
+        return self._gender.upper()
+
+    @property
+    def gender_ext(self):
         return 'male' if self._gender == 'M' else 'female'
 
-    def getKind(self):
-        return self._kind.lower()
+    def removeFromScene(self):
+        ''' () -> NoneType
+
+        Remove this colli path objectf from the scene, by also taking care
+        of its reference on whatever set of colli path it is in.
+        '''
+        scene = self.scene()
+        colli_set = self.kind + '_' + self.gender_ext + '_colli_paths'
+        if hasattr(scene, colli_set) and self in getattr(scene, colli_set):
+            getattr(scene, colli_set).remove(self)
+#            print('Removed ', self, ' from ', colli_set, sep='')
+        scene.removeItem(self)
 
 
 class GxInsertionMarker(QGraphicsPathItem):
@@ -131,9 +156,6 @@ class GxInsertionMarker(QGraphicsPathItem):
                                 QWidget) -> NoneType
         '''
         painter.fillRect(self.boundingRect(), Qt.transparent)
-        painter.setPen(QPen(Qt.black, 1))
-        painter.setBrush(Qt.transparent)
-        painter.drawRect(self.boundingRect())
 
         painter.setPen(self._pen)
         painter.setBrush(Qt.transparent)
@@ -144,7 +166,7 @@ class GxInsertionMarker(QGraphicsPathItem):
 ##        painter.drawRect(self.boundingRect())
 
 
-class PluggableBlock(object):
+class GxPluggableBlock(GxBlock):
     '''
     Attributes:
         - io_male_start: QPointF <None>
@@ -159,9 +181,13 @@ class PluggableBlock(object):
     '''
     NOTCHES = ('io_male', 'io_female', 'vf_male', 'vf_female')
 
-    def __init__(self):
+    def __init__(self, scene, parent=None, mouse_active=True):
         ''' (GxScene)
         '''
+        GxBlock.__init__(self, scene, parent)
+
+        self.mouse_active = mouse_active
+
         for x in self.NOTCHES:
             setattr(self, x + '_start', None)
             setattr(self, x + '_colli_path', None)
@@ -173,17 +199,16 @@ class PluggableBlock(object):
         self.vf_female_insertion_marker = None
         self.vf_female_colliding = None
 
-    def updateConnectors(self):
-        self.cleanConnections()
-        for x in self.NOTCHES:
-            self._updateNotch(x)
+        self.parent_io = None
+        self.parent_vf = None
+        self.child_io = None
+        self.child_vf = None
 
     def _updateNotch(self, notch):
-        ''' (str)
+        ''' (str in self.NOTCHES)
         '''
         kind, gender = notch[:2], notch[3].upper()
         notch_start = getattr(self, notch + '_start', None)
-        colli_path = getattr(self, notch + '_colli_path', None)
 
         if notch_start is not None:
 
@@ -191,85 +216,48 @@ class PluggableBlock(object):
                                          self.scene(), parent=self)
             setattr(self, notch + '_colli_path', new_colli_path)
 
-            if kind == 'io' and gender == 'F':
-                self.scene().io_female_colli_paths.add(new_colli_path)
-            elif kind == 'vf':
-                if gender == 'F':
-                    self.scene().vf_female_colli_paths.add(new_colli_path)
-                elif gender == 'M':
-                    self.scene().vf_male_colli_paths.add(new_colli_path)
+    def _checkNotchCollisions(self):
+        ''' () -> NoneType
 
-    def collideNotches(self):
-        io_M, io_F = self.io_male_colli_path, self.io_female_colli_path
-        vf_M, vf_F = self.vf_male_colli_path, self.vf_female_colli_path
-
-        if io_M:
+        Checks for possible collisions on all the notches, except for the
+        IO female. Therefore, connections by dragging IO female to some IO
+        male have no effect.
+        '''
+        if self.io_male_colli_path:
             colli = self.io_male_colliding
             if not colli:
                 # checks for collision with FEMALE IO colli paths
                 for x in self.scene().io_female_colli_paths:
-                    if io_M.collidesWithItem(x):
+                    if self.io_male_colli_path.collidesWithItem(x):
                         print('IO Collision detected!')
                         self._startInsertionEffect('io', 'M', x)
                         break
-            elif not io_M.collidesWithItem(colli):
+            elif not self.io_male_colli_path.collidesWithItem(colli):
                 self._endInsertionEffect('io', 'M')
 
-        if vf_M:
+        if self.vf_male_colli_path:
             colli = self.vf_male_colliding
             if not colli:
                 # checks for collision with FEMALE VF colli paths
                 for x in self.scene().vf_female_colli_paths:
-                    if vf_M.collidesWithItem(x):
+                    if self.vf_male_colli_path.collidesWithItem(x):
                         print('VF male->female collision detected!')
                         self._startInsertionEffect('vf', 'M', x)
                         break
-            elif not vf_M.collidesWithItem(colli):
+            elif not self.vf_male_colli_path.collidesWithItem(colli):
                 self._endInsertionEffect('vf', 'M')
 
-        if vf_F:
+        if self.vf_female_colli_path:
             colli = self.vf_female_colliding
             if not colli:
                 # checks for collision with MALE VF colli paths
                 for x in self.scene().vf_male_colli_paths:
-                    if vf_F.collidesWithItem(x):
+                    if self.vf_female_colli_path.collidesWithItem(x):
                         print('VF female->male collision detected!')
                         self._startInsertionEffect('vf', 'F', x)
                         break
-            elif not vf_F.collidesWithItem(colli):
+            elif not self.vf_female_colli_path.collidesWithItem(colli):
                 self._endInsertionEffect('vf', 'F')
-
-    def cleanConnections(self):
-##        print('Cleaning PluggableBlock attributes...')
-        io_Fcp = self.scene().io_female_colli_paths
-        vf_Mcp = self.scene().vf_male_colli_paths
-        vf_Fcp = self.scene().vf_female_colli_paths
-
-        for notch in self.NOTCHES:
-            kind, gender = notch[:2], notch[3].upper()
-            colli = getattr(self, notch + '_colli_path')
-
-##            print('Trying to remove ', notch + '_colli_path', colli)
-            if isinstance(colli, GxColliPath):
-                if kind == 'io' and gender == 'F' and colli in io_Fcp:
-                    io_Fcp.remove(colli)
-                elif kind == 'vf':
-                    if gender == 'M' and colli in vf_Mcp:
-                        vf_Mcp.remove(colli)
-                    elif gender == 'F' and colli in vf_Fcp:
-                        vf_Fcp.remove(colli)
-
-                setattr(self, notch + '_colli_path', None)
-##                print('Removed ', notch + '_colli_path')
-                self.scene().removeItem(colli)
-
-    def removeConnections(self):
-        print('Removing connetions...')
-        self.io_male_start = None
-        self.io_female_start = None
-        self.vf_male_start = None
-        self.vf_female_start = None
-        self.cleanConnections()
 
     def _startInsertionEffect(self, kind, source_gender, target):
         ''' ('io'/'vf', 'male'/'female', GxColliPath)
@@ -291,6 +279,117 @@ class PluggableBlock(object):
             setattr(self, kind + '_' + gender + '_insertion_marker', None)
             setattr(self, kind + '_' + gender + '_colliding', None)
 
+    def _cleanColliPaths(self):
+        ''' () -> NoneType
+        '''
+        for notch in self.NOTCHES:
+            kind, gender = notch[:2], notch[3].upper()
+            colli = getattr(self, notch + '_colli_path')
+            if isinstance(colli, GxColliPath):
+                colli.removeFromScene()
+                setattr(self, notch + '_colli_path', None)
+
+    def plugIo(self):
+        '''
+        '''
+        print('Plugging IO...')
+        target = self.io_male_colliding.parentItem()
+
+        self.setParentItem(target)
+        x, y = target.io_female_start.x(), target.io_female_start.y()
+        x -= self.scene().style.notch.io_notch_width + 1
+        y += 2*self.scene().style.arg_label.border_width + 1
+        y -= self.io_male_start.y()
+        self.setPos(x, y)
+
+        self.parent_io = target
+        target.child_io = self
+
+        if hasattr(target, 'updateMetrics'):
+            target.updateMetrics()
+
+    def unplugIo(self):
+        if self.parent_io:
+            print("I am no longer your son!")
+
+            pos = self.parent_io.mapToScene(self.pos())
+            self.setParentItem(None)
+            self.setPos(pos)
+
+            self.parent_io.child_io = None
+            self.parent_io.updateMetrics()
+            self.parent_io = None
+            self.io_male_colliding = None
+
+            self.scene().addItem(self)
+
+    def updateConnections(self):
+        ''' () -> NoneType
+
+        Should be called on the updateMetrics() of the GxBlock subclass.
+        First, removes the existing colli paths, then update each notch
+        consider their current start point attribute. So, if you wanna
+        remove a connection on some notch, set its start point to None,
+        an than call this method.
+        '''
+        self._cleanColliPaths()
+#        print('After clean:\n' + 30*'-')
+
+        for x in self.NOTCHES:
+#            print('Updating notch', x, ':', sep='')
+            self._updateNotch(x)
+
+    def mousePressEvent(self, event):
+        ''' GxBlock.mousePressEvent(QGraphicsSceneMouseEvent) -> NoneType
+        '''
+        GxBlock.mousePressEvent(self, event)
+        if not self.mouse_active: return
+
+        print('IO Female Colli Paths: ',
+              len(self.scene().io_female_colli_paths))
+        print('VF Female Colli Paths: ',
+              len(self.scene().vf_female_colli_paths))
+        print('VF Male Colli Paths: ',
+              len(self.scene().vf_male_colli_paths))
+
+        self.unplugIo()
+        self._checkNotchCollisions()
+
+    def mouseMoveEvent(self, event):
+        ''' GxBlock.mouseMoveEvent(QGraphicsSceneMouseEvent) -> NoneType
+        '''
+        GxBlock.mouseMoveEvent(self, event)
+        if not self.mouse_active: return
+
+        self._checkNotchCollisions()
+
+    def mouseReleaseEvent(self, event):
+        ''' GxBlock.mouseReleaseEvent(QGraphicsSceneMouseEvent) -> NoneType
+
+
+        '''
+        GxBlock.mouseReleaseEvent(self, event)
+        if not self.mouse_active: return
+
+        if self.io_male_colliding and not self.parent_io:
+            self.plugIo()
+            self._endInsertionEffect('io', 'M')
+
+##        if self.vf_male_colliding and not self.parent_vf:
+##            self.plugVf()
+##            self._endInsertionEffect('vf', 'M')
+
+    def removeFromScene(self):
+        ''' GxBlock.removeFromScene() -> NoneType
+
+        Before removing itself, take cares of the childs by calling
+        removeFromScene() on them too. Eventually, one of those childs
+        will gonna be GxColliPath objects, which MUST be assured to be
+        deleted from the scene by calling its removeFromScene() method.
+        '''
+        for child in self.childItems():
+            child.removeFromScene()
+        self.scene().removeItem(self)
 
 def main():
     pass

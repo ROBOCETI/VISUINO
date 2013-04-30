@@ -23,18 +23,36 @@ from visuino.gx.blocks.arg_label import GxArgLabel
 
 from visuino.gui import FieldInfo
 
-class GxBlockFunctionCall(ModelBlock, PluggableBlock):
+class GxBlockFunctionCall(GxPluggableBlock):
     '''
-    Bloco para chamada de função. Pode possuir zero ou mais argumentos,
-    cada qual com um conector IO fêmea. Caso possua retorno, também apre-
-    sentará um conector IO macho na lateral esquerda e nenhum conetor VF
-    (ou seja, funções com retorno não poderão ser conectadas diretamente
-    no fluxo vertical do programa). Caso contrário, apresentará conetores
-    VF fêmea (parte superior) e macho (parte inferior).
+    Block that represents the function call syntax on imperative languages.
+    For instance, a funcion call in Python or C is given by:
 
-    Atributos:
-        _width: int. Width of the bounding rectangle.
-        _height: int. Height of the bounding rectangle.
+        function_name(arg1, arg2, ..., argN)
+
+    This blocks represents graphically that piece of syntax, where each
+    argument is given by an GxArgLabel object and the function return
+    (optional) is signaled by a male IO connector on the left side.
+
+    Attributes:
+        _name: str. Name of the function to be showed on the block.
+
+        _args: list of FieldInfo <None>. Arguments of the function. A list
+            of GxArgLabel objects will be created based on that attribute.
+
+        _return: FieldInfo <None>. Information about the return value of this
+            function call block. If None, then will have VF connectors; else,
+            will have no VF connectores and one male IO on the left side.
+
+        _name_rect: QRectF. Rectangle in which the name text will be drawn.
+            Gets updated via updateMetrics(), using Style attributes.
+
+        _args_labels: list of GxArgLabel. Saves reference for each one of the
+            argument label object.
+
+        _args_height: number. Total height of the GxArgLabel objects in
+            self._args_labels, including the spacing between them.
+            Gets updated via updateMetrics().
     '''
 
     MSG_ERR_TYPE_ARGS = \
@@ -48,16 +66,18 @@ class GxBlockFunctionCall(ModelBlock, PluggableBlock):
     def __init__(self, name, args, return_, scene, parent=None):
         ''' (str, list of FieldInfo, FieldInfo, GxSceneBlocks, QGraphicsItem)
         '''
-        ModelBlock.__init__(self, scene, parent)
-        PluggableBlock.__init__(self)
+        GxPluggableBlock.__init__(self, scene, parent)
 
         self._name, self._args, self._return = name, args, return_
         self._name_rect = self.boundingRect()
         self._args_labels = []
         self._args_height = 0
-        self.setupArgLabels()
 
+        self.setupArgLabels()
         self.updateMetrics()
+
+        for arg in self._args_labels:
+            arg.update_parent = True
 
     def paint(self, painter, option=None, widget=None):
         ''' QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
@@ -79,46 +99,47 @@ class GxBlockFunctionCall(ModelBlock, PluggableBlock):
 
 ##        painter.setPen(Qt.DashLine)
 ##        painter.setBrush(Qt.transparent)
-##        painter.drawRect(self._name_rect)
-
+##        painter.drawRect(self.boundingRect())
 
     def setupArgLabels(self):
-        if self._args is None:
-            return
-        elif not isinstance(self._args, (tuple, list)):
-            raise TypeError(self.MSG_ERR_TYPE_ARGS)
+        ''' () -> NoneType
 
+        Should be called whenever self._args changes.
+        '''
+        if self._args is None or not isinstance(self._args, (tuple, list)):
+            return
         sa, sn = self.scene().style.arg_label, self.scene().style.notch
 
         for arg in self._args_labels:
-            arg.prepareRemove()
-            self.scene().removeItem(arg)
+            arg.removeFromScene()
         self._args_labels = []
 
         max_width = 0
         self._args_height = 0
         for i, x in enumerate(self._args):
-            if not isinstance(x, FieldInfo):
-               raise TypeError(self.MSG_ERR_NOT_FIELD_INFO % (i, x.__class__))
-            else:
-                new_label = GxArgLabel(x.name, self.scene(), parent=self)
+            if isinstance(x, FieldInfo):
+                new_label = GxArgLabel(x.name, self.scene(), parent=self,
+                                       update_parent=False)
                 new_label.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
                 new_label.setPos(0, i*50)
 ##                new_label.setVisible(False)
-                w, h = new_label.getWidth(), new_label.getHeight()
+                w = new_label.getWidth()
 
                 max_width = w if w > max_width else max_width
                 self._args_labels.append(new_label)
-                self._args_height += h
+            else:
+                raise TypeError(self.MSG_ERR_NOT_FIELD_INFO % (i, x.__class__))
 
-        if self._args:
-            self._args_height += (len(self._args) - 1) * \
-                self.scene().style.function_call.arg_spacing
+        for arg in self._args_labels:
+            arg.setFixedWidth(max_width)
+            arg.update_parent = True
 
-        for x in self._args_labels:
-            x.setFixedWidth(max_width)
 
     def updateMetrics(self):
+        ''' () -> NoneType
+
+
+        '''
         self.prepareGeometryChange()
         self.old_size = self.boundingRect().size()
 
@@ -160,6 +181,15 @@ class GxBlockFunctionCall(ModelBlock, PluggableBlock):
         else:
             fvc += 1
 
+        # updating the total argument height
+        self._args_height = 0
+        for arg in self._args_labels:
+            self._args_height += arg.getHeight()
+
+        if self._args:
+            self._args_height += (len(self._args) - 1) * \
+                self.scene().style.function_call.arg_spacing
+
         if self._return:
             # height from the top up to the args y0
             args_y0 = max(vp, ch) + nh + vp
@@ -169,7 +199,7 @@ class GxBlockFunctionCall(ModelBlock, PluggableBlock):
             #   - name width + horizontal padding (2*max(hp, cw) + nw)
             #   - minimum argument left padding + arg label width (maw)
             W = iow + max(2*max(hp, cw) + nw, maw, 50)
-            H = args_y0 + self._args_height + ch
+            H = args_y0 + self._args_height + ch + bp
 
             path = GxPainterPath(QPointF(bw + iow, bw + ch))
             CornerPath.connect(path, corner_size, corner_shape, 'top-left')
@@ -200,11 +230,11 @@ class GxBlockFunctionCall(ModelBlock, PluggableBlock):
             #   - vf notch x0 + vf notch width (vfs + vfw)
             #   - minimum argument left padding + arg label width (maw)
             W = max(2*max(hp, cw) + nw, vfs + vfw + cw + 10, maw)
-            H = args_y0 + self._args_height + ch + vfh
+            H = args_y0 + self._args_height + ch + vfh + bp
 
             path = GxPainterPath(QPointF(bw, bw + ch))
             CornerPath.connect(path, corner_size, corner_shape, 'top-left')
-            path.lineToInc(vfs - cw)
+            path.lineToInc(dx = vfs - cw)
             self.vf_female_start = path.currentPosition()
             NotchPath.connect(path, vf_size, vf_shape, '+i', 'down')
             path.lineTo(W - cw, path.y)
@@ -228,11 +258,20 @@ class GxBlockFunctionCall(ModelBlock, PluggableBlock):
         self._border_path = path
         self._width, self._height = W + bw, H + bw
 
-        print('Updating connectors GxBlockFunctionCall')
-        self.updateConnectors()
+        print('Updating connectors GxBlockFunctionCall ', self._name)
+        self.updateConnections()
         self.update(self.boundingRect())
 
+        if isinstance(self.parentItem(), GxBlock):
+            print("Updating %s parent!" % self._name)
+            self.parentItem().updateMetrics()
+
     def _placeArgs(self, path, iow, bw, W, asp):
+        ''' (GxPainterPath, number, number, number, number) -> NoneType
+
+        From the current position on the path, set the GxArgLabel objects
+        final positions.
+        '''
         for arg in self._args_labels:
             arg.setPos(W - arg.getWidth() - bw, path.y - bw)
             path.lineToInc(dx = -iow - 3*bw)
@@ -241,17 +280,29 @@ class GxBlockFunctionCall(ModelBlock, PluggableBlock):
             path.lineToInc(dy = asp)
 
     def setName(self, name):
+        ''' (str) -> NoneType
+
+        Set the function name attribute, and also update the graphics.
+        '''
         self._name = name
         self.updateMetrics()
 
     def setReturn(self, return_):
-        if return_ is None:
-            self._return = None
-        elif isinstance(return_, FieldInfo):
+        ''' (FieldInfo) -> NoneType
+
+        Set the return value attribute, and also update the graphics.
+        '''
+        if isinstance(return_, FieldInfo):
             self._return = return_
+        else:
+            self._return = None
         self.updateMetrics()
 
     def setArgs(self, args):
+        ''' (list of FieldInfo) -> NoneType
+
+        Set its arguments information, and also update the graphics.
+        '''
         self._args = args
         self.setupArgLabels()
         self.updateMetrics()
@@ -262,38 +313,8 @@ class GxBlockFunctionCall(ModelBlock, PluggableBlock):
         return GxBlockFunctionCall(self._name, self._args, self._return,
                                    scene)
 
-    def prepareRemove(self):
-        for arg in self._args_labels:
-            arg.prepareRemove()
-        self.removeConnections()
-
-    def mousePressEvent(self, event):
-        QGraphicsItem.mousePressEvent(self, event)
-        print('IO Female Colli Paths: ',
-              len(self.scene().io_female_colli_paths))
-        print('VF Female Colli Paths: ',
-              len(self.scene().vf_female_colli_paths))
-        print('VF Male Colli Paths: ',
-              len(self.scene().vf_male_colli_paths))
-
-    def mouseReleaseEvent(self, event):
-        ''' QGraphicsItem.mouseReleaseEvent(QGraphicsSceneMouseEvent)
-            -> NoneType
-        '''
-        QGraphicsItem.mouseReleaseEvent(self, event)
-
-        mouse_grabber = self.scene().mouseGrabberItem()
-        if mouse_grabber and mouse_grabber is self:
-            self.ungrabMouse()
-
-        if hasattr(self, 'palette_blocks'):
-            if self.collidesWithItem(self.palette_blocks):
-                self.prepareRemove()
-                self.scene().removeItem(self)
-
-    def mouseMoveEvent(self, event):
-        QGraphicsItem.mouseMoveEvent(self, event)
-        self.collideNotches()
+    def __repr__(self):
+        return "GxBlockFunctionCall " + str(self._name)
 
 
 class WinCustomizeFunctionCall(QMainWindow):

@@ -28,7 +28,6 @@ from visuino.gx.connections import *
 from visuino.gx.styles import *
 
 
-
 class StyleBlockFunctionCall(object):
     '''
     Collection of attributes to customize all the metrics of the function

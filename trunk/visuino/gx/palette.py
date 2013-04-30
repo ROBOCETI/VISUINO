@@ -120,7 +120,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
 
     def mousePressEvent(self, event):
         ''' QtGui.QGraphicsProxyWidget.mousePressEvent(
-            QGraphicsSceneMouseEvent) -> NoneType
+                QGraphicsSceneMouseEvent) -> NoneType
         '''
         QtGui.QGraphicsProxyWidget.mousePressEvent(self, event)
 
@@ -135,9 +135,8 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
             new_block.setCacheMode(QtGui.QGraphicsItem.ItemCoordinateCache)
 
             new_block.palette_blocks = self
+            new_block.new_block = True
 
-            icon_pos = QtCore.QPointF(block_icon.pos().x() + 2,
-                                      block_icon.pos().y() + 2)
             icon_mapped_pos = self._view.mapFromScene(block_icon.pos())
             new_block.setPos(QtCore.QPointF(
                 self.pos().x() + icon_mapped_pos.x() + 2,

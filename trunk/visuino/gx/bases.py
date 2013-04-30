@@ -16,7 +16,7 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free. Also, remember to keep the credits.
 #-------------------------------------------------------------------------------
-__all__ = ['GxSceneBlocks', 'ModelBlock','GxView']
+__all__ = ['GxSceneBlocks', 'GxBlock','GxView']
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -152,7 +152,7 @@ class GxSceneBlocks(QGraphicsScene):
 
     @property
     def io_female_colli_paths(self):
-        return self._io_female_colli_paths
+        return self._io_female_colli_paths    
 
     def drawBackground(self, painter, rect):
         ''' QGraphicsScene.drawBrackground(QPainter, QRectF) -> NoneType
@@ -215,11 +215,21 @@ class GxSceneBlocks(QGraphicsScene):
             self._top_item = item
 
 
-class ModelBlock(QGraphicsItem):
+class GxBlock(QGraphicsItem):
     def __init__(self, scene, parent=None):
         QGraphicsItem.__init__(self, parent, scene)
         self._width, self._height = 200, 100
-        self._border_path = QPainterPath()
+
+        path = QPainterPath()
+        path.addRect(self.boundingRect())
+        self._border_path = path
+
+        self.palette_blocks = None
+        self._palette_colliding = False
+        self.new_block = False
+        
+        self._default_block_cursor = Qt.OpenHandCursor
+#        self.setCursor(self._default_block_cursor)
 
     def boundingRect(self):
         ''' QGraphicsItem.boundingRect() -> QRectF
@@ -239,12 +249,6 @@ class ModelBlock(QGraphicsItem):
         '''
         pass
 
-    def getWidth(self):
-        return self._border_path.boundingRect().width()
-
-    def getHeight(self):
-        return self._border_path.boundingRect().height()
-
     def updateMetrics(self):
         ''' TO BE REIMPLEMENTED
         '''
@@ -261,6 +265,47 @@ class ModelBlock(QGraphicsItem):
         REIMPLEMENT IF YOU WANT THIS BLOCK TO BE ON THE PALETTE
         '''
         pass
+    
+    def getWidth(self):
+        return self._border_path.boundingRect().width()
+
+    def getHeight(self):
+        return self._border_path.boundingRect().height()
+        
+    def checkPaletteCollide(self):
+        if self.palette_blocks:
+            collide = self.collidesWithItem(self.palette_blocks) 
+
+            if collide and not self.new_block and not self._palette_colliding:
+                self.setCursor(self.palette_blocks.cursor_collide)
+                self._palette_colliding = True
+            elif not collide:
+                self.setCursor(self._default_block_cursor)
+                self.new_block = False
+                self._palette_colliding = False
+
+    
+    def mousePressEvent(self, event):
+        QGraphicsItem.mousePressEvent(self, event)
+        
+    def mouseMoveEvent(self, event):
+        QGraphicsItem.mouseMoveEvent(self, event)
+        self.checkPaletteCollide()        
+
+    def mouseReleaseEvent(self, event):
+        QGraphicsItem.mouseReleaseEvent(self, event)
+        
+        # this is for the case when de item is grabbed on the mouse by
+        # the palette, and not by some mouse click event (drag and drop)
+        mouse_grabber = self.scene().mouseGrabberItem()
+        if mouse_grabber and mouse_grabber is self:
+            self.ungrabMouse()
+        
+        if self.palette_blocks and self.collidesWithItem(self.palette_blocks):
+            self.removeFromScene()
+        
+    def removeFromScene(self):
+        self.scene().removeItem(self)
 
 
 # -------------------------------------------------------------------------
