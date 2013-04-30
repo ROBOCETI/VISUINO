@@ -97,9 +97,9 @@ class GxBlockFunctionCall(GxPluggableBlock):
         painter.setPen(QPen(QColor(sfc.name_font_color)))
         painter.drawText(self._name_rect, Qt.AlignCenter, self._name)
 
-##        painter.setPen(Qt.DashLine)
-##        painter.setBrush(Qt.transparent)
-##        painter.drawRect(self.boundingRect())
+#        painter.setPen(Qt.DashLine)
+#        painter.setBrush(Qt.transparent)
+#        painter.drawRect(self.boundingRect())
 
     def setupArgLabels(self):
         ''' () -> NoneType
@@ -312,6 +312,9 @@ class GxBlockFunctionCall(GxPluggableBlock):
         '''
         return GxBlockFunctionCall(self._name, self._args, self._return,
                                    scene)
+
+    def getBorderWidth(self):
+        return self.scene().style.function_call.border_width
 
     def __repr__(self):
         return "GxBlockFunctionCall " + str(self._name)

@@ -153,12 +153,15 @@ class GxArgLabel(GxPluggableBlock):
 
         print('Updating connectors GxArgLabel', self._name)
         self.updateConnections()
-        
+
         self.update(self.boundingRect())
 
         if self.update_parent:
             if isinstance(self.parentItem(), GxBlock):
                 self.parentItem().updateMetrics()
+
+    def getBorderWidth(self):
+        return self.scene().style.arg_label.border_width
 
     def __repr__(self):
         return "ArgLabel: %s" % self._name

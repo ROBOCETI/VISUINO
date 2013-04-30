@@ -10,6 +10,8 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
+from __future__ import division, print_function
+
 __all__ = ['GxPalette', 'GxViewPalette']
 
 from PyQt4 import QtGui, QtCore
@@ -55,6 +57,7 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
             scene.addItem(self)
 
         self.setupBlocks()
+        self._view.scale(0.85, 0.85)
 
     def setupBlocks(self):
         y = 10

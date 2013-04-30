@@ -71,7 +71,7 @@ class StyleFunctionCall(object):
 
         self.name_font_color = 'white'
         self.name_font_family = 'Verdana'
-        self.name_font_size = 12
+        self.name_font_size = 11
         self.name_hpadd = 8
         self.name_vpadd = 5
         self.name_font_vcorrection = -1
