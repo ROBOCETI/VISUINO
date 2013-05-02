@@ -97,9 +97,10 @@ class GxBlockFunctionCall(GxPluggableBlock):
         painter.setPen(QPen(QColor(sfc.name_font_color)))
         painter.drawText(self._name_rect, Qt.AlignCenter, self._name)
 
-#        painter.setPen(Qt.DashLine)
-#        painter.setBrush(Qt.transparent)
-#        painter.drawRect(self.boundingRect())
+        if self.isSelected():
+            painter.setPen(Qt.DashLine)
+            painter.setBrush(Qt.transparent)
+            painter.drawRect(self.boundingRect())
 
     def setupArgLabels(self):
         ''' () -> NoneType
@@ -199,7 +200,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
             #   - name width + horizontal padding (2*max(hp, cw) + nw)
             #   - minimum argument left padding + arg label width (maw)
             W = iow + max(2*max(hp, cw) + nw, maw, 50)
-            H = args_y0 + self._args_height + ch + bp
+            H = args_y0 + self._args_height + ch
 
             path = GxPainterPath(QPointF(bw + iow, bw + ch))
             CornerPath.connect(path, corner_size, corner_shape, 'top-left')
@@ -230,7 +231,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
             #   - vf notch x0 + vf notch width (vfs + vfw)
             #   - minimum argument left padding + arg label width (maw)
             W = max(2*max(hp, cw) + nw, vfs + vfw + cw + 10, maw)
-            H = args_y0 + self._args_height + ch + vfh + bp
+            H = args_y0 + self._args_height + ch + vfh
 
             path = GxPainterPath(QPointF(bw, bw + ch))
             CornerPath.connect(path, corner_size, corner_shape, 'top-left')
@@ -258,7 +259,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
         self._border_path = path
         self._width, self._height = W + bw, H + bw
 
-        print('Updating connectors GxBlockFunctionCall ', self._name)
+#        print('Updating connectors GxBlockFunctionCall ', self._name)
         self.updateConnections()
         self.update(self.boundingRect())
 
@@ -318,7 +319,6 @@ class GxBlockFunctionCall(GxPluggableBlock):
 
     def __repr__(self):
         return "GxBlockFunctionCall " + str(self._name)
-
 
 class WinCustomizeFunctionCall(QMainWindow):
     def __init__(self, parent=None):

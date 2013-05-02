@@ -141,6 +141,8 @@ class GxSceneBlocks(QGraphicsScene):
 
         self._background_grid = background_grid
         self.setBackgroundBrush(QBrush(QColor('lightgray')))
+        
+        self._active_blocks = set()
 
     @property
     def vf_male_colli_paths(self):
@@ -216,7 +218,34 @@ class GxSceneBlocks(QGraphicsScene):
 
 
 class GxBlock(QGraphicsItem):
-    def __init__(self, scene, parent=None):
+    '''
+    Base class for any graphical block to be inserted on GxSceneBlocks.
+    Its 
+    
+    Attributes:
+        _width: int. Width of the bounding rectangle.
+        
+        _height: int. Height of the bounding rectangle.
+    
+        _border_path: QPainterPath. Defines the shape of the item.
+        
+        palette_blocks: GxPalette <None>. Used for palette colliding events.
+            It is condigured by the GxPalette itself, and should not be 
+            changed anyware else.
+                
+        _palette_colliding: bool. Flag to indicate palette collision.
+        
+        new_block: bool. Indicates if this block has just been instantiated
+            from the palette, on which case self.checksPaletteCollide() will
+            not activate the exclusion cursor when still colliding with it.
+        
+        mouse_active: bool. Indicates if this item will recieve any mouse
+            treatement besides the basic stuff.
+            
+        _default_block_cursor: QCursor. Cursor used when the block is NOT
+            colliding with the palette.
+    '''
+    def __init__(self, scene, parent=None, mouse_active=True):
         QGraphicsItem.__init__(self, parent, scene)
         self._width, self._height = 200, 100
 
@@ -224,20 +253,27 @@ class GxBlock(QGraphicsItem):
         path.addRect(self.boundingRect())
         self._border_path = path
 
-        self.palette_blocks = None
         self._palette_colliding = False
+        self.palette_blocks = None
         self.new_block = False
         
         self._default_block_cursor = Qt.OpenHandCursor
 #        self.setCursor(self._default_block_cursor)
 
+        self.mouse_active = mouse_active
+        
     def boundingRect(self):
         ''' QGraphicsItem.boundingRect() -> QRectF
+        
+        Area of the item that will be re-painted.
         '''
         return QRectF(0, 0, self._width, self._height)
 
     def shape(self):
         ''' QGraphicsItem.shape() -> QPainterPath
+        
+        Returns its border path as the limiting shape, which defines things
+        such collidable mouse click sensitive area.
         '''
         return self._border_path
 
@@ -245,34 +281,72 @@ class GxBlock(QGraphicsItem):
         ''' QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
                                 QWidget widget=None) -> NoneType
 
-        TO BE REIMPLEMENTED
+        TO BE REIMPLEMENTED.
+        
+        The main task here should be draw its border path.
+        Good pratice: re-create QPen and QBrush for every drawing action.
         '''
         pass
 
     def updateMetrics(self):
         ''' TO BE REIMPLEMENTED
-        '''
-        pass
+        
+        The main purpose of this method should be to update the block dimen-,
+        sions, by re-defining its _width and _height attributes and also 
+        re-creating its border path.
+        ''' 
+        self.prepareGeometryChange()
+        
+        self._width, self._height = 200, 100
 
-    def prepareRemove(self):
-        ''' TO BE REIMPLEMENTED
-        '''
-        pass
+        path = QPainterPath()
+        path.addRect(self.boundingRect())
+        self._border_path = path
+
+        self.update(self.boundingRect())     
 
     def cloneMe(self, scene):
-        ''' (GxSceneBlocks)
+        ''' (GxSceneBlocks) -> GxBlock subclass
 
-        REIMPLEMENT IF YOU WANT THIS BLOCK TO BE ON THE PALETTE
+        TO BE REIMPLEMENTED (only if this block will be on the palette).
+        
+        Should return an instance of itself, with the very same attribute 
+        values. This method is used mainly by GxPalette to instantiate new 
+        blocks on the given scene. 
         '''
-        pass
+        return GxBlock(scene)
+    
+    def getBorderWidth(self):
+        ''' () -> number
+        
+        TO BE REIMPLEMENTED
+        
+        Should return the border widht value configured on the appropriate 
+        style class attribute for this block.
+        '''        
+        return 2
     
     def getWidth(self):
+        ''' () -> number
+        
+        Returns its border path width.
+        '''
         return self._border_path.boundingRect().width()
 
     def getHeight(self):
+        ''' () -> number
+        
+        Returns its border path height.
+        '''        
         return self._border_path.boundingRect().height()
         
     def checkPaletteCollide(self):
+        ''' () -> NoneType
+        
+        Check if it is colliding with the palette and respond properly
+        by updating the cursor shape. Designed to be called on the mouse 
+        move event of the item.
+        '''
         if self.palette_blocks:
             collide = self.collidesWithItem(self.palette_blocks) 
 
@@ -283,16 +357,24 @@ class GxBlock(QGraphicsItem):
                 self.setCursor(self._default_block_cursor)
                 self.new_block = False
                 self._palette_colliding = False
-
-    
+                            
     def mousePressEvent(self, event):
-        QGraphicsItem.mousePressEvent(self, event)
+        ''' QGraphicsItem.mousePressEvent(QGraphicsSceneMouseEvent) 
+            -> NoneType            
+        '''
+        QGraphicsItem.mousePressEvent(self, event)    
         
     def mouseMoveEvent(self, event):
+        ''' QGraphicsItem.mouseMoveEvent(QGraphicsSceneMouseEvent) 
+            -> NoneType            
+        '''        
         QGraphicsItem.mouseMoveEvent(self, event)
         self.checkPaletteCollide()        
 
     def mouseReleaseEvent(self, event):
+        ''' QGraphicsItem.mouseReleaseEvent(QGraphicsSceneMouseEvent) 
+            -> NoneType            
+        '''                
         QGraphicsItem.mouseReleaseEvent(self, event)
         
         # this is for the case when de item is grabbed on the mouse by
@@ -301,11 +383,14 @@ class GxBlock(QGraphicsItem):
         if mouse_grabber and mouse_grabber is self:
             self.ungrabMouse()
         
-        if self.palette_blocks and self.collidesWithItem(self.palette_blocks):
-            self.removeFromScene()
+        if self.palette_blocks:
+            scene = self.scene() 
+            if self.collidesWithItem(self.palette_blocks):
+                self.removeFromScene()
+            for item in scene.selectedItems():
+                if item and item.collidesWithItem(item.palette_blocks):
+                    item.removeFromScene()    
         
-    def removeFromScene(self):
-        self.scene().removeItem(self)
 
 
 # -------------------------------------------------------------------------

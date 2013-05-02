@@ -151,7 +151,7 @@ class GxArgLabel(GxPluggableBlock):
         self._name_rect = QRectF(2*bw, io_y0 + fvc - ((nh - ioh)/2),
                                  W - iow - bw, nh)
 
-        print('Updating connectors GxArgLabel', self._name)
+#        print('Updating connectors GxArgLabel', self._name)
         self.updateConnections()
 
         self.update(self.boundingRect())

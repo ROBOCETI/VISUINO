@@ -1,7 +1,8 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Purpose:
+# Purpose:     Provides all the block connection mechanism through the class
+#              GxPluggableBlock.
 #
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
 #
@@ -43,8 +44,9 @@ class GxColliPath(QGraphicsPathItem):
             W, H = iow, 2/3 * ioh
             pos = QPointF(sp.x() - iow, sp.y() + (ioh - H)/2)
         else:
-            W, H = vfw, vfh
-            pos = start_point
+            W, H = 2*vfw, 4*vfh
+            pos = QPointF(start_point.x() - (W - vfw)/2,
+                          start_point.y() - (H - vfh)/2)
 
         path = QPainterPath()
         path.addRect(0, 0, W, H)
@@ -184,10 +186,8 @@ class GxPluggableBlock(GxBlock):
     def __init__(self, scene, parent=None, mouse_active=True):
         ''' (GxScene)
         '''
-        GxBlock.__init__(self, scene, parent)
-
-        self.mouse_active = mouse_active
-
+        GxBlock.__init__(self, scene, parent, mouse_active)
+        
         for x in self.NOTCHES:
             setattr(self, x + '_start', None)
             setattr(self, x + '_colli_path', None)
@@ -203,6 +203,8 @@ class GxPluggableBlock(GxBlock):
         self.parent_vf = None
         self.child_io = None
         self.child_vf = None
+        
+        self.bottom_child_vf = None
 
     def _updateNotch(self, notch):
         ''' (str in self.NOTCHES)
@@ -210,7 +212,7 @@ class GxPluggableBlock(GxBlock):
         kind, gender = notch[:2], notch[3].upper()
         notch_start = getattr(self, notch + '_start', None)
 
-        if notch_start is not None:
+        if notch_start is not None:        
 
             new_colli_path = GxColliPath(kind, gender, notch_start,
                                          self.scene(), parent=self)
@@ -223,49 +225,50 @@ class GxPluggableBlock(GxBlock):
         IO female. Therefore, connections by dragging IO female to some IO
         male have no effect.
         '''
-        if self.io_male_colli_path:
+        if self.io_male_colli_path and not self.parent_io:
             colli = self.io_male_colliding
             if not colli:
                 # checks for collision with FEMALE IO colli paths
                 for x in self.scene().io_female_colli_paths:
                     if self.io_male_colli_path.collidesWithItem(x):
-                        print('IO Collision detected!')
+#                        print('IO Collision detected!')
                         self._startInsertionEffect('io', 'M', x)
                         break
             elif not self.io_male_colli_path.collidesWithItem(colli):
                 self._endInsertionEffect('io', 'M')
-
-        if self.vf_male_colli_path and not self.child_vf:
-            colli = self.vf_male_colliding
-            if not colli:
-                # checks for collision with FEMALE VF colli paths
-                for x in self.scene().vf_female_colli_paths:
-                    if self.vf_male_colli_path.collidesWithItem(x):
-                        print('VF male->female collision detected!')
-                        self._startInsertionEffect('vf', 'M', x)
-                        break
-            elif not self.vf_male_colli_path.collidesWithItem(colli):
-                self._endInsertionEffect('vf', 'M')
-
-        if self.vf_female_colli_path:
+                
+        if self.vf_female_colli_path and not self.parent_vf:
             colli = self.vf_female_colliding
             if not colli:
                 # checks for collision with MALE VF colli paths
                 for x in self.scene().vf_male_colli_paths:
                     if self.vf_female_colli_path.collidesWithItem(x):
-                        print('VF female->male collision detected!')
+#                        print('VF female->male collision detected!')
                         self._startInsertionEffect('vf', 'F', x)
                         break
             elif not self.vf_female_colli_path.collidesWithItem(colli):
-                self._endInsertionEffect('vf', 'F')
+                self._endInsertionEffect('vf', 'F')                
+
+#        if self.vf_male_colli_path:
+#            colli = self.vf_male_colliding
+#            if not colli:
+#                # checks for collision with FEMALE VF colli paths
+#                for x in self.scene().vf_female_colli_paths:
+#                    if self.vf_male_colli_path.collidesWithItem(x):
+#                        print('VF male->female collision detected!')
+#                        self._startInsertionEffect('vf', 'M', x)
+#                        break
+#            elif not self.vf_male_colli_path.collidesWithItem(colli):
+#                self._endInsertionEffect('vf', 'M')
+   
 
     def _startInsertionEffect(self, kind, source_gender, target):
         ''' ('io'/'vf', 'male'/'female', GxColliPath)
         '''
         gender = 'male' if source_gender == 'M' else 'female'
         if not getattr(self, kind + '_' + gender + '_insertion_marker'):
-            print('Creating insertion maker...')
-            setattr(self, kind + '_' + gender + '_colliding', target)
+#            print('Creating insertion maker...')        
+            setattr(self, kind + '_' + gender + '_colliding', target)      
             setattr(self, kind + '_' + gender + '_insertion_marker',
                 GxInsertionMarker(kind, target.getStartPoint(), self.scene()))
 
@@ -275,7 +278,7 @@ class GxPluggableBlock(GxBlock):
         gender = 'male' if source_gender == 'M' else 'female'
         i_mark = getattr(self, kind + '_' + gender + '_insertion_marker')
         if i_mark:
-            print('Removing ', kind, ' ', source_gender, ' insertion marker...' , sep='')
+#            print('Removing ', kind, ' ', source_gender, ' insertion marker...' , sep='')
             self.scene().removeItem(i_mark)
             setattr(self, kind + '_' + gender + '_insertion_marker', None)
             setattr(self, kind + '_' + gender + '_colliding', None)
@@ -293,7 +296,7 @@ class GxPluggableBlock(GxBlock):
     def plugIo(self):
         '''
         '''
-        print('Plugging IO...')
+#        print('Plugging IO...')
         target = self.io_male_colliding.parentItem()
 
         self.setParentItem(target)
@@ -311,7 +314,7 @@ class GxPluggableBlock(GxBlock):
 
     def unplugIo(self):
         if self.parent_io:
-            print("I am no longer your son!")
+#            print("I am no longer your son!")
 
             pos = self.parent_io.mapToScene(self.pos())
             self.setParentItem(None)
@@ -324,14 +327,41 @@ class GxPluggableBlock(GxBlock):
 
             self.scene().addItem(self)
 
-    def plugVf(self, target):
-        print('Plugging VF...')
+    def plugVfFemale(self, target):
+#        print('Plugging VF...')
+        if target.child_vf is None:
 
-        self.parent_vf = target
-        target.child_vf = self
+            self.parent_vf = target
+            target.child_vf = self
+    
+            self.setParentItem(target)
+            self._updateChildVfPosition(target)
+            
+        else:
+            my_bottom_child = self.getBottomChildVf()
+            new_child = target.child_vf
+            new_child.parent_vf = my_bottom_child
+            my_bottom_child.child_vf = new_child
+            
+            target.child_vf = self
+            self.parent_vf = target
 
-        self.setParentItem(target)
-        self._updateChildVfPosition(target)
+            self.setParentItem(target)
+            self._updateChildVfPosition(target)            
+            new_child.setParentItem(my_bottom_child)
+            self._updateChildVfPosition(my_bottom_child)
+
+    def plugVfMale(self, target):
+        self.child_vf = target
+        target.parent_vf = self
+
+        target_pos = target.pos()
+        
+        self.setPos(target_pos.x(), target_pos.y() - self.getHeight() + 
+            self.scene().style.notch.vf_notch_height)
+        
+        target.setParentItem(self)
+        target.setPos(self.mapFromScene(target_pos))
 
     def unplugVf(self):
         if self.parent_vf:
@@ -343,11 +373,35 @@ class GxPluggableBlock(GxBlock):
             self.parent_vf.child_vf = None
             self.parent_vf = None
 
-            self.scene().addItem(self)
-
+            self.scene().addItem(self)        
+            
+    def getBottomChildVf(self):
+        if not self.child_vf:
+            return self
+        else:
+            next_child = self.child_vf
+            while True:            
+                if next_child.child_vf is None:
+                    return next_child
+                else:
+                    next_child = next_child.child_vf
+                    
+    def getFirstNonSelectedBottomChildVf(self):
+        item = self
+        while True:
+            if item.isSelected():
+                if item.child_vf:
+                    item = item.child_vf
+                    continue
+                else:
+                    break
+            else:
+                break
+        return item
+            
     def _updateChildVfPosition(self, parent):
         if parent and parent.child_vf:
-            print('Updating child VF position...')
+#            print('Updating child VF position...')
             x, y = parent.vf_male_start.x(), parent.vf_male_start.y()
             x -= x #+ self.parent_vf.getBorderWidth()/2
             y -= parent.getBorderWidth()/2
@@ -370,21 +424,32 @@ class GxPluggableBlock(GxBlock):
 
     def mousePressEvent(self, event):
         ''' GxBlock.mousePressEvent(QGraphicsSceneMouseEvent) -> NoneType
-        '''
+        '''           
+        if self.mouse_active and not self.isSelected():
+            self.setFlag(QGraphicsItem.ItemIsSelectable, False)    
+            self.scene().clearSelection()
+    
         GxBlock.mousePressEvent(self, event)
         if not self.mouse_active: return
 
-        print('IO Female Colli Paths: ',
-              len(self.scene().io_female_colli_paths))
-        print('VF Female Colli Paths: ',
-              len(self.scene().vf_female_colli_paths))
-        print('VF Male Colli Paths: ',
-              len(self.scene().vf_male_colli_paths))
-
         self.unplugIo()
-        self.unplugVf()
-        self._checkNotchCollisions()
-
+        
+        if not self.isSelected():
+            self.unplugVf()
+        else:
+            parent = self.parent_vf
+            if parent and not parent.isSelected():
+                self.unplugVf()
+            last_sel_child = self.getFirstNonSelectedBottomChildVf()
+            if last_sel_child and not last_sel_child.isSelected():
+                last_sel_child.unplugVf()
+                if parent:
+                    last_sel_child.plugVfFemale(parent)
+            self._checkNotchCollisions() 
+        
+        if self.io_male_start:
+            self._checkNotchCollisions()                      
+            
     def mouseMoveEvent(self, event):
         ''' GxBlock.mouseMoveEvent(QGraphicsSceneMouseEvent) -> NoneType
         '''
@@ -395,19 +460,26 @@ class GxPluggableBlock(GxBlock):
 
     def mouseReleaseEvent(self, event):
         ''' GxBlock.mouseReleaseEvent(QGraphicsSceneMouseEvent) -> NoneType
-
-
-        '''
+        '''                
         GxBlock.mouseReleaseEvent(self, event)
-        if not self.mouse_active: return
+        if not self.mouse_active or not self.scene(): return
+        
+        self._checkNotchCollisions()
 
         if self.io_male_colliding and not self.parent_io:
             self.plugIo()
             self._endInsertionEffect('io', 'M')
-
+        
         if self.vf_female_colliding and not self.parent_vf:
-            self.plugVf(self.vf_female_colliding.parentItem())
-            self._endInsertionEffect('vf', 'F')
+            self.plugVfFemale(self.vf_female_colliding.parentItem())
+            self._endInsertionEffect('vf', 'F')  
+            
+#        if self.vf_male_colliding:
+#            self.plugVfMale(self.vf_male_colliding.parentItem())
+#            self._endInsertionEffect('vf', 'M')
+
+        if not self.io_male_start:
+            self.setFlag(QGraphicsItem.ItemIsSelectable, True)
 
     def removeFromScene(self):
         ''' GxBlock.removeFromScene() -> NoneType
@@ -419,8 +491,10 @@ class GxPluggableBlock(GxBlock):
         '''
         for child in self.childItems():
             child.removeFromScene()
-        self.scene().removeItem(self)
-
+        if self.scene():
+            self.scene().removeItem(self)
+            
+        
 def main():
     pass
 

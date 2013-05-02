@@ -55,70 +55,56 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
 
         if isinstance(scene, QtGui.QGraphicsScene):
             scene.addItem(self)
-
+                
         self.setupBlocks()
         self._view.scale(0.85, 0.85)
 
     def setupBlocks(self):
-        y = 10
+        
+        self._functions = [
+            {'name': 'pinMode', 
+             'args': [FieldInfo('pin', 'int', '0|13', 'combobox'),
+                      FieldInfo('mode', 'const', 'INPUT,OUTPUT', 'combobox')],
+             'return': None},
+             
+            {'name': 'digitalRead', 
+             'args': [FieldInfo('pin', 'int', '0|13', 'combobox')],
+             'return': FieldInfo('value', 'int', 'HIGH,LOW', 'combobox')},
 
-        block_pin_mode = GxBlockFunctionCall('pinMode',
-            [FieldInfo('pin', 'int', '0|13', 'combobox'),
-             FieldInfo('mode', 'const', 'INPUT,OUTPUT', 'combobox')],
-            None, self._scene)
-        block_pin_mode.setPos(20, y)
-        block_pin_mode.setCursor(QtCore.Qt.OpenHandCursor)
-        block_pin_mode.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-        y += block_pin_mode.boundingRect().height() + 10
+            {'name': 'digitalWrite', 
+             'args': [FieldInfo('pin', 'int', '0|13', 'combobox'),
+                       FieldInfo('value', 'const', 'HIGH,LOW', 'combobox')],
+             'return': None},
+             
+            {'name': 'analogRead', 
+             'args': [FieldInfo('pin', 'int', '0|13', 'combobox')],
+             'return': FieldInfo('value', 'int', 'HIGH,LOW', 'combobox')},
 
-        block_digital_read = GxBlockFunctionCall('digitalRead',
-            [FieldInfo('pin', 'int', '0|13', 'combobox')],
-            FieldInfo('value', 'int', 'HIGH,LOW', 'combobox'),
-            self._scene)
-        block_digital_read.setPos(10, y)
-        block_digital_read.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-        y += block_digital_read.boundingRect().height() + 10
+            {'name': 'analogWrite', 
+             'args': [FieldInfo('pin', 'int', '0|13', 'combobox'),
+                       FieldInfo('value', 'const', 'HIGH,LOW', 'combobox')],
+             'return': None},
 
-        block_digital_write = GxBlockFunctionCall('digitalWrite',
-            [FieldInfo('pin', 'int', '0|13', 'combobox'),
-             FieldInfo('value', 'const', 'HIGH,LOW', 'combobox')],
-            None, self._scene)
-        block_digital_write.setPos(20, y)
-        block_digital_write.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-        y += block_digital_write.boundingRect().height() + 10
+            {'name': 'pulseIn', 
+             'args':  [FieldInfo('pin', 'int', '0|', 'edit'),
+                        FieldInfo('value', 'int', '0|', 'edit'),
+                        FieldInfo('timeout', 'int', '0|', 'edit')],
+             'return': FieldInfo('pulse_lenght', 'int', '0|', 'edit')},
 
-        block_analog_read = GxBlockFunctionCall('analogRead',
-            [FieldInfo('pin', 'int', '0|13', 'combobox')],
-            FieldInfo('value', 'int', '0|1023', 'combobox'),
-            self._scene)
-        block_analog_read.setPos(10, y)
-        block_analog_read.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-        y += block_analog_read.boundingRect().height() + 10
-
-        block_analog_write = GxBlockFunctionCall('analogWrite',
-            [FieldInfo('pin', 'int', '0|13', 'combobox'),
-             FieldInfo('value', 'const', '0|255', 'combobox')],
-            None, self._scene)
-        block_analog_write.setPos(20, y)
-        block_analog_write.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-        y += block_analog_write.boundingRect().height() + 10
-
-        block_pulse_in = GxBlockFunctionCall('pulseIn',
-            [FieldInfo('pin', 'int', '0|', 'edit'),
-             FieldInfo('value', 'int', '0|', 'edit'),
-             FieldInfo('timeout', 'int', '0|', 'edit')],
-            FieldInfo('pulse_lenght', 'int', '0|', 'edit'),
-            self._scene)
-        block_pulse_in.setPos(10, y)
-        block_pulse_in.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-        y += block_pulse_in.boundingRect().height() + 10
-
-        block_millis = GxBlockFunctionCall('millis', None,
-            FieldInfo('milliseconds', 'int', '0|', 'edit'),
-            self._scene)
-        block_millis.setPos(10, y)
-        block_millis.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-        y += block_millis.boundingRect().height() + 10
+            {'name': 'millis', 
+             'args': None,
+             'return': FieldInfo('milliseconds', 'int', '0|', 'edit')}]
+        
+        v_spacing, left_padd = 10, 10
+        y = v_spacing
+        for x in self._functions:
+            new_block = GxBlockFunctionCall(x['name'], x['args'], x['return'],
+                                            self._scene)
+            new_block.setPos(left_padd if x['return'] else left_padd \
+                + self._scene.style.notch.io_notch_width, y)
+            new_block.setCursor(QtCore.Qt.OpenHandCursor)
+            new_block.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+            y += new_block.getHeight() + v_spacing        
 
 
     def mousePressEvent(self, event):
@@ -126,6 +112,8 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
                 QGraphicsSceneMouseEvent) -> NoneType
         '''
         QtGui.QGraphicsProxyWidget.mousePressEvent(self, event)
+        
+        self.scene().clearSelection()
 
         block_icon = self._view.itemAt(event.pos().toPoint())
         if block_icon and block_icon.parentItem():
