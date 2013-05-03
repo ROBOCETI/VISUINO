@@ -86,6 +86,27 @@ class StyleFunctionCall(object):
     def getCornerSize(self):
         return (self.corner_width, self.corner_height)
 
+class StyleDoWhile (object):
+    background_color = 'green'
+    border_color = 'black'
+    border_width = 2
+    corner_shape = 'arc'
+    corner_width = 6
+    corner_height = 6
+    
+    title_font_color = 'white'
+    title_font_family = 'Verdana'
+    title_font_size = 12
+    title_vpadd = 5
+    font_vcorrection = -1
+    
+    do_leftpadd = 10
+    while_rightpadd = 10
+    title_leftpadd = 8
+    indent = True
+    indent_width = 20
+
+
 class StyleBlocks(object):
     def __init__(self):
         self.notch = StyleNotch()
