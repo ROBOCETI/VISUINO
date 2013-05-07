@@ -23,16 +23,18 @@ from visuino.gx.utils import *
 from visuino.gx.styles import *
 from visuino.gx.connections import *
 
+from visuino.core.definitions import ArgInfo
+
 
 class GxArgLabel(GxPluggableBlock):
     '''
     Shape that represents argument names to be used on function call blocks.
-    It has a female IO notch on the right, and supports resizing according
-    to the plugged male IO block.
+    It has a female IO notch on the right and resizes itself according to the 
+    plugged male IO block.
     '''
 
-    def __init__(self, name, scene=None, parent=None, **kwargs):
-        ''' (str, GxSceneBlocks, QGraphicsItem, **)
+    def __init__(self, arg_info, scene=None, parent=None, **kwargs):
+        ''' (ArgInfo, GxSceneBlocks, QGraphicsItem, **)
 
         kwargs:
             @ fixed_width: number <None>
@@ -40,13 +42,12 @@ class GxArgLabel(GxPluggableBlock):
         '''
         GxPluggableBlock.__init__(self, scene, parent, mouse_active=False)
 
-        self._width, self._height = 0, 0
         self._fixed_width = kwargs.get('fixed_width', None)
         self.update_parent = kwargs.get('update_parent', True)
 
-        self._name = name
-        self._name_rect = QRectF(0, 0, self._width, self._height)
-        self._name_font = None
+        self._arg_info = arg_info
+        self._name_rect = self.boundingRect()
+        self._name_font = QFont('Verdana', 12)
 
         self.updateMetrics()
 
@@ -72,7 +73,7 @@ class GxArgLabel(GxPluggableBlock):
         # drawing the name
         painter.setFont(self._name_font)
         painter.setPen(QPen(QColor(sa.font_color)))
-        painter.drawText(self._name_rect, Qt.AlignCenter, self._name)
+        painter.drawText(self._name_rect, Qt.AlignCenter, self._arg_info.name)
 
         # drawing the name rectangle (for debugging purposes)
 ##        painter.setPen(Qt.DashLine)
@@ -98,7 +99,7 @@ class GxArgLabel(GxPluggableBlock):
         # main dimensions
         name_metrics = QFontMetricsF(self._name_font)
         fvc = style_label.font_vcorrection
-        nw, nh = name_metrics.width(self._name), name_metrics.height()
+        nw, nh = name_metrics.width(self._arg_info.name), name_metrics.height()
         hp, vp = style_label.getPadding()
         cw, ch = style_label.getCornerSize()
         iow, ioh = style_notch.getIoNotchSize()
@@ -167,23 +168,17 @@ class GxArgLabel(GxPluggableBlock):
         return "ArgLabel: %s" % self._name
 
 
-class HollowItem:
-    def __init__(self, height, io_y0):
+class HollowItem(object):
+    def __init__(self, height, y0):
         self.height = height
-        self.io_notch_y0 = io_y0
-
+        self.io_male_start = QPointF(0, y0)
+        
+    def getBorderWidth(self):
+        return 2
+        
     def getHeight(self):
         return self.height
-
-    def getIoNotchStart(self):
-        return QPointF(0, self.io_notch_y0)
-
-    def setValues(self, height, io_y0):
-        self.height = height
-        self.io_notch_y0 = io_y0
-
-    def setParentItem(self, item):
-        pass
+        
 
 
 class WinCustomizeArgLabel(QMainWindow):
@@ -209,13 +204,12 @@ class WinCustomizeArgLabel(QMainWindow):
 
         self.scene = GxSceneBlocks()
 
-        self.arg_label = GxArgLabel('value', self.scene)
+        self.arg_label = GxArgLabel(ArgInfo('value', 'int', 'HIGH,LOW'), 
+                                    self.scene)
         self.arg_label.setPos(30, 30)
         self.arg_label.setFlags(QGraphicsItem.ItemIsMovable)
         self.arg_label.setCursor(Qt.OpenHandCursor)
         self.arg_label.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-
-        self.child_label = HollowItem(200, 20)
 
         self.view = GxView(self.scene, parent=self, wheel_zoom=True,
                            opengl=True)
@@ -240,6 +234,8 @@ class WinCustomizeArgLabel(QMainWindow):
                 self._setupFrameClick(wg, suffix)
             elif isinstance(wg, (QSpinBox, QComboBox, QSlider)):
                 self._setupSignal(wg, suffix)
+                
+        self.hollow_item = HollowItem(200, 20)
 
         self.ui.checkbox_plug_io.stateChanged[int].connect(
             self._updatePluggedIO)
@@ -326,12 +322,17 @@ class WinCustomizeArgLabel(QMainWindow):
 
     def _updatePluggedIO(self):
         if self.ui.checkbox_plug_io.isChecked():
-            self.child_label.setValues(
-                self.ui.slider_io_plugged_height.value(),
+            
+            self.hollow_item.height = self.ui.slider_io_plugged_height.value()
+            self.hollow_item.io_male_start = QPointF(
+                self.hollow_item.io_male_start.x(),
                 self.ui.slider_io_notch_y0.value())
-            self.arg_label.plugIn(self.child_label)
+
+            self.arg_label.child_io = self.hollow_item
         else:
-            self.arg_label.plugOut()
+            self.arg_label.child_io = None
+            
+        self.arg_label.updateMetrics()
 
 
 def main():

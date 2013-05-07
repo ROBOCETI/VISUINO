@@ -14,8 +14,10 @@ from __future__ import division, print_function
 
 __all__ = ['GxPalette', 'GxViewPalette']
 
-from PyQt4 import QtGui, QtCore
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
 import sys
+from collections import OrderedDict
 
 from visuino.gx.bases import *
 from visuino.gx.blocks import *
@@ -23,96 +25,136 @@ from visuino.gx.styles import *
 from visuino.gui import *
 from visuino.resources import *
 
+from visuino.core.xml_libs import *
 
-class GxPalette(QtGui.QGraphicsProxyWidget):
+XML_LIBRARIES = \
+"""<?xml version="1.0" encoding="UTF-8"?>
+<Libraries>
+	<library name="Arduino.h">
+		<function name="pinMode" return_type="" section="I/O">
+			<arg name="pin" type="int" restriction="[0,)"/>
+			<arg name="mode" type="int" restriction="INPUT,OUTPUT"/>
+		</function> 
+		<function name="digitalWrite" return_type="" section="I/O">
+			<arg name="pin" type="int" restriction="[1,13]"/>
+			<arg name="value" type="int" restriction="HIGH,LOW"/>
+		</function>
+		<function name="digitalRead" return_type="int" section="I/O">
+			<arg name="pin" type="int" restriction="[1,13]"/>
+		</function>		
+        <function name="pulseIn" return_type="int" section="I/O">
+            <arg name="pin" type="int" restriction="[1,13]"/>
+            <arg name="value" type="int" restriction="HIGH,LOW"/>
+            <arg name="timeout" type="int" restriction="0|"/>
+        </function>
+        <function name="millis" return_type="int" section="Time"/>
+		<function name="delay" return_type="" section="Time">
+			<arg name="milliseconds" type="int" restriction="[0,)"/>
+		</function>
+	</library>
+</Libraries>
+"""
+
+class GxPaletteSection(QGraphicsItem):
+    def __init__(self, scene, title, items, parent=None):
+        QGraphicsItem.__init__(self, parent, scene)
+        
+        self._title = title
+        
+        self._width, self._height = 200, 40
+        self._background_color = 'black'
+        self._font_color = 'white'
+        self._font = QFont('Verdana', 10)
+        
+        self._collapsed = False        
+        
+    def boundingRect(self):
+        return QRectF(0, 0, self._width, self._height)
+        
+    def paint(self, painter, widget=None, option=None):
+        painter.fillRect(self.boundingRect(), 
+                         QColor(self._background_color))
+        painter.setPen(QPen(QColor(self._font_color)))
+        painter.setFont(self._font)
+        painter.drawText(self.boundingRect(), Qt.AlignCenter,
+                         self._title)
+
+
+class GxLibrarySections(QGraphicsProxyWidget):
     def __init__(self, scene=None, opengl=False):
-        QtGui.QGraphicsProxyWidget.__init__(self)
+        QGraphicsProxyWidget.__init__(self)
+        
+        self._scene = QGraphicsScene()
+        self._scene.setSceneRect(QRectF(0, 0, 200, 900))
+        self._scene.setBackgroundBrush(QBrush(Qt.white))
+        self._view = GxView(self._scene, opengl=opengl)
+        self._view.setGeometry(0, 0, 200, 600)
+        
+        self.setWidget(self._view)
+        self.setPos(400, 0)
+        
+        if isinstance(scene, QGraphicsScene):
+            scene.addItem(self)
+            
+        self.sections = OrderedDict()
+
+
+class GxPalette(QGraphicsProxyWidget):
+    def __init__(self, scene=None, opengl=False):
+        QGraphicsProxyWidget.__init__(self)
 
         self._scene = GxSceneBlocks(background_grid=False)
         self._scene.setSceneRect(0, 0, 200, 1000)
 
-        grad = QtGui.QLinearGradient(QtCore.QPointF(0, 0),
-                                     QtCore.QPointF(200, 0))
-        grad.setColorAt(0, QtGui.QColor('#444444'))
-        grad.setColorAt(0.3, QtCore.Qt.gray)
-        grad.setColorAt(1, QtGui.QColor('#444444'))
-        self._scene.setBackgroundBrush(QtGui.QBrush(grad))
+        grad = QLinearGradient(QPointF(0, 0),
+                                     QPointF(200, 0))
+        grad.setColorAt(0, QColor('#444444'))
+        grad.setColorAt(0.3, Qt.gray)
+        grad.setColorAt(1, QColor('#444444'))
+        self._scene.setBackgroundBrush(QBrush(grad))
 
         self._view = GxView(self._scene, opengl=opengl)
         self._view.wheel_zoom = False
         self._view.setGeometry(0, 0, 200, 600)
-        self._view.setFrameShape(QtGui.QFrame.NoFrame)
-        self._view.setDragMode(QtGui.QGraphicsView.NoDrag)
+        self._view.setFrameShape(QFrame.NoFrame)
+#        self._view.setDragMode(QGraphicsView.NoDrag)
 
         self.setWidget(self._view)
 
-        self.setFlag(QtGui.QGraphicsItem.ItemIsFocusable, True)
+        self.setFlag(QGraphicsItem.ItemIsFocusable, True)
 
-        self.cursor_collide = QtGui.QCursor(
-            QtGui.QPixmap(':delete_icon.png').scaled(64, 64))
-        self.cursor_add = QtGui.QCursor(
-            QtGui.QPixmap(':add_icon.png').scaled(64, 64))
+        self.cursor_collide = QCursor(
+            QPixmap(':delete_icon.png').scaled(64, 64))
+        self.cursor_add = QCursor(
+            QPixmap(':add_icon.png').scaled(64, 64))
 
-        if isinstance(scene, QtGui.QGraphicsScene):
+        if isinstance(scene, QGraphicsScene):
             scene.addItem(self)
-                
+
         self.setupBlocks()
         self._view.scale(0.85, 0.85)
 
     def setupBlocks(self):
-        
-        self._functions = [
-            {'name': 'pinMode', 
-             'args': [FieldInfo('pin', 'int', '0|13', 'combobox'),
-                      FieldInfo('mode', 'const', 'INPUT,OUTPUT', 'combobox')],
-             'return': None},
-             
-            {'name': 'digitalRead', 
-             'args': [FieldInfo('pin', 'int', '0|13', 'combobox')],
-             'return': FieldInfo('value', 'int', 'HIGH,LOW', 'combobox')},
 
-            {'name': 'digitalWrite', 
-             'args': [FieldInfo('pin', 'int', '0|13', 'combobox'),
-                       FieldInfo('value', 'const', 'HIGH,LOW', 'combobox')],
-             'return': None},
-             
-            {'name': 'analogRead', 
-             'args': [FieldInfo('pin', 'int', '0|13', 'combobox')],
-             'return': FieldInfo('value', 'int', 'HIGH,LOW', 'combobox')},
-
-            {'name': 'analogWrite', 
-             'args': [FieldInfo('pin', 'int', '0|13', 'combobox'),
-                       FieldInfo('value', 'const', 'HIGH,LOW', 'combobox')],
-             'return': None},
-
-            {'name': 'pulseIn', 
-             'args':  [FieldInfo('pin', 'int', '0|', 'edit'),
-                        FieldInfo('value', 'int', '0|', 'edit'),
-                        FieldInfo('timeout', 'int', '0|', 'edit')],
-             'return': FieldInfo('pulse_lenght', 'int', '0|', 'edit')},
-
-            {'name': 'millis', 
-             'args': None,
-             'return': FieldInfo('milliseconds', 'int', '0|', 'edit')}]
-        
+        self._libs = Libraries(XML_LIBRARIES)
+    
         v_spacing, left_padd = 10, 10
         y = v_spacing
-        for x in self._functions:
-            new_block = GxBlockFunctionCall(x['name'], x['args'], x['return'],
-                                            self._scene)
-            new_block.setPos(left_padd if x['return'] else left_padd \
-                + self._scene.style.notch.io_notch_width, y)
-            new_block.setCursor(QtCore.Qt.OpenHandCursor)
+        for k, function_def in self._libs['Arduino.h'].items():
+            new_block = GxBlockFunctionCall(function_def, self._scene)
+            new_block.setPos(left_padd if function_def.return_type else \
+                left_padd + self._scene.style.notch.io_notch_width, y)
+            new_block.setCursor(Qt.OpenHandCursor)
             new_block.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-            y += new_block.getHeight() + v_spacing        
+            y += new_block.getHeight() + v_spacing
 
 
     def mousePressEvent(self, event):
-        ''' QtGui.QGraphicsProxyWidget.mousePressEvent(
+        ''' QGraphicsProxyWidget.mousePressEvent(
                 QGraphicsSceneMouseEvent) -> NoneType
         '''
-        QtGui.QGraphicsProxyWidget.mousePressEvent(self, event)
-        
+        QGraphicsProxyWidget.mousePressEvent(self, event)
+
         self.scene().clearSelection()
 
         block_icon = self._view.itemAt(event.pos().toPoint())
@@ -122,19 +164,19 @@ class GxPalette(QtGui.QGraphicsProxyWidget):
         if hasattr(block_icon, 'cloneMe'):
 
             new_block = block_icon.cloneMe(self.scene())
-            new_block.setFlags(QtGui.QGraphicsItem.ItemIsMovable)
-            new_block.setCacheMode(QtGui.QGraphicsItem.ItemCoordinateCache)
+            new_block.setFlags(QGraphicsItem.ItemIsMovable)
+            new_block.setCacheMode(QGraphicsItem.ItemCoordinateCache)
 
             new_block.palette_blocks = self
             new_block.new_block = True
 
             icon_mapped_pos = self._view.mapFromScene(block_icon.pos())
-            new_block.setPos(QtCore.QPointF(
+            new_block.setPos(QPointF(
                 self.pos().x() + icon_mapped_pos.x() + 2,
                 self.pos().y() + icon_mapped_pos.y() + 2))
 
             new_block.grabMouse()
-            new_block.setCursor(QtCore.Qt.OpenHandCursor)
+            new_block.setCursor(Qt.OpenHandCursor)
 
 
 class GxViewPalette(GxView):
@@ -146,10 +188,12 @@ class GxViewPalette(GxView):
         self.wheel_zoom = False
 
         self.palette = GxPalette(self.scene(), opengl)
+        
+#        self.palette_sections = GxLibrarySections(self.scene(), opengl)
 
 
     def scrollContentsBy(self, x, y):
-        QtGui.QGraphicsView.scrollContentsBy(self, x, y)
+        QGraphicsView.scrollContentsBy(self, x, y)
         self.palette.setPos(self.mapToScene(0, 0).x(),
                             self.mapToScene(0, 0).y())
         if x != 0:
@@ -157,15 +201,15 @@ class GxViewPalette(GxView):
 
 
     def resizeEvent(self, event):
-        QtGui.QGraphicsView.resizeEvent(self, event)
+        QGraphicsView.resizeEvent(self, event)
         self.palette._view.setFixedHeight(self.height())
 
 
 def main():
-    app = QtGui.QApplication(sys.argv)
-    app.setStyle(QtGui.QStyleFactory.create('Plastique'))
+    app = QApplication(sys.argv)
+#    app.setStyle(QStyleFactory.create('Plastique'))
 
-    win = QtGui.QMainWindow()
+    win = QMainWindow()
     win.setGeometry(100, 100, 900, 600)
 
     gx_palette_view = GxViewPalette(parent=win, opengl=True)

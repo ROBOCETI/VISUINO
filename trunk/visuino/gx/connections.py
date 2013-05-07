@@ -97,7 +97,7 @@ class GxColliPath(QGraphicsPathItem):
         colli_set = self.kind + '_' + self.gender_ext + '_colli_paths'
         if hasattr(scene, colli_set) and self in getattr(scene, colli_set):
             getattr(scene, colli_set).remove(self)
-#            print('Removed ', self, ' from ', colli_set, sep='')
+#            print('Removed ', self, ' from ', colli_set, sep='')        
         scene.removeItem(self)
 
 
@@ -292,13 +292,18 @@ class GxPluggableBlock(GxBlock):
             if isinstance(colli, GxColliPath):
                 colli.removeFromScene()
                 setattr(self, notch + '_colli_path', None)
+                
+    def _cleanInsertionMarkers(self):
+        for notch in ('io_male', 'vf_male', 'vf_female'):
+            im = getattr(self, notch + '_insertion_marker')
+            if im is not None:
+                self.scene().removeItem(im)
+            setattr(self, notch + '_insertion_marker', None)
 
-    def plugIo(self):
+    def plugIo(self, target):
         '''
         '''
 #        print('Plugging IO...')
-        target = self.io_male_colliding.parentItem()
-
         self.setParentItem(target)
         x, y = target.io_female_start.x(), target.io_female_start.y()
         x -= self.scene().style.notch.io_notch_width + self.getBorderWidth()/2
@@ -467,7 +472,7 @@ class GxPluggableBlock(GxBlock):
         self._checkNotchCollisions()
 
         if self.io_male_colliding and not self.parent_io:
-            self.plugIo()
+            self.plugIo(self.io_male_colliding.parentItem())
             self._endInsertionEffect('io', 'M')
         
         if self.vf_female_colliding and not self.parent_vf:
@@ -489,10 +494,12 @@ class GxPluggableBlock(GxBlock):
         will gonna be GxColliPath objects, which MUST be assured to be
         deleted from the scene by calling its removeFromScene() method.
         '''
+        self._cleanInsertionMarkers()
         for child in self.childItems():
             child.removeFromScene()
         if self.scene():
             self.scene().removeItem(self)
+
             
         
 def main():
