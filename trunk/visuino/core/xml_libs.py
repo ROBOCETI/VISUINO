@@ -26,7 +26,7 @@ class LibraryDefinitions(dict):
         self.sections = OrderedDict()
         
         for x in library_element:
-            print("Parsing '%s' ..." % x.tag)
+#            print("Parsing '%s' ..." % x.tag)
             self.parseFunctionDefinition(x)
             
 
@@ -43,9 +43,9 @@ class LibraryDefinitions(dict):
                 section, self.parseArguments(element))
                 
             if not section in self.sections:
-                self.sections[section] = OrderedDict()
+                self.sections[section] = []
                 
-            self.sections[section][name] = new_func
+            self.sections[section].append(new_func)
             self[name] = new_func
                 
         else:
@@ -54,7 +54,7 @@ class LibraryDefinitions(dict):
     def parseArguments(self, element):
         result = []
         for x in element:
-            print("Parsing '%s'..." % x.tag)
+#            print("Parsing '%s'..." % x.tag)
             
             if x.tag == 'arg':                
                 atb = x.attrib
@@ -84,7 +84,7 @@ class Libraries(OrderedDict):
         root = ET.fromstring(xml_data)
                     
         for element in root:  
-            print("Parsing '%s' ..." % element.tag)
+#            print("Parsing '%s' ..." % element.tag)
             
             if element.tag == 'library':
                 if 'name' in element.attrib:                    

@@ -16,7 +16,10 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free. Also, remember to keep the credits.
 #-------------------------------------------------------------------------------
-__all__ = ['GxSceneBlocks', 'GxBlock','GxView']
+from __future__ import division, print_function
+import sys
+if __name__ == '__main__':
+    sys.path.append('../../')
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -26,8 +29,9 @@ try:
 except:
     QGLWidget = None
 
-import sys
 from visuino.gx.styles import *
+
+__all__ = ['GxSceneBlocks', 'GxBlock','GxView']
 
 class GxView(QGraphicsView):
     '''
@@ -180,10 +184,12 @@ class GxSceneBlocks(QGraphicsScene):
         Appends treatement for the 'click to front' functionality.
         '''
         QGraphicsScene.mousePressEvent(self, event)
-
+        
         grabber = self.mouseGrabberItem()   # item under the mouse
-        if grabber and self._click_to_front:
-            self.bringToFront(grabber)
+        print("Scene mousePress - grabber: ", grabber)
+#        if grabber and self._click_to_front:
+#            self.bringToFront(grabber)
+            
 
     def setClickToFront(self, value):
         ''' (bool) -> NoneType
@@ -362,7 +368,8 @@ class GxBlock(QGraphicsItem):
         ''' QGraphicsItem.mousePressEvent(QGraphicsSceneMouseEvent) 
             -> NoneType            
         '''
-        QGraphicsItem.mousePressEvent(self, event)    
+        QGraphicsItem.mousePressEvent(self, event) 
+        print('Clicked block!')
         
     def mouseMoveEvent(self, event):
         ''' QGraphicsItem.mouseMoveEvent(QGraphicsSceneMouseEvent) 
@@ -377,8 +384,8 @@ class GxBlock(QGraphicsItem):
         '''                
         QGraphicsItem.mouseReleaseEvent(self, event)
         
-        # this is for the case when de item is grabbed on the mouse by
-        # the palette, and not by some mouse click event (drag and drop)
+#        # this is for the case when de item is grabbed on the mouse by
+#        # the palette, and not by some mouse click event (drag and drop)
         mouse_grabber = self.scene().mouseGrabberItem()
         if mouse_grabber and mouse_grabber is self:
             self.ungrabMouse()
@@ -389,8 +396,7 @@ class GxBlock(QGraphicsItem):
                 self.removeFromScene()
             for item in scene.selectedItems():
                 if item and item.collidesWithItem(item.palette_blocks):
-                    item.removeFromScene()    
-        
+                    item.removeFromScene()                  
 
 
 # -------------------------------------------------------------------------

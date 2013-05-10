@@ -542,7 +542,7 @@ def main():
     app = QApplication(sys.argv)
     win = QMainWindow()
     win.setGeometry(300, 200, 600, 400)
-    scene = GxScene()
+    scene = GxSceneBlocks()
 
     style_scheme = {'field_scheme': {'backg_color': QColor(255, 213, 213),
                                      'input_font': QFont("Verdana", 12)},

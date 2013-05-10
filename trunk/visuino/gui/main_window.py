@@ -10,15 +10,16 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
-__all__ = ['MainWindow', 'AppVisuino']
+from __future__ import division, print_function
 
 from PyQt4 import QtGui, QtCore
-import sys, os
+import os
 
 from visuino.gx.palette import *
 from visuino.gx.blocks import *
 from visuino.resources import *
 
+__all__ = ['MainWindow', 'AppVisuino']
 
 class MainWindow(QtGui.QMainWindow):
     '''
@@ -235,10 +236,3 @@ class AppVisuino(QtGui.QApplication):
         main_win.show()
         splash.finish(main_win)
         return self.exec_()
-
-def main():
-    app = AppVisuino(sys.argv)
-    app.execute()
-
-if __name__ == '__main__':
-    main()

@@ -9,13 +9,13 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 from __future__ import division, print_function
-
-__all__ = ['GxArgLabel']
+import sys
+if __name__ == '__main__':
+    sys.path.append('../../../')
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4 import uic
-import sys
 
 from visuino.gx.bases import *
 from visuino.gx.shapes import *
@@ -25,6 +25,7 @@ from visuino.gx.connections import *
 
 from visuino.core.definitions import ArgInfo
 
+__all__ = ['GxArgLabel']
 
 class GxArgLabel(GxPluggableBlock):
     '''
@@ -163,9 +164,6 @@ class GxArgLabel(GxPluggableBlock):
 
     def getBorderWidth(self):
         return self.scene().style.arg_label.border_width
-
-    def __repr__(self):
-        return "ArgLabel: %s" % self._name
 
 
 class HollowItem(object):

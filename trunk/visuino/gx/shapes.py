@@ -14,17 +14,18 @@
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
 from __future__ import division, print_function
-
-__all__ = ['CornerPath', 'NotchPath', '_AppExampleShapes']
-
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt, QSizeF, QPointF, QRectF
 import sys
+if __name__ == '__main__':
+    sys.path.append('../../')
+
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
 
 from visuino.gx.bases import GxSceneBlocks, GxView
 from visuino.gx.utils import GxPainterPath
 from visuino.utils import vlarg
 
+__all__ = ['CornerPath', 'NotchPath', '_AppExampleShapes']
 
 class CornerPath(GxPainterPath):
     '''
@@ -242,7 +243,7 @@ class NotchPath(GxPainterPath):
             tl = tf * W             # top lenght   (for horizontal)
             ts = (W - tl)/2         # top spacing  (for horizontal)
 
-        QtGui.QPainterPath.__init__(self, start_point)
+        QPainterPath.__init__(self, start_point)
 
         if shape == 'trig':
 
@@ -330,7 +331,7 @@ class NotchPath(GxPainterPath):
         path.connectPath(NotchPath(path.currentPosition(),
                                    rect_size, shape, direction, facing))
 
-class GxExamplePaths(QtGui.QGraphicsItem):
+class GxExamplePaths(QGraphicsItem):
     '''
     Combines all 4 CornerPath positions and the 4 NotchPath directions
     on a single path. Can be tweaked, for purposes of demonstration.
@@ -344,8 +345,8 @@ class GxExamplePaths(QtGui.QGraphicsItem):
     def __init__(self, scene=None, parent=None):
         ''' (QGraphicsScene, QGraphicsItem) -> NoneType
         '''
-        QtGui.QGraphicsItem.__init__(self, parent, scene)
-        self.setCacheMode(QtGui.QGraphicsItem.DeviceCoordinateCache)
+        QGraphicsItem.__init__(self, parent, scene)
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
 
         self._width, self._height = self.DEFAULT_SIZE
 
@@ -373,7 +374,7 @@ class GxExamplePaths(QtGui.QGraphicsItem):
     def boundingRect(self):
         ''' QGraphicsItem.boundingRect() -> QRectF
         '''
-        return QtCore.QRectF(-100, -100, self._width + 400, self._height + 400)
+        return QRectF(-100, -100, self._width + 400, self._height + 400)
 
     def setNotchData(self, notch, data, value):
         ''' (str in ['top', 'bottom', 'left', 'right],
@@ -434,14 +435,14 @@ class GxExamplePaths(QtGui.QGraphicsItem):
                                 QWidget) -> NoneType
         '''
         painter.fillRect(self.boundingRect(), Qt.transparent)
-        pen = QtGui.QPen(QtGui.QColor(self.BORDER_COLOR), self.BORDER_WIDTH,
+        pen = QPen(QColor(self.BORDER_COLOR), self.BORDER_WIDTH,
                          Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
         painter.setPen(pen)
-        painter.setBrush(QtGui.QColor(self.BACKGROUND_COLOR))
+        painter.setBrush(QColor(self.BACKGROUND_COLOR))
         painter.drawPath(self.border_path)
 
 
-class ExampleMainWindow(QtGui.QMainWindow):
+class ExampleMainWindow(QMainWindow):
     POSITIONS = ('top', 'bottom', 'left', 'right')
     DIMENSIONS = ('w', 'h')
     CORNER_PLACES = ('tl', 'tr', 'bl', 'br')
@@ -449,7 +450,7 @@ class ExampleMainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         ''' (QWidget) -> NoneType
         '''
-        QtGui.QMainWindow.__init__(self, parent)
+        QMainWindow.__init__(self, parent)
 
         self.scene = GxSceneBlocks()
         self.gx_example_path = GxExamplePaths(self.scene)
@@ -462,7 +463,7 @@ class ExampleMainWindow(QtGui.QMainWindow):
 
         # --- corner settings ----------------------------------------------
 
-        self.wg_area_corners = QtGui.QWidget(self)
+        self.wg_area_corners = QWidget(self)
 
         self.wg_gbx_bl_corner = self.setupCornerGroupBox(' Bottom-Left ',
             'bl', 'tl', 'br', self.wg_area_corners)
@@ -476,7 +477,7 @@ class ExampleMainWindow(QtGui.QMainWindow):
         self.wg_gbx_tr_corner = self.setupCornerGroupBox(' Top-Right ',
             'tr', 'br', 'tl', self.wg_area_corners)
 
-        vl = QtGui.QVBoxLayout()
+        vl = QVBoxLayout()
         vl.addWidget(self.wg_gbx_bl_corner)
         vl.addWidget(self.wg_gbx_br_corner)
         vl.addWidget(self.wg_gbx_tl_corner)
@@ -485,7 +486,7 @@ class ExampleMainWindow(QtGui.QMainWindow):
 
         # ---- notch settings ----------------------------------------------
 
-        self.wg_area_notch = QtGui.QWidget(self)
+        self.wg_area_notch = QWidget(self)
 
         self.wg_gbx_top_notch = self.setupNotchGroupBox(' Top ',
             'top', 'bottom', None, self.wg_area_notch)
@@ -499,7 +500,7 @@ class ExampleMainWindow(QtGui.QMainWindow):
         self.wg_gbx_right_notch = self.setupNotchGroupBox(' Right ',
             'right', None, 'left', self.wg_area_notch)
 
-        vl = QtGui.QVBoxLayout()
+        vl = QVBoxLayout()
         vl.addWidget(self.wg_gbx_top_notch)
         vl.addWidget(self.wg_gbx_bottom_notch)
         vl.addWidget(self.wg_gbx_left_notch)
@@ -508,16 +509,16 @@ class ExampleMainWindow(QtGui.QMainWindow):
 
         # --------------------------------------------------------------
 
-        self.wg_area_win = QtGui.QWidget(self)
+        self.wg_area_win = QWidget(self)
 
         self.wg_view = GxView(self.scene, parent=self)
 
-        self.wg_tab_command = QtGui.QTabWidget(self)
+        self.wg_tab_command = QTabWidget(self)
         self.wg_tab_command.addTab(self.wg_area_corners, 'Corners')
         self.wg_tab_command.addTab(self.wg_area_notch, 'Notch')
         self.wg_tab_command.setFixedWidth(200)
 
-        hl = QtGui.QHBoxLayout()
+        hl = QHBoxLayout()
         hl.addWidget(self.wg_view)
         hl.addWidget(self.wg_tab_command, 200)
         self.wg_area_win.setLayout(hl)
@@ -528,36 +529,36 @@ class ExampleMainWindow(QtGui.QMainWindow):
     def setupNotchGroupBox(self, title, notch, follow_w, follow_h, parent):
         ''' (str, str in self.POSITIONS, QWidget) -> QGroupBox
         '''
-        groupbox = QtGui.QGroupBox(title, parent)
+        groupbox = QGroupBox(title, parent)
 
-        combobox_shape = QtGui.QComboBox(parent)
+        combobox_shape = QComboBox(parent)
         combobox_shape.addItems(['trig', 'arc'])
         combobox_shape.setCurrentIndex(combobox_shape.findText(
             self.gx_example_path.notch_data[notch]['shape']))
-        self.connect(combobox_shape, QtCore.SIGNAL('currentIndexChanged(int)'),
+        self.connect(combobox_shape, SIGNAL('currentIndexChanged(int)'),
             lambda: self.gx_example_path.setNotchData(notch, 'shape',
                     combobox_shape.currentText()))
 
-        slider_base = QtGui.QSlider(parent)
+        slider_base = QSlider(parent)
         slider_base.setOrientation(Qt.Horizontal)
         slider_base.setRange(0, 100)
         slider_base.setSingleStep(1)
         slider_base.setValue(
             self.gx_example_path.notch_data[notch]['base_fc'] * 100)
-        self.connect(slider_base, QtCore.SIGNAL('valueChanged(int)'),
+        self.connect(slider_base, SIGNAL('valueChanged(int)'),
             lambda: self.gx_example_path.setNotchData(notch, 'base_fc',
                     slider_base.value()/100))
 
-        combobox_facing = QtGui.QComboBox(parent)
+        combobox_facing = QComboBox(parent)
         combobox_facing.addItems(['up', 'down'] if notch in ('top', 'bottom')
                                                 else ['left', 'right'])
         combobox_facing.setCurrentIndex(combobox_facing.findText(
             self.gx_example_path.notch_data[notch]['facing']))
-        self.connect(combobox_facing, QtCore.SIGNAL('currentIndexChanged(int)'),
+        self.connect(combobox_facing, SIGNAL('currentIndexChanged(int)'),
             lambda: self.gx_example_path.setNotchData(notch, 'facing',
                     combobox_facing.currentText()))
 
-        slider_width = QtGui.QSlider()
+        slider_width = QSlider()
         slider_width.setOrientation(Qt.Horizontal)
         if notch in ('top', 'bottom'):
             slider_width.setRange(0, 300)
@@ -566,11 +567,11 @@ class ExampleMainWindow(QtGui.QMainWindow):
         slider_width.setSingleStep(1)
         slider_width.setValue(
             int(self.gx_example_path.notch_data[notch]['size'].width()))
-        self.connect(slider_width, QtCore.SIGNAL('valueChanged(int)'),
+        self.connect(slider_width, SIGNAL('valueChanged(int)'),
             lambda: self.setNotchSize('w', notch, follow_w,
                     slider_width))
 
-        slider_height = QtGui.QSlider()
+        slider_height = QSlider()
         slider_height.setOrientation(Qt.Horizontal)
         if notch in ('top', 'bottom'):
             slider_height.setRange(0, 100)
@@ -579,23 +580,23 @@ class ExampleMainWindow(QtGui.QMainWindow):
         slider_height.setSingleStep(1)
         slider_height.setValue(
             int(self.gx_example_path.notch_data[notch]['size'].height()))
-        self.connect(slider_height, QtCore.SIGNAL('valueChanged(int)'),
+        self.connect(slider_height, SIGNAL('valueChanged(int)'),
             lambda: self.setNotchSize('h', notch, follow_h,
                     slider_height))
 
         setattr(self, 'wg_slider_%s_notch_size_w' % notch, slider_width)
         setattr(self, 'wg_slider_%s_notch_size_h' % notch, slider_height)
 
-        gl = QtGui.QGridLayout()
-        gl.addWidget(QtGui.QLabel('shape', parent), 0, 0)
+        gl = QGridLayout()
+        gl.addWidget(QLabel('shape', parent), 0, 0)
         gl.addWidget(combobox_shape, 0, 1)
-        gl.addWidget(QtGui.QLabel('base', parent), 1, 0)
+        gl.addWidget(QLabel('base', parent), 1, 0)
         gl.addWidget(slider_base, 1, 1)
-        gl.addWidget(QtGui.QLabel('facing', parent), 2, 0)
+        gl.addWidget(QLabel('facing', parent), 2, 0)
         gl.addWidget(combobox_facing, 2, 1)
-        gl.addWidget(QtGui.QLabel('width', parent), 3, 0)
+        gl.addWidget(QLabel('width', parent), 3, 0)
         gl.addWidget(slider_width, 3, 1)
-        gl.addWidget(QtGui.QLabel('height', parent), 4, 0)
+        gl.addWidget(QLabel('height', parent), 4, 0)
         gl.addWidget(slider_height, 4, 1)
         groupbox.setLayout(gl)
 
@@ -637,12 +638,12 @@ class ExampleMainWindow(QtGui.QMainWindow):
         corner = corner.lower()
         follow_w, follow_h = follow_w.lower(), follow_h.lower()
 
-        groupbox = QtGui.QGroupBox(title, parent)
+        groupbox = QGroupBox(title, parent)
 
-        combobox = QtGui.QComboBox(parent)
+        combobox = QComboBox(parent)
         combobox.addItems(['trig', 'arc', 'rect'])
         combobox.setCurrentIndex(1)
-        self.connect(combobox, QtCore.SIGNAL('currentIndexChanged(int)'),
+        self.connect(combobox, SIGNAL('currentIndexChanged(int)'),
             lambda: self.setCornerShape(combobox, corner))
 
         slider_width = self.setupCornerSlider('w', corner, follow_w, parent)
@@ -652,12 +653,12 @@ class ExampleMainWindow(QtGui.QMainWindow):
         setattr(self, 'wg_slider_%s_corner_size_w' % corner, slider_width)
         setattr(self, 'wg_slider_%s_corner_size_h' % corner, slider_height)
 
-        gl = QtGui.QGridLayout()
-        gl.addWidget(QtGui.QLabel('shape', parent), 0, 0)
+        gl = QGridLayout()
+        gl.addWidget(QLabel('shape', parent), 0, 0)
         gl.addWidget(combobox, 0, 1)
-        gl.addWidget(QtGui.QLabel('width', parent), 1, 0)
+        gl.addWidget(QLabel('width', parent), 1, 0)
         gl.addWidget(slider_width, 1, 1)
-        gl.addWidget(QtGui.QLabel('height', parent), 2, 0)
+        gl.addWidget(QLabel('height', parent), 2, 0)
         gl.addWidget(slider_height, 2, 1)
         groupbox.setLayout(gl)
 
@@ -667,12 +668,12 @@ class ExampleMainWindow(QtGui.QMainWindow):
         ''' (str in self.DIMENSIONS, str in self.CORNER_PLACES,
              str in self.CORNER_PLACES, QWidget) -> QSlider
         '''
-        slider = QtGui.QSlider(parent)
+        slider = QSlider(parent)
         slider.setOrientation(Qt.Horizontal)
         slider.setRange(0, 100)
         slider.setSingleStep(1)
         slider.setValue(50)
-        self.connect(slider, QtCore.SIGNAL('valueChanged(int)'),
+        self.connect(slider, SIGNAL('valueChanged(int)'),
             lambda: self.setCornerSize(slider, dimension[:], corner,
                                        follow_corner))
         return slider
@@ -706,8 +707,8 @@ def _AppExampleShapes():
     Executes some simple example PyQt application that uses the resources
     of this module.
     '''
-    app = QtGui.QApplication(sys.argv)
-    app.setStyle(QtGui.QStyleFactory.create("plastique"))
+    app = QApplication(sys.argv)
+    app.setStyle(QStyleFactory.create("plastique"))
     window = ExampleMainWindow()
     window.show()
     sys.exit(app.exec_())

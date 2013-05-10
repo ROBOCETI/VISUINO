@@ -198,18 +198,19 @@ class GxPaletteResizer(QGraphicsItem):
 
 class GxPaletteLibrary(GxView):
     
-    def __init__(self, lib, gx_palette, opengl, parent=None):
+    def __init__(self, lib, gx_palette, opengl, parent):
                 
         self._lib = lib
         self.gx_palette = gx_palette
                 
-        self._scene = GxSceneBlocks(background_grid=False)
+        self._scene = QGraphicsScene()
         self._scene.style = self.gx_palette.scene().style
         self._scene.setBackgroundBrush(QBrush(QColor(208, 214, 219)))
         self._scene.setSceneRect(0, 0, 500, 2000)
         
         GxView.__init__(self, self._scene, parent, opengl)
 
+#        self._view.setGeometry(0, 0, 200, 600)
         self.setDragMode(QGraphicsView.NoDrag)
         self.setFrameStyle(QFrame.NoFrame)
         self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
@@ -228,7 +229,18 @@ class GxPaletteLibrary(GxView):
         menu.addAction("Collapse all", self.collapseAll)
         self.menu_expand_collapse_all = menu    
         
-#        self.scale(0.85, 0.85)                
+#        self.scale(0.85, 0.85) 
+
+#        self.setAcceptHoverEvents(True)       
+        
+#    def hoverMoveEvent(self, event):
+#        item_at = self._view.itemAt(event.pos().toPoint())
+#        if isinstance(item_at, GxPaletteSection):
+#            self.setCursor(Qt.PointingHandCursor)
+#        elif isinstance(item_at, GxBlock):
+#            self.setCursor(Qt.OpenHandCursor)
+#        else:
+#            self.setCursor(Qt.ArrowCursor)
         
     def expandAll(self):
         for sec in self._sections:
@@ -260,7 +272,7 @@ class GxPaletteLibrary(GxView):
         super(GxPaletteLibrary, self).mousePressEvent(event) 
         
         self.gx_palette.update(self.gx_palette.boundingRect()) 
-        item_at = self.itemAt(event.pos())        
+        item_at = self.itemAt(event.pos())
         
         if (isinstance(item_at, GxPaletteSection) and 
             event.button() == Qt.RightButton):
@@ -309,19 +321,29 @@ class GxPalette(QGraphicsProxyWidget):
     def __init__(self, libs, scene, opengl):
         QGraphicsProxyWidget.__init__(self)
         
-        if isinstance(scene, QGraphicsScene):
-            scene.addItem(self)        
-        
         self._libs = libs
         self._opengl = opengl
         
         self.setFlags(QGraphicsItem.ItemIsFocusable | QGraphicsItem.ItemIsMovable)
         
-        self._view = GxPaletteLibrary(self._libs['Arduino.h'], self, opengl, 
-                                      parent=None)
-        self._view.setGeometry(0, 0, 250, 600)
-        self.setWidget(self._view)        
-
+        self.tab_widget = QTabWidget()
+        self.setWidget(self.tab_widget)        
+        if isinstance(scene, QGraphicsScene):
+            scene.addItem(self)        
+        
+        self.tab_control = QWidget(self.tab_widget)
+        self.tab_libraries = QTabWidget(self.tab_widget)
+        self.tab_widget.addTab(self.tab_control, 'Control')
+        self.tab_widget.addTab(self.tab_libraries, 'Libraries')
+        
+        self._libs_tabs = []
+        for name, lib in self._libs.items():
+            self.tab_libraries.addTab(
+                GxPaletteLibrary(lib, self, opengl, self.tab_libraries), 
+                                 name)
+        
+        self.tab_widget.setGeometry(0, 0, 250, 600)
+        self.tab_widget.setCurrentIndex(1)
             
         self.cursor_collide = QCursor(
             QPixmap(':delete_icon.png').scaled(64, 64))
@@ -330,20 +352,14 @@ class GxPalette(QGraphicsProxyWidget):
             
         self._resizer = GxPaletteResizer(self, self.scene())
         
-        self.setAcceptHoverEvents(True)        
-
-    def hoverMoveEvent(self, event):
-        item_at = self._view.itemAt(event.pos().toPoint())
-        if isinstance(item_at, GxPaletteSection):
-            self.setCursor(Qt.PointingHandCursor)
-        elif isinstance(item_at, GxBlock):
-            self.setCursor(Qt.OpenHandCursor)
-        else:
-            self.setCursor(Qt.ArrowCursor)
+        self.setAcceptHoverEvents(True)
+        
+#    def hoverMoveEvent(self, event):
+#        if self.tab_widget.isTabEnable
         
     def updateHeight(self, new_height):
         self.prepareGeometryChange()
-        self.widget().setFixedHeight(new_height)
+        self.tab_widget.setFixedHeight(new_height)
         self.update(self.boundingRect())
         
     def updateResize(self, resizer_pos):

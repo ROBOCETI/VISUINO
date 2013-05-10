@@ -499,11 +499,3 @@ class GxPluggableBlock(GxBlock):
             child.removeFromScene()
         if self.scene():
             self.scene().removeItem(self)
-
-            
-        
-def main():
-    pass
-
-if __name__ == '__main__':
-    main()

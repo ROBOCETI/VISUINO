@@ -9,11 +9,13 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 from __future__ import division, print_function
+import sys
+if __name__ == '__main__':
+    sys.path.append('../../../')
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from PyQt4 import uic
-import sys
 
 from visuino.gx.bases import *
 from visuino.gx.shapes import *
@@ -22,6 +24,8 @@ from visuino.gx.connections import *
 from visuino.gx.blocks.arg_label import GxArgLabel
 
 from visuino.core.definitions import *
+
+__all__ = ['GxBlockFunctionCall']
 
 class GxBlockFunctionCall(GxPluggableBlock):
     '''
@@ -74,7 +78,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
             arg.update_parent = True
             
     def __repr__(self):
-        return "GxBlockFunctionCall " + str(self._name)            
+        return "GxBlockFunctionCall " + str(self._def.name)            
         
     @property
     def definition(self):
