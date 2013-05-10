@@ -11,12 +11,12 @@
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
 from __future__ import division, print_function
-
-__all__ = ['GxPaletteLibrary', 'GxViewPalette']
+import sys
+if __name__ == '__main__':
+    sys.path.append('../../')
 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-import sys
 
 from visuino.gx.bases import *
 from visuino.gx.blocks import *
@@ -26,6 +26,8 @@ from visuino.resources import *
 
 from visuino.core.xml_libs import *
 from visuino.core.definitions import *
+
+__all__ = ['GxPaletteLibrary', 'GxViewPalette']
 
 XML_LIBRARIES = \
 """<?xml version="1.0" encoding="UTF-8"?>
