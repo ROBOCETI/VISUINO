@@ -23,8 +23,6 @@ from visuino.gx.utils import *
 from visuino.gx.styles import *
 from visuino.gx.connections import *
 
-from visuino.core.definitions import ArgInfo
-
 __all__ = ['GxArgLabel']
 
 class GxArgLabel(GxPluggableBlock):
@@ -35,22 +33,25 @@ class GxArgLabel(GxPluggableBlock):
     '''
 
     def __init__(self, arg_info, scene=None, parent=None, **kwargs):
-        ''' (ArgInfo, GxSceneBlocks, QGraphicsItem, **)
+        ''' (dict, GxSceneBlocks, QGraphicsItem, **)
 
         kwargs:
             @ fixed_width: number <None>
             @ update_parent: True <False>
         '''
         GxPluggableBlock.__init__(self, scene, parent, mouse_active=False)
+        self._arg_info = arg_info
 
         self._fixed_width = kwargs.get('fixed_width', None)
         self.update_parent = kwargs.get('update_parent', True)
-
-        self._arg_info = arg_info
+        
         self._name_rect = self.boundingRect()
         self._name_font = QFont('Verdana', 12)
 
-        self.updateMetrics()
+        self.updateMetrics()        
+
+    def getBorderWidth(self):
+        return self.scene().style.arg_label.border_width        
 
     def setFixedWidth(self, width):
         ''' (number) -> NoneType
@@ -74,7 +75,7 @@ class GxArgLabel(GxPluggableBlock):
         # drawing the name
         painter.setFont(self._name_font)
         painter.setPen(QPen(QColor(sa.font_color)))
-        painter.drawText(self._name_rect, Qt.AlignCenter, self._arg_info.name)
+        painter.drawText(self._name_rect, Qt.AlignCenter, self._arg_info['name'])
 
         # drawing the name rectangle (for debugging purposes)
 ##        painter.setPen(Qt.DashLine)
@@ -100,7 +101,7 @@ class GxArgLabel(GxPluggableBlock):
         # main dimensions
         name_metrics = QFontMetricsF(self._name_font)
         fvc = style_label.font_vcorrection
-        nw, nh = name_metrics.width(self._arg_info.name), name_metrics.height()
+        nw, nh = name_metrics.width(self._arg_info['name']), name_metrics.height()
         hp, vp = style_label.getPadding()
         cw, ch = style_label.getCornerSize()
         iow, ioh = style_notch.getIoNotchSize()
@@ -161,9 +162,8 @@ class GxArgLabel(GxPluggableBlock):
         if self.update_parent:
             if isinstance(self.parentItem(), GxBlock):
                 self.parentItem().updateMetrics()
-
-    def getBorderWidth(self):
-        return self.scene().style.arg_label.border_width
+        
+        
 
 
 class HollowItem(object):
@@ -202,7 +202,8 @@ class WinCustomizeArgLabel(QMainWindow):
 
         self.scene = GxSceneBlocks()
 
-        self.arg_label = GxArgLabel(ArgInfo('value', 'int', 'HIGH,LOW'), 
+        self.arg_label = GxArgLabel({'name': 'value', 'type': 'int', 
+                                     'restriction': 'HIGH,LOW'}, 
                                     self.scene)
         self.arg_label.setPos(30, 30)
         self.arg_label.setFlags(QGraphicsItem.ItemIsMovable)

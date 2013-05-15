@@ -16,11 +16,11 @@ from __future__ import division, print_function
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
-__all__ = ['GxPluggableBlock']
-
 from visuino.gx.bases import GxBlock
 from visuino.gx.shapes import *
 from visuino.gx.utils import *
+
+__all__ = ['GxPluggableBlock']
 
 class GxColliPath(QGraphicsPathItem):
     '''
@@ -437,23 +437,25 @@ class GxPluggableBlock(GxBlock):
         GxBlock.mousePressEvent(self, event)
         if not self.mouse_active: return
 
-        self.unplugIo()
-        
-        if not self.isSelected():
-            self.unplugVf()
-        else:
-            parent = self.parent_vf
-            if parent and not parent.isSelected():
+        if event.button() == Qt.LeftButton:
+
+            self.unplugIo()
+            
+            if not self.isSelected():
                 self.unplugVf()
-            last_sel_child = self.getFirstNonSelectedBottomChildVf()
-            if last_sel_child and not last_sel_child.isSelected():
-                last_sel_child.unplugVf()
-                if parent:
-                    last_sel_child.plugVfFemale(parent)
-            self._checkNotchCollisions() 
-        
-        if self.io_male_start:
-            self._checkNotchCollisions()                      
+            else:
+                parent = self.parent_vf
+                if parent and not parent.isSelected():
+                    self.unplugVf()
+                last_sel_child = self.getFirstNonSelectedBottomChildVf()
+                if last_sel_child and not last_sel_child.isSelected():
+                    last_sel_child.unplugVf()
+                    if parent:
+                        last_sel_child.plugVfFemale(parent)
+                self._checkNotchCollisions() 
+            
+            if self.io_male_start:
+                self._checkNotchCollisions()                      
             
     def mouseMoveEvent(self, event):
         ''' GxBlock.mouseMoveEvent(QGraphicsSceneMouseEvent) -> NoneType
@@ -469,22 +471,24 @@ class GxPluggableBlock(GxBlock):
         GxBlock.mouseReleaseEvent(self, event)
         if not self.mouse_active or not self.scene(): return
         
-        self._checkNotchCollisions()
-
-        if self.io_male_colliding and not self.parent_io:
-            self.plugIo(self.io_male_colliding.parentItem())
-            self._endInsertionEffect('io', 'M')
+        if event.button() == Qt.LeftButton:
         
-        if self.vf_female_colliding and not self.parent_vf:
-            self.plugVfFemale(self.vf_female_colliding.parentItem())
-            self._endInsertionEffect('vf', 'F')  
+            self._checkNotchCollisions()
+    
+            if self.io_male_colliding and not self.parent_io:
+                self.plugIo(self.io_male_colliding.parentItem())
+                self._endInsertionEffect('io', 'M')
             
-#        if self.vf_male_colliding:
-#            self.plugVfMale(self.vf_male_colliding.parentItem())
-#            self._endInsertionEffect('vf', 'M')
-
-        if not self.io_male_start:
-            self.setFlag(QGraphicsItem.ItemIsSelectable, True)
+            if self.vf_female_colliding and not self.parent_vf:
+                self.plugVfFemale(self.vf_female_colliding.parentItem())
+                self._endInsertionEffect('vf', 'F')  
+                
+    #        if self.vf_male_colliding:
+    #            self.plugVfMale(self.vf_male_colliding.parentItem())
+    #            self._endInsertionEffect('vf', 'M')
+    
+            if not self.io_male_start:
+                self.setFlag(QGraphicsItem.ItemIsSelectable, True)
 
     def removeFromScene(self):
         ''' GxBlock.removeFromScene() -> NoneType

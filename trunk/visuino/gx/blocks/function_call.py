@@ -23,8 +23,6 @@ from visuino.gx.utils import *
 from visuino.gx.connections import *
 from visuino.gx.blocks.arg_label import GxArgLabel
 
-from visuino.core.definitions import *
-
 __all__ = ['GxBlockFunctionCall']
 
 class GxBlockFunctionCall(GxPluggableBlock):
@@ -39,7 +37,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
     on the left side.
 
     Attributes:
-        definition: FunctionDefiniton. Saves all information about the function.
+        _def: FunctionDefiniton. Saves all information about the function.
 
         _name_rect: QRectF. Rectangle in which the name text will be drawn.
             Gets updated via updateMetrics(), using Style attributes.
@@ -61,14 +59,13 @@ class GxBlockFunctionCall(GxPluggableBlock):
         " in position %d. Expected <class 'FieldInfo'>, but was given %s."
 
     def __init__(self, definition, scene, parent=None):
-        ''' (FunctionDefinition, GxSceneBlocks, QGraphicsItem)
+        ''' (dict, GxSceneBlocks, QGraphicsItem)
         '''
         GxPluggableBlock.__init__(self, scene, parent)
-
         self._def = definition
         
-        self._name_rect = self.boundingRect()
-        self._args_labels = []
+        self._name_rect = self.boundingRect()        
+        self._args_labels = []  # list of GxArgLabel
         self._args_height = 0
 
         self.setupArgLabels()
@@ -76,13 +73,13 @@ class GxBlockFunctionCall(GxPluggableBlock):
 
         for arg in self._args_labels:
             arg.update_parent = True
+    
+    @property
+    def args_labels(self):
+        return self._args_labels
             
     def __repr__(self):
-        return "GxBlockFunctionCall " + str(self._def.name)            
-        
-    @property
-    def definition(self):
-        return self._def   
+        return "GxBlockFunctionCall " + str(self._def['name']) 
         
     def getBorderWidth(self):
         ''' () -> int
@@ -92,7 +89,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
     def cloneMe(self, scene):
         ''' (GxSceneBlocks) -> GxBlockFunctionCall
         '''
-        return GxBlockFunctionCall(self.definition, scene)                                   
+        return GxBlockFunctionCall(self._def, scene)                                   
 
     def paint(self, painter, option=None, widget=None):
         ''' QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
@@ -111,7 +108,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
         painter.setFont(self._name_font)
         painter.setPen(QPen(QColor(sfc.name_font_color)))
         painter.drawText(self._name_rect, Qt.AlignVCenter | Qt.AlignLeft, 
-                         self._def.name)
+                         self._def['name'])
 
         if self.isSelected():
             painter.setPen(Qt.DashLine)
@@ -123,7 +120,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
 
         Should be called whenever self._args changes.
         '''
-        if self._def.args is None:
+        if self._def['args'] is None:
             return
         sa, sn = self.scene().style.arg_label, self.scene().style.notch
 
@@ -133,7 +130,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
 
         max_width = 0
         self._args_height = 0
-        for i, arg_info in enumerate(self._def.args):
+        for i, arg_info in enumerate(self._def['args']):
 
             new_label = GxArgLabel(arg_info, self.scene(), parent=self,
                                    update_parent=False)
@@ -152,8 +149,6 @@ class GxBlockFunctionCall(GxPluggableBlock):
 
     def updateMetrics(self):
         ''' () -> NoneType
-
-        
         '''
         self.prepareGeometryChange()
         self.old_size = self.boundingRect().size()
@@ -169,7 +164,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
         name_metrics = QFontMetricsF(self._name_font)
 
         # setting up nice short names for all the metrics
-        nw, nh = name_metrics.width(self._def.name), name_metrics.height()
+        nw, nh = name_metrics.width(self._def['name']), name_metrics.height()
         fvc = style_fc.name_font_vcorrection
         hp, vp = style_fc.getNamePadding()
         bp = style_fc.bottom_padd
@@ -205,7 +200,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
             self._args_height += (len(self._args_labels) - 1) * \
                 self.scene().style.function_call.arg_spacing
 
-        if self._def.return_type:
+        if self._def['return_type']:
             # height from the top up to the args y0
             args_y0 = max(vp, ch) + nh + vp
             name_y0 = args_y0 - vp - nh
@@ -297,12 +292,15 @@ class GxBlockFunctionCall(GxPluggableBlock):
 
         Set its arguments information, and also update the graphics.
         '''
-        self._def.name = kwargs.get('name', self._def.name)
-        self._def.return_type = kwargs.get('return_type', self._def.return_type)
+        self._def['name'] = kwargs.get('name', self._def['name'])
+        self._def['return_type'] = kwargs.get('return_type', self._def['return_type'])
         if 'args' in kwargs:
-            self._def.args = kwargs.get('args')
+            self._def['args'] = kwargs.get('args')
             self.setupArgLabels()
         self.updateMetrics()
+        
+    def mousePressEvent(self, event):
+        super(GxBlockFunctionCall, self).mousePressEvent(event)        
 
 
 class WinCustomizeFunctionCall(QMainWindow):
@@ -326,9 +324,10 @@ class WinCustomizeFunctionCall(QMainWindow):
         sn = self.scene.style.notch    
         
         self.block_function_call = GxBlockFunctionCall(
-            FunctionDefinition('digitalWrite', None, '',
-                               args=[ArgInfo('pin', 'int'), 
-                                     ArgInfo('value', 'int')]), self.scene)
+            {'name': 'digitalWrite', 'return_type': None, 
+             'args': [{'name': 'pin', 'type': 'int'},
+                      {'name': 'value', 'type': 'int'}]}, self.scene)
+
         self.block_function_call.setPos(100, 100)
         self.block_function_call.setFlags(QGraphicsItem.ItemIsMovable)
         self.block_function_call.setCursor(Qt.OpenHandCursor)
@@ -385,7 +384,7 @@ class WinCustomizeFunctionCall(QMainWindow):
         self.args = []
         if len(text.strip()) != 0:
             for x in [x.strip() for x in text.split(',')]:
-                self.args.append(ArgInfo(x, 'int'))
+                self.args.append({'name': x, 'type': 'int'})
         self.block_function_call.updateDefinition(args=self.args)
 
     def _updateStyle(self, style, attr, value):

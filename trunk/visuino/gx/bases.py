@@ -186,9 +186,8 @@ class GxSceneBlocks(QGraphicsScene):
         QGraphicsScene.mousePressEvent(self, event)
         
         grabber = self.mouseGrabberItem()   # item under the mouse
-        print("Scene mousePress - grabber: ", grabber)
-#        if grabber and self._click_to_front:
-#            self.bringToFront(grabber)
+        if grabber and self._click_to_front:
+            self.bringToFront(grabber)
             
 
     def setClickToFront(self, value):
@@ -369,7 +368,6 @@ class GxBlock(QGraphicsItem):
             -> NoneType            
         '''
         QGraphicsItem.mousePressEvent(self, event) 
-        print('Clicked block!')
         
     def mouseMoveEvent(self, event):
         ''' QGraphicsItem.mouseMoveEvent(QGraphicsSceneMouseEvent) 

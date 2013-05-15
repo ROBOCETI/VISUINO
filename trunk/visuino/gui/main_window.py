@@ -11,9 +11,12 @@
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
 from __future__ import division, print_function
+import sys, os
+if __name__ == '__main__':
+    sys.path.append('../../')
 
-from PyQt4 import QtGui, QtCore
-import os
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
 
 from visuino.gx.palette import *
 from visuino.gx.blocks import *
@@ -21,7 +24,17 @@ from visuino.resources import *
 
 __all__ = ['MainWindow', 'AppVisuino']
 
-class MainWindow(QtGui.QMainWindow):
+sketch = {'snippets': {}}
+sketch['snippets'][1] = {'pos': [400, 200], 'body': []}
+sketch['snippets'][1]['body'].append(
+    {'tag': 'function_call', 'name': 'digitalWrite', 'library': 'Arduino.h',
+     'args': {
+         1: {'tag': 'function_call', 'name': 'digitalRead', 
+             'library': 'Arduino.h', 'args': {}}
+             }
+    })
+
+class MainWindow(QMainWindow):
     '''
     Attributes:
         _app: QApplication. The application that lauched this window.
@@ -36,7 +49,7 @@ class MainWindow(QtGui.QMainWindow):
         if it is True or False, this value will be used to override the
         one configurated on the INI settings.
         '''
-        QtGui.QMainWindow.__init__(self, None)
+        QMainWindow.__init__(self, None)
         self._app = app
         self._opengl = opengl
 
@@ -49,8 +62,7 @@ class MainWindow(QtGui.QMainWindow):
         else:
             print('Using basic graphics engine!')
 
-        self.initUI()
-
+        self.initUI()        
 
     def setupIniSettings(self):
         ''' () -> NoneType
@@ -65,8 +77,8 @@ class MainWindow(QtGui.QMainWindow):
         else:
             ini_filename = os.getcwd() + os.path.sep + self._app.INI_NAME
 
-        ini = self._ini_file = QtCore.QSettings(ini_filename,
-                                                QtCore.QSettings.IniFormat)
+        ini = self._ini_file = QSettings(ini_filename,
+                                                QSettings.IniFormat)
 
         if os.path.exists(ini_filename):
             try:
@@ -112,7 +124,7 @@ class MainWindow(QtGui.QMainWindow):
         Update the INI settings before closing.
         '''
         self.updateIniSettings()
-        QtGui.QMainWindow.closeEvent(self, event)
+        QMainWindow.closeEvent(self, event)
 
 
     def initUI(self):
@@ -129,38 +141,39 @@ class MainWindow(QtGui.QMainWindow):
 
         # --- Code Area --------------------------------------------------
 
-        self.wg_area_code = QtGui.QWidget(self)
+        self.wg_area_code = QWidget(self)
 
         # ----------------------------------------------------------------
 
-        self.wg_main_tab = QtGui.QTabWidget()
+        self.wg_main_tab = QTabWidget()
         self.wg_main_tab.addTab(self.wg_blocks_view, 'Blocks')
         self.wg_main_tab.addTab(self.wg_area_code, 'Code')
 
         # --- Main menu --------------------------------------------------
 
-        self.action_exit = QtGui.QAction('&Exit', self)
-        self.connect(self.action_exit, QtCore.SIGNAL('triggered()'),
+        self.action_exit = QAction('&Exit', self)
+        self.connect(self.action_exit, SIGNAL('triggered()'),
                      self.close)
-        self.wg_menu_file = QtGui.QMenu('&File', self)
+        self.wg_menu_file = QMenu('&File', self)
         self.wg_menu_file.addAction(self.action_exit)
+        self.wg_menu_file.addAction('Draw sketch', self.actionDrawSketch)
 
 
-        self.action_open_gl = QtGui.QAction('Open&GL', self)
+        self.action_open_gl = QAction('Open&GL', self)
         self.action_open_gl.setCheckable(True)
         self.action_open_gl.setChecked(self._opengl)
-        self.connect(self.action_open_gl, QtCore.SIGNAL('triggered()'),
+        self.connect(self.action_open_gl, SIGNAL('triggered()'),
                      self.actSetOptionOpenGl)
-        self.wg_menu_options = QtGui.QMenu('&Options', self)
+        self.wg_menu_options = QMenu('&Options', self)
         self.wg_menu_options.addAction(self.action_open_gl)
 
-        menu_bar = QtGui.QMenuBar(self)
+        menu_bar = QMenuBar(self)
         menu_bar.addMenu(self.wg_menu_file)
         menu_bar.addMenu(self.wg_menu_options)
         self.setMenuBar(menu_bar)
 
         self.setWindowTitle('Visuino')
-        self.setWindowIcon(QtGui.QIcon(':python_arduino.png'))
+        self.setWindowIcon(QIcon(':python_arduino.png'))
         self.setCentralWidget(self.wg_main_tab)
         self.setGeometry(200, 100, 1000, 600)
 
@@ -174,14 +187,14 @@ class MainWindow(QtGui.QMainWindow):
         '''
 
         if self.action_open_gl.isChecked():
-            ans = QtGui.QMessageBox(QtGui.QMessageBox.Information,
+            ans = QMessageBox(QMessageBox.Information,
                 'Confirmation', "This option will attempt to use some " \
                 + "hardware acceleration. Beware that it's success depends " \
                 + "on the video driver.\nFor instance, in some Linux systems " \
                 + "that runs on top of generic drivers may presents some "
                 + "problems.\n\nDo you want to confirm it?",
-                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No).exec_()
-            if ans == QtGui.QMessageBox.Yes:
+                QMessageBox.Yes | QMessageBox.No).exec_()
+            if ans == QMessageBox.Yes:
                 self._opengl = self.action_open_gl.isChecked()
             else:
                 self.action_open_gl.toggle()
@@ -189,12 +202,40 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self._opengl = self.action_open_gl.isChecked()
 
-        QtGui.QMessageBox(QtGui.QMessageBox.Warning, 'Warning',
+        QMessageBox(QMessageBox.Warning, 'Warning',
             "You need restart the application in order for " +
-            "this change to take effect!", QtGui.QMessageBox.Ok).exec_()
+            "this change to take effect!", QMessageBox.Ok).exec_()
+            
+    def actionDrawSketch(self):
+#        print(sketch)
+        
+        for s_id, snippet in sketch['snippets'].items():
+            print('Drawing snippet of ID %d:' % s_id)
+            print('-'*25)
+            print(snippet)            
+            print('-'*25)
+            
+            s_pos = snippet['pos']            
+            parent_vf = None
+            new_block = None
+            
+            for command in snippet['body']:
+                if command['tag'] == 'function_call':
+                    print('Creating block Function Call:', command['name'])
+                    defn = self.wg_blocks_view.libs[command['library']]\
+                                                   [command['name']]
+                    new_block = GxBlockFunctionCall.getElementBlock(
+                        defn, self.wg_blocks_view.scene())
+                    new_block.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+                if new_block:
+                    if parent_vf is None:
+                        new_block.setPos(s_pos[0], s_pos[1])
+                        parent_vf = new_block
+                    
+                
 
 
-class AppVisuino(QtGui.QApplication):
+class AppVisuino(QApplication):
     '''
     The hole Visuino application is launched by this class. It holds
     the main window and all the proccess starts with the execute() method,
@@ -212,9 +253,9 @@ class AppVisuino(QtGui.QApplication):
         The 'argv' parameter is used to pass command line arguments, and
         the 'main_cwd' is stored on the self.MAIN_CWD attribute.
         '''
-        QtGui.QApplication.__init__(self, argv)
+        QApplication.__init__(self, argv)
         self.MAIN_CWD = main_cwd
-        self.setStyle(QtGui.QStyleFactory.create("plastique"))
+        self.setStyle(QStyleFactory.create("plastique"))
 
     def execute(self, opengl=None):
         ''' (bool) -> int
@@ -225,9 +266,9 @@ class AppVisuino(QtGui.QApplication):
 
         Returns the QApplication.exec_() result.
         '''
-        splash_pix = QtGui.QPixmap(':splash_loading.png')
-        splash = QtGui.QSplashScreen(splash_pix,
-                                     QtCore.Qt.WindowStaysOnTopHint)
+        splash_pix = QPixmap(':splash_loading.png')
+        splash = QSplashScreen(splash_pix,
+                                     Qt.WindowStaysOnTopHint)
         splash.setMask(splash_pix.mask())
         splash.show()
         self.processEvents()
@@ -236,3 +277,6 @@ class AppVisuino(QtGui.QApplication):
         main_win.show()
         splash.finish(main_win)
         return self.exec_()
+
+if __name__ == '__main__':
+    AppVisuino(sys.argv).execute()
