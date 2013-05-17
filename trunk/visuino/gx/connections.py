@@ -184,9 +184,9 @@ class GxPluggableBlock(GxBlock):
     NOTCHES = ('io_male', 'io_female', 'vf_male', 'vf_female')
 
     def __init__(self, scene, parent=None, mouse_active=True):
-        ''' (GxScene)
+        ''' (GxSceneBlocks, QGraphicsItem, bool)
         '''
-        GxBlock.__init__(self, scene, parent, mouse_active)
+        GxBlock.__init__(self, scene, parent, mouse_active)        
         
         for x in self.NOTCHES:
             setattr(self, x + '_start', None)
@@ -300,7 +300,7 @@ class GxPluggableBlock(GxBlock):
                 self.scene().removeItem(im)
             setattr(self, notch + '_insertion_marker', None)
 
-    def plugIo(self, target):
+    def plugIo(self, target, update_snippet=True):
         '''
         '''
 #        print('Plugging IO...')
@@ -316,10 +316,18 @@ class GxPluggableBlock(GxBlock):
 
         if hasattr(target, 'updateMetrics'):
             target.updateMetrics()
+        if hasattr(target, 'updateElement'):
+            target.updateElement(self.element)
+        
+        if update_snippet:
+            if self.snippet_id:
+                self.sketch.removeSnippet(self.snippet_id)
+                self.snippet_id = None
 
     def unplugIo(self):
         if self.parent_io:
 #            print("I am no longer your son!")
+            self.parent_io.updateElement(None)
 
             pos = self.parent_io.mapToScene(self.pos())
             self.setParentItem(None)
@@ -330,10 +338,15 @@ class GxPluggableBlock(GxBlock):
             self.parent_io = None
             self.io_male_colliding = None
 
-            self.scene().addItem(self)
+            self.scene().addItem(self)  
+            
+            self.sketch.addSnippet(self)
+            
 
-    def plugVfFemale(self, target):
+    def plugVfFemale(self, target, update_snippet=True):
 #        print('Plugging VF...')
+#        print('Target:', target)
+
         if target.child_vf is None:
 
             self.parent_vf = target
@@ -354,7 +367,13 @@ class GxPluggableBlock(GxBlock):
             self.setParentItem(target)
             self._updateChildVfPosition(target)            
             new_child.setParentItem(my_bottom_child)
-            self._updateChildVfPosition(my_bottom_child)
+            self._updateChildVfPosition(my_bottom_child) 
+
+        if update_snippet:
+            self.getTopParentVf().updateMySnippet()
+            if self.sketch:
+                self.sketch.removeSnippet(self.snippet_id)
+                self.snippet_id = None
 
     def plugVfMale(self, target):
         self.child_vf = target
@@ -368,8 +387,10 @@ class GxPluggableBlock(GxBlock):
         target.setParentItem(self)
         target.setPos(self.mapFromScene(target_pos))
 
-    def unplugVf(self):
+    def unplugVf(self, update_snippet=True):
         if self.parent_vf:
+            
+            old_top_parent = self.parent_vf.getTopParentVf()
 
             pos = self.parent_vf.mapToScene(self.pos())
             self.setParentItem(None)
@@ -378,7 +399,13 @@ class GxPluggableBlock(GxBlock):
             self.parent_vf.child_vf = None
             self.parent_vf = None
 
-            self.scene().addItem(self)        
+            self.scene().addItem(self)
+            
+            self.sketch = old_top_parent.sketch
+            self.sketch.addSnippet(first_block=self)
+            
+            if update_snippet:
+                old_top_parent.updateMySnippet()
             
     def getBottomChildVf(self):
         if not self.child_vf:
@@ -390,6 +417,19 @@ class GxPluggableBlock(GxBlock):
                     return next_child
                 else:
                     next_child = next_child.child_vf
+                    
+    def getTopParentVf(self):
+        ''' () -> GxPluggableBlock <None>
+        '''
+        if not self.parent_vf:
+            return self
+        else:
+            next_parent = self.parent_vf
+            while True:
+                if next_parent.parent_vf is None:
+                    return next_parent
+                else:
+                    next_parent = next_parent.parent_vf
                     
     def getFirstNonSelectedBottomChildVf(self):
         item = self
@@ -489,6 +529,9 @@ class GxPluggableBlock(GxBlock):
     
             if not self.io_male_start:
                 self.setFlag(QGraphicsItem.ItemIsSelectable, True)
+                
+            if self.snippet_id:
+                self.getTopParentVf().updateMySnippetPos()
 
     def removeFromScene(self):
         ''' GxBlock.removeFromScene() -> NoneType
@@ -498,6 +541,9 @@ class GxPluggableBlock(GxBlock):
         will gonna be GxColliPath objects, which MUST be assured to be
         deleted from the scene by calling its removeFromScene() method.
         '''
+        if self.snippet_id:
+            self.sketch.removeSnippet(self.snippet_id)
+            
         self._cleanInsertionMarkers()
         for child in self.childItems():
             child.removeFromScene()

@@ -251,8 +251,14 @@ class GxBlock(QGraphicsItem):
             colliding with the palette.
     '''
     def __init__(self, scene, parent=None, mouse_active=True):
+        ''' (GxSceneBlocks, QGraphicsItem, bool)
+        '''
         QGraphicsItem.__init__(self, parent, scene)
         self._width, self._height = 200, 100
+                
+        self._element = None       
+        self.snippet_id = None
+        self.sketch = None
 
         path = QPainterPath()
         path.addRect(self.boundingRect())
@@ -266,6 +272,10 @@ class GxBlock(QGraphicsItem):
 #        self.setCursor(self._default_block_cursor)
 
         self.mouse_active = mouse_active
+        
+    @property
+    def element(self):
+        return self._element        
         
     def boundingRect(self):
         ''' QGraphicsItem.boundingRect() -> QRectF
@@ -308,7 +318,15 @@ class GxBlock(QGraphicsItem):
         path.addRect(self.boundingRect())
         self._border_path = path
 
-        self.update(self.boundingRect())     
+        self.update(self.boundingRect()) 
+        
+    def updateMySnippet(self):
+        if self.sketch and self.snippet_id:
+            self.sketch.updateSnippet(self)
+            
+    def updateMySnippetPos(self):
+        if self.sketch and self.snippet_id:
+            self.sketch.updateSnippetPos(self.snippet_id, self.pos())
 
     def cloneMe(self, scene):
         ''' (GxSceneBlocks) -> GxBlock subclass
@@ -344,6 +362,17 @@ class GxBlock(QGraphicsItem):
         Returns its border path height.
         '''        
         return self._border_path.boundingRect().height()
+        
+    def getTopParentItem(self):
+        parent = self.parentItem()
+        if not parent:
+            return self
+        else:
+            while True:
+                if parent.parentItem() is None:
+                    return parent
+                else:
+                    parent = parent.parentItem()        
         
     def checkPaletteCollide(self):
         ''' () -> NoneType

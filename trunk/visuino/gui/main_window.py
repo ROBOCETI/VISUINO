@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         else:
             print('Using basic graphics engine!')
 
-        self.initUI()        
+        self.initUI()     
 
     def setupIniSettings(self):
         ''' () -> NoneType
@@ -151,19 +151,17 @@ class MainWindow(QMainWindow):
 
         # --- Main menu --------------------------------------------------
 
-        self.action_exit = QAction('&Exit', self)
-        self.connect(self.action_exit, SIGNAL('triggered()'),
-                     self.close)
         self.wg_menu_file = QMenu('&File', self)
-        self.wg_menu_file.addAction(self.action_exit)
-        self.wg_menu_file.addAction('Draw sketch', self.actionDrawSketch)
-
+        self.wg_menu_file.addAction('Load Sketch', self.actionLoadSketch)
+        self.wg_menu_file.addAction('Save Sketch', self.actionSaveSketch)
+        self.wg_menu_file.addSeparator()
+        self.wg_menu_file.addAction('&Exit', self.close)
 
         self.action_open_gl = QAction('Open&GL', self)
         self.action_open_gl.setCheckable(True)
         self.action_open_gl.setChecked(self._opengl)
         self.connect(self.action_open_gl, SIGNAL('triggered()'),
-                     self.actSetOptionOpenGl)
+                     self.actionSetOptionOpenGl)
         self.wg_menu_options = QMenu('&Options', self)
         self.wg_menu_options.addAction(self.action_open_gl)
 
@@ -176,9 +174,24 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(':python_arduino.png'))
         self.setCentralWidget(self.wg_main_tab)
         self.setGeometry(200, 100, 1000, 600)
+        
+        
+    def actionLoadSketch(self):
+        filename = QFileDialog.getOpenFileName(self, 'Load sketch', '',
+                                               '*.vsn')
+#        print(filename)
+        self.wg_blocks_view.sketch.loadSketch(filename)
+        self.wg_blocks_view.sketch.drawSnippets(self.wg_blocks_view.scene(),
+            self.wg_blocks_view.palette_blocks)
+        
+    def actionSaveSketch(self):
+        filename = QFileDialog.getSaveFileName(self, 'Save sketch', '', 
+                                               '*.vsn')
+#        print(filename)
+        self.wg_blocks_view.sketch.dumpSketch(filename)
 
 
-    def actSetOptionOpenGl(self):
+    def actionSetOptionOpenGl(self):
         ''' () -> NoneType
 
         Trigger of the main menu Option > Open GL. If the new checked value
@@ -206,34 +219,6 @@ class MainWindow(QMainWindow):
             "You need restart the application in order for " +
             "this change to take effect!", QMessageBox.Ok).exec_()
             
-    def actionDrawSketch(self):
-#        print(sketch)
-        
-        for s_id, snippet in sketch['snippets'].items():
-            print('Drawing snippet of ID %d:' % s_id)
-            print('-'*25)
-            print(snippet)            
-            print('-'*25)
-            
-            s_pos = snippet['pos']            
-            parent_vf = None
-            new_block = None
-            
-            for command in snippet['body']:
-                if command['tag'] == 'function_call':
-                    print('Creating block Function Call:', command['name'])
-                    defn = self.wg_blocks_view.libs[command['library']]\
-                                                   [command['name']]
-                    new_block = GxBlockFunctionCall.getElementBlock(
-                        defn, self.wg_blocks_view.scene())
-                    new_block.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
-                if new_block:
-                    if parent_vf is None:
-                        new_block.setPos(s_pos[0], s_pos[1])
-                        parent_vf = new_block
-                    
-                
-
 
 class AppVisuino(QApplication):
     '''

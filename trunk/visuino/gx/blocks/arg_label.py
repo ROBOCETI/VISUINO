@@ -48,7 +48,19 @@ class GxArgLabel(GxPluggableBlock):
         self._name_rect = self.boundingRect()
         self._name_font = QFont('Verdana', 12)
 
-        self.updateMetrics()        
+        self.updateMetrics()
+        
+            
+    def __repr__(self):
+        return "<GxArgLabel '%s'>" % str(self._arg_info['name'])
+        
+    @property
+    def element(self):
+        parent_fc = self.parentItem()
+        if parent_fc:
+            return parent_fc.element
+        else:
+            return None
 
     def getBorderWidth(self):
         return self.scene().style.arg_label.border_width        
@@ -162,9 +174,19 @@ class GxArgLabel(GxPluggableBlock):
         if self.update_parent:
             if isinstance(self.parentItem(), GxBlock):
                 self.parentItem().updateMetrics()
-        
-        
 
+    def updateElement(self, new_element):
+        ''' (dict)
+        '''
+        parent_fc = self.parentItem()   # must be GxBlockFunctionCall
+        if not parent_fc: return
+        
+        for i, arg in enumerate(parent_fc.definition['args']):
+            if arg['name'] == self._arg_info['name']:
+                break
+#        print('Updated parent fc element on arg %d..' % i)
+        parent_fc.element['args'][i] = new_element
+            
 
 class HollowItem(object):
     def __init__(self, height, y0):

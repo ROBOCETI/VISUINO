@@ -1,0 +1,215 @@
+snippets:
+    5:
+        body:
+        -   args:
+            -   args: [null]
+                command: function_call
+                library: Arduino.h
+                name: digitalRead
+            -   args: [null]
+                command: function_call
+                library: Arduino.h
+                name: digitalRead
+            command: function_call
+            library: Arduino.h
+            name: digitalWrite
+        -   args:
+            -   args:
+                -   args:
+                    -   args: [null]
+                        command: function_call
+                        library: Arduino.h
+                        name: analogRead
+                    command: function_call
+                    library: Arduino.h
+                    name: digitalRead
+                command: function_call
+                library: Arduino.h
+                name: digitalRead
+            - null
+            command: function_call
+            library: Arduino.h
+            name: digitalWrite
+        -   args:
+            -   args:
+                -   args:
+                    -   args: [null]
+                        command: function_call
+                        library: Arduino.h
+                        name: analogRead
+                    command: function_call
+                    library: Arduino.h
+                    name: analogRead
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            -   args: [null]
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            command: function_call
+            library: Arduino.h
+            name: digitalWrite
+        -   args:
+            -   args: [null]
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            command: function_call
+            library: Arduino.h
+            name: delay
+        -   args: [null]
+            command: function_call
+            library: Arduino.h
+            name: delay
+        -   args: [null, null]
+            command: function_call
+            library: Arduino.h
+            name: digitalWrite
+        -   args: [null]
+            command: function_call
+            library: Arduino.h
+            name: delay
+        -   args:
+            - {args: null, command: function_call, library: Arduino.h, name: millis}
+            command: function_call
+            library: Arduino.h
+            name: delay
+        -   args: [null, null]
+            command: function_call
+            library: Arduino.h
+            name: digitalWrite
+        -   args:
+            -   args:
+                -   args:
+                    -   args: [null]
+                        command: function_call
+                        library: Arduino.h
+                        name: analogRead
+                    command: function_call
+                    library: Arduino.h
+                    name: digitalRead
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            command: function_call
+            library: Arduino.h
+            name: delay
+        -   args:
+            -   args:
+                -   args: [null]
+                    command: function_call
+                    library: Arduino.h
+                    name: analogRead
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            -   args:
+                -   args: [null]
+                    command: function_call
+                    library: Arduino.h
+                    name: analogRead
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            command: function_call
+            library: Arduino.h
+            name: analogWrite
+        -   args: [null, null]
+            command: function_call
+            library: Arduino.h
+            name: digitalWrite
+        -   args: [null]
+            command: function_call
+            library: Arduino.h
+            name: delay
+        -   args: [null, null]
+            command: function_call
+            library: Arduino.h
+            name: analogWrite
+        -   args:
+            -   args: [null]
+                command: function_call
+                library: Arduino.h
+                name: digitalRead
+            - null
+            command: function_call
+            library: Arduino.h
+            name: digitalWrite
+        -   args: [null, null]
+            command: function_call
+            library: Arduino.h
+            name: analogWrite
+        pos: [342.0, 28.0]
+    6:
+        body:
+        -   args:
+            -   args: [null]
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            -   args: [null]
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            command: function_call
+            library: Arduino.h
+            name: digitalWrite
+        -   args:
+            -   args: [null]
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            command: function_call
+            library: Arduino.h
+            name: delay
+        -   args:
+            -   args:
+                -   args: [null]
+                    command: function_call
+                    library: Arduino.h
+                    name: analogRead
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            - null
+            command: function_call
+            library: Arduino.h
+            name: digitalWrite
+        -   args:
+            -   args: [null]
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            - null
+            command: function_call
+            library: Arduino.h
+            name: analogWrite
+        -   args: [null, null]
+            command: function_call
+            library: Arduino.h
+            name: digitalWrite
+        -   args: [null, null]
+            command: function_call
+            library: Arduino.h
+            name: analogWrite
+        -   args: [null]
+            command: function_call
+            library: Arduino.h
+            name: delay
+        pos: [850.0, 53.0]
+    7:
+        body:
+        -   args:
+            -   args: [null]
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            -   args: [null]
+                command: function_call
+                library: Arduino.h
+                name: analogRead
+            command: function_call
+            library: Arduino.h
+            name: digitalWrite
+        pos: [599.0, 20.0]

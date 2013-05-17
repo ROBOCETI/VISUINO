@@ -26,6 +26,8 @@ from visuino.resources import *
 from visuino.core.sketch import SketchBlocks
 from visuino.core.lib_defs import LibraryDefinitions
 
+from pprint import pprint
+
 __all__ = ['GxPaletteLibrary', 'GxViewPalette']
 
 class GxPaletteSection(QGraphicsItem):
@@ -33,13 +35,13 @@ class GxPaletteSection(QGraphicsItem):
     SPACING_SECTION = 2
     
     def __init__(self, scene, start_pos, title, definitions, palette):
-        ''' (QGraphisScene, QPointF, str, list of dict, GxPalette)
+        ''' (QGraphisScene, QPointF, str, list of dict, GxPaletteLibrary)
         '''
         QGraphicsItem.__init__(self, None, scene)
         
         self._title = title
         self._defs = definitions
-        self._palette = palette
+        self._palette_lib = palette
         
         self._width, self._height = 250, 30
         self._background_color = 'black'
@@ -51,7 +53,7 @@ class GxPaletteSection(QGraphicsItem):
         self.setPos(start_pos)
                 
         self._blocks = []
-        for definition in self._defs:            
+        for definition in self._defs:
             new_block = GxBlockFunctionCall(definition, self.scene())
             new_block.setPos(5 if definition['return_type'] else 15, 0)
             new_block.setCacheMode(QGraphicsItem.DeviceCoordinateCache)                
@@ -104,13 +106,13 @@ class GxPaletteSection(QGraphicsItem):
         for block in self._blocks:                      
             block.show()
         self._collapsed = False 
-        self._palette.updateSectionsBelow(self)
+        self._palette_lib.updateSectionsBelow(self)
 
     def collapse(self):
         for block in self._blocks:
             block.hide()
         self._collapsed = True
-        self._palette.updateSectionsBelow(self)
+        self._palette_lib.updateSectionsBelow(self)
         
     def _updateBlocksPosition(self):
         y_blocks = self.y() + self._height + self._spacing
@@ -155,9 +157,10 @@ class GxPaletteResizer(QGraphicsItem):
 
 class GxPaletteLibrary(GxView):
     
-    def __init__(self, lib, gx_palette, opengl, parent=None):
-                
-        self._lib = lib
+    def __init__(self, lib_name, gx_palette, opengl):
+        ''' (str, dict, GxPalette, bool)
+        '''                
+        self.lib_name = lib_name
         self.gx_palette = gx_palette
                 
         self._scene = GxSceneBlocks(background_grid=False)
@@ -165,7 +168,7 @@ class GxPaletteLibrary(GxView):
         self._scene.setBackgroundBrush(QBrush(QColor(208, 214, 219)))
         self._scene.setSceneRect(0, 0, 500, 2000)
         
-        GxView.__init__(self, self._scene, parent, opengl)
+        GxView.__init__(self, self._scene, None, opengl)
 
         self.setDragMode(QGraphicsView.NoDrag)
         self.setFrameStyle(QFrame.NoFrame)
@@ -174,7 +177,8 @@ class GxPaletteLibrary(GxView):
         self._sections = []
         
         y_section = 0
-        for sec_name, sec_defs in self._lib['palette_sections'].items():
+        for sec_name, sec_defs in self.gx_palette.libs[self.lib_name]\
+            ['palette_sections'].items():
             new_section = GxPaletteSection(self._scene, QPointF(0, y_section), 
                                            sec_name, sec_defs, self)
             y_section += new_section.getTotalHeight()
@@ -212,7 +216,7 @@ class GxPaletteLibrary(GxView):
                      
     def mousePressEvent(self, event):
         ''' QGraphicsProxyWidget.mousePressEvent(
-                QGraphicsSceneMouseEvent) -> NoneType
+                QGraphicsSceneMouseEvent) -> None
         '''
         super(GxPaletteLibrary, self).mousePressEvent(event) 
         
@@ -227,6 +231,8 @@ class GxPaletteLibrary(GxView):
                 block_icon = item_at.parentItem()
     
             new_block = block_icon.cloneMe(self.gx_palette.scene())
+            new_block.sketch = self.gx_palette.sketch
+            self.gx_palette.sketch.addSnippet(new_block)
                         
             new_block.setFlags(QGraphicsItem.ItemIsMovable)
             new_block.setCacheMode(QGraphicsItem.ItemCoordinateCache)
@@ -235,17 +241,20 @@ class GxPaletteLibrary(GxView):
             new_block.palette_blocks = self.gx_palette
             new_block.new_block = True
             
-            my_pos = self.mapTo(self.gx_palette.widget(), self.pos())                        
+#            my_pos = self.mapTo(self.gx_palette.widget(), self.pos())                        
             icon_mapped_pos = self.mapFromScene(block_icon.pos())
             new_block.setPos(QPointF(
-                my_pos.x() + icon_mapped_pos.x() + 2,
-                my_pos.y() + icon_mapped_pos.y() + 2))
+                self.gx_palette.pos().x() + icon_mapped_pos.x() + 2,
+                self.gx_palette.pos().y() + icon_mapped_pos.y() + 2))
             
             self.gx_palette.scene().bringToFront(new_block)
             
             new_block.grabMouse()
             
     def mouseReleaseEvent(self, event):
+        ''' QGraphicsProxyWidget.mouseReleaseEvent(
+                QGraphicsSceneMouseEvent) -> None
+        '''
         super(GxPaletteLibrary, self).mouseReleaseEvent(event)
         self.gx_palette.update(self.gx_palette.boundingRect())         
         
@@ -254,19 +263,21 @@ class GxPalette(QGraphicsProxyWidget):
     MINIMUM_WIDTH = 200
     MAXIMUM_WIDTH = 400
     
-    def __init__(self, libs, scene, opengl):
+    def __init__(self, libs, sketch, scene, opengl):
+        ''' (LibraryDefinitions, GxSceneBlocks, bool)
+        '''
         QGraphicsProxyWidget.__init__(self)
         
         if isinstance(scene, QGraphicsScene):
-            scene.addItem(self)        
+            scene.addItem(self)
         
-        self._libs = libs
+        self.libs = libs
+        self.sketch = sketch
         self._opengl = opengl
         
         self.setFlags(QGraphicsItem.ItemIsFocusable | QGraphicsItem.ItemIsMovable)
         
-        self._view = GxPaletteLibrary(self._libs['Arduino.h'], self, opengl, 
-                                      parent=None)
+        self._view = GxPaletteLibrary('Arduino.h', self, opengl)
         self._view.setGeometry(0, 0, 250, 600)
         self.setWidget(self._view)        
             
@@ -309,7 +320,8 @@ class GxPalette(QGraphicsProxyWidget):
     def mousePressEvent(self, event):
         super(GxPalette, self).mousePressEvent(event)
         
-        if (isinstance(self._view.itemAt(event.pos().toPoint()), GxPaletteSection) and 
+        if (isinstance(self._view.itemAt(event.pos().toPoint()), 
+                       GxPaletteSection) and 
             event.button() == Qt.RightButton):
             
             self._view.menu_expand_collapse_all.popup(event.screenPos())            
@@ -317,27 +329,19 @@ class GxPalette(QGraphicsProxyWidget):
 
 class GxViewPalette(GxView):
     def __init__(self, parent=None, opengl=False):
+        ''' (QWidget, bool)
+        '''
         GxView.__init__(self, GxSceneBlocks(), parent, opengl)
         
-        self._libs = LibraryDefinitions()
-        self._sketch = SketchBlocks(self._libs)
+        self.libs = LibraryDefinitions()
+        self.sketch = SketchBlocks(self.libs)
 
         self.scene().setSceneRect(0, 0, 2000, 4000)
         self.scene().setParent(self)
         self.wheel_zoom = False
 
-        self.palette_blocks = GxPalette(self._libs, self.scene(), opengl)
-        
-        self.button = QPushButton('Create', parent=self)
-        self.button.setGeometry(700, 0, 100, 50)
-        self.button.clicked[bool].connect(self.actionButton)
-        
-    def actionButton(self):
-        self._sketch.drawSnippet(1, self.scene(), self.palette_blocks)
-    
-    @property
-    def libs(self):
-        return self._libs
+        self.palette_blocks = GxPalette(self.libs, self.sketch,
+                                        self.scene(), opengl)
 
     def scrollContentsBy(self, x, y):
         QGraphicsView.scrollContentsBy(self, x, y)
@@ -352,6 +356,28 @@ class GxViewPalette(GxView):
         '''
         QGraphicsView.resizeEvent(self, event)
         self.palette_blocks.updateHeight(self.height())
+        
+    def mousePressEvent(self, event):
+        ''' GxView.mousePressEvent(event) -> NoneType
+        '''
+        super(GxViewPalette, self).mousePressEvent(event)
+        
+        if event.button() == Qt.MiddleButton:
+            pprint(self.sketch._root)
+            
+        if event.button() == Qt.RightButton:
+            item_at = self.itemAt(event.pos())
+
+            if isinstance(item_at, GxBlock):
+                top_parent = item_at.getTopParentItem()
+                if top_parent.snippet_id:
+                    print('#'*30)
+                    print('Top parent:', top_parent)
+                    print('Snippet %d code string:' % top_parent.snippet_id)
+                    print('-'*30)
+                    print(top_parent.sketch.getSnippetCodeString(
+                        top_parent.snippet_id))
+                    print('#'*30)
 
 
 def main():

@@ -23,6 +23,8 @@ from visuino.gx.utils import *
 from visuino.gx.connections import *
 from visuino.gx.blocks.arg_label import GxArgLabel
 
+from pprint import pprint
+
 __all__ = ['GxBlockFunctionCall']
 
 class GxBlockFunctionCall(GxPluggableBlock):
@@ -56,14 +58,21 @@ class GxBlockFunctionCall(GxPluggableBlock):
 
     MSG_ERR_NOT_FIELD_INFO = \
         "On GxBlockFunctionCall.__init__(), parameter 'args', invalid value"\
-        " in position %d. Expected <class 'FieldInfo'>, but was given %s."
+        " in position %d. Expected <class 'FieldInfo'>, but was given %s."        
 
     def __init__(self, definition, scene, parent=None):
         ''' (dict, GxSceneBlocks, QGraphicsItem)
         '''
         GxPluggableBlock.__init__(self, scene, parent)
-        self._def = definition
         
+        self._def = definition
+
+        self._element = {'command': 'function_call', 
+             'name': definition['name'],
+             'library': definition['library'],
+             'args': None if definition['args'] is None else
+                          [None for x in definition['args']]}
+
         self._name_rect = self.boundingRect()        
         self._args_labels = []  # list of GxArgLabel
         self._args_height = 0
@@ -73,13 +82,17 @@ class GxBlockFunctionCall(GxPluggableBlock):
 
         for arg in self._args_labels:
             arg.update_parent = True
+            
+    def __repr__(self):
+        return "<GxBlockFunctionCall '%s'>" % str(self._def['name'])
     
     @property
     def args_labels(self):
         return self._args_labels
-            
-    def __repr__(self):
-        return "GxBlockFunctionCall " + str(self._def['name']) 
+        
+    @property
+    def definition(self):
+        return self._def        
         
     def getBorderWidth(self):
         ''' () -> int
@@ -288,7 +301,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
             path.lineToInc(dx = iow + 3*bw)
 
     def updateDefinition(self, **kwargs):
-        ''' (list of FieldInfo) -> NoneType
+        ''' (kwargs) -> NoneType
 
         Set its arguments information, and also update the graphics.
         '''
@@ -299,9 +312,13 @@ class GxBlockFunctionCall(GxPluggableBlock):
             self.setupArgLabels()
         self.updateMetrics()
         
-    def mousePressEvent(self, event):
-        super(GxBlockFunctionCall, self).mousePressEvent(event)        
+#    def mousePressEvent(self, event):
+#        print('-' * 30)
+#        pprint(self.getTopParentVf().sketch. self._element)
+#        print('-' * 30)
+#        super(GxBlockFunctionCall, self).mousePressEvent(event) 
 
+        
 
 class WinCustomizeFunctionCall(QMainWindow):
     def __init__(self, parent=None):
@@ -324,7 +341,7 @@ class WinCustomizeFunctionCall(QMainWindow):
         sn = self.scene.style.notch    
         
         self.block_function_call = GxBlockFunctionCall(
-            {'name': 'digitalWrite', 'return_type': None, 
+            {'name': 'digitalWrite', 'return_type': None, 'library': 'Arduino.h',
              'args': [{'name': 'pin', 'type': 'int'},
                       {'name': 'value', 'type': 'int'}]}, self.scene)
 

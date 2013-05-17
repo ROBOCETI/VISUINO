@@ -18,7 +18,7 @@ import yaml
 
 __all__ = ['LibraryDefinitions']
     
-YAML_LIBS = \
+DEFAULT_YAML_LIBS = \
 """
 Arduino.h:
     functions:
@@ -67,6 +67,11 @@ Arduino.h:
               - name: "milliseconds"
                 type: "int"
                 restriction: "0|"
+                
+        - name: "millis"
+          palette_section: "Time"
+          return_type: "int"
+          args: null
 """
 
 class LibraryDefinitions(dict):
@@ -76,7 +81,7 @@ class LibraryDefinitions(dict):
 
     def parseYAML(self):
         
-        self._root = yaml.load(YAML_LIBS)
+        self._root = yaml.load(DEFAULT_YAML_LIBS)
         
         for lib_name, lib_dict in self._root.items():            
             functions, sections = {}, OrderedDict()
@@ -85,7 +90,10 @@ class LibraryDefinitions(dict):
                 
                 for defn in lib_dict['functions']:
                     
-                    print('parsing function %s (%s)...' % (defn['name'], defn['palette_section']))
+                    defn['library'] = lib_name
+                    
+#                    print('parsing function %s (%s)...' % (defn['name'], 
+#                          defn['palette_section']))
                     
                     functions[defn['name']] = defn
                     

@@ -20,7 +20,7 @@ from cx_Freeze import setup, Executable
 includes = ['sip', 're', 'PyQt4.QtCore', 'PyQt4.QtGui']
 
 exe = Executable(
-    script='visuino/main.py',
+    script='main.py',
     base='Win32GUI',
 	compress=True,
 	targetName='Visuino.exe',
