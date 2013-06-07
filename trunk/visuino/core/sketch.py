@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Purpose:
-#
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
 #
 #              This file is part of VISUINO project - Copyright (C) 2013
@@ -10,6 +8,55 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
+"""
+The main purpose of the Visuino programming tool is to generate C/C++ Arduino 
+code. That is, a *sketch* (".pde" file) so to speak. Although the Arduino 
+subset of the C language allows definition of classes and methods, the initial 
+goal is to provide at least all the basic elements for the C procedural 
+programming style.
+
+This module provides the ``SketchBlocks`` class, which keep track of all the
+syntax elements on the sketch. 
+ 
+   
+              setup
+        _______|__ ___
+       /          \
+      fc1
+     /   \
+    ex1  ex2
+
+Here is a basic structure of a Arduino sketch::
+    
+    int my_var = 13;   // variable declaration
+    
+    void setup()       // mandatory function (runs only once when connecting)
+    {
+        someFunction(led_pin, OUTPUT);   // function call
+    }
+    
+    void loop()       // mandatory function (runs forever while there is power)
+    {
+        if (condition)
+        {
+            // if "true" branch
+        }
+        else
+        {
+            // if "false" branch
+        }
+        
+        while
+    }
+    
+
+Each graphical block on the Visuino interface provides elements of the syntax
+    
+There always gonna be these two functions: ``setup()``, which runs just once
+when the board is turned on; and ``loop()`` which keeps running forever while
+the board is on. Even on the simplistic blink example above we already 
+"""
+
 from __future__ import division, print_function
 import sys
 if __name__ == '__main__':
@@ -64,8 +111,14 @@ snippets:
 """
 
 class SketchBlocks(object):
+    ''' 
+    This class holds the sketch dictionary 
+    '''
     def __init__(self, libs):
-        ''' (LibraryDefinitions)
+        '''
+        :param libs: ``visuino.core.LibraryDefinitions``.
+            Required to recovery things like function definitions to construct
+            function calls.
         '''
         self._libs = libs        
         self._snippet_id_count = 1       
@@ -82,6 +135,10 @@ class SketchBlocks(object):
 #            ]}}}
 
     def loadSketch(self, filename):
+        '''
+        :param filename: ``str``.
+            Load a sketch from some filename
+        '''
         stream = open(filename, 'r')
         self._root = yaml.load(stream)
 #        print('#'*40)
@@ -207,8 +264,7 @@ class SketchBlocks(object):
             return result + ')'
             
         return ''
-        
-        
+                
     def _drawElementBlock(self, element, scene, palette):
         ''' (dict, GxSceneBlocks, GxPalette)    
         '''

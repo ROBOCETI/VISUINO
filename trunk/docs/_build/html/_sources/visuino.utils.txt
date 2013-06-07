@@ -9,6 +9,14 @@ utils Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`strings` Module
+---------------------
+
+.. automodule:: visuino.utils.strings
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`type_check` Module
 ------------------------
 

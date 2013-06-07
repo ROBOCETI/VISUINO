@@ -22,7 +22,7 @@
    <item>
     <widget class="QTabWidget" name="tabwg_customize">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_function_call">
       <attribute name="title">
@@ -111,12 +111,12 @@
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
             <property name="buddy">
-             <cstring>spinbox_fc_name_hpadd</cstring>
+             <cstring>spinbox_fcnp_horizontal</cstring>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="spinbox_fc_name_hpadd">
+           <widget class="QSpinBox" name="spinbox_fcnp_horizontal">
             <property name="maximum">
              <number>50</number>
             </property>
@@ -131,12 +131,12 @@
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
             <property name="buddy">
-             <cstring>spinbox_fc_name_vpadd</cstring>
+             <cstring>spinbox_fcnp_vertical</cstring>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="spinbox_fc_name_vpadd">
+           <widget class="QSpinBox" name="spinbox_fcnp_vertical">
             <property name="maximum">
              <number>50</number>
             </property>
@@ -151,12 +151,12 @@
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
             <property name="buddy">
-             <cstring>spinbox_fc_name_font_vcorrection</cstring>
+             <cstring>spinbox_fc_name_vcorrection</cstring>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="spinbox_fc_name_font_vcorrection">
+           <widget class="QSpinBox" name="spinbox_fc_name_vcorrection">
             <property name="minimum">
              <number>-10</number>
             </property>
@@ -796,12 +796,12 @@
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                 <property name="buddy">
-                 <cstring>spinbox_arg_corner_width</cstring>
+                 <cstring>spinbox_argcs_width</cstring>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="spinbox_fc_corner_width">
+               <widget class="QSpinBox" name="spinbox_fccs_width">
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -822,12 +822,12 @@
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                 <property name="buddy">
-                 <cstring>spinbox_arg_corner_height</cstring>
+                 <cstring>spinbox_argcs_height</cstring>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="spinbox_fc_corner_height">
+               <widget class="QSpinBox" name="spinbox_fccs_height">
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -1878,12 +1878,12 @@
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
             <property name="buddy">
-             <cstring>spinbox_fc_name_hpadd</cstring>
+             <cstring>spinbox_fcnp_horizontal</cstring>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="spinbox_arg_hpadd">
+           <widget class="QSpinBox" name="spinbox_argpd_horizontal">
             <property name="maximum">
              <number>50</number>
             </property>
@@ -1898,12 +1898,12 @@
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
             <property name="buddy">
-             <cstring>spinbox_fc_name_vpadd</cstring>
+             <cstring>spinbox_fcnp_vertical</cstring>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="spinbox_arg_vpadd">
+           <widget class="QSpinBox" name="spinbox_argpd_vertical">
             <property name="maximum">
              <number>50</number>
             </property>
@@ -1918,7 +1918,7 @@
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
             <property name="buddy">
-             <cstring>spinbox_fc_name_font_vcorrection</cstring>
+             <cstring>spinbox_fc_name_vcorrection</cstring>
             </property>
            </widget>
           </item>
@@ -3547,12 +3547,12 @@
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                 <property name="buddy">
-                 <cstring>spinbox_arg_corner_width</cstring>
+                 <cstring>spinbox_argcs_width</cstring>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="spinbox_arg_corner_width">
+               <widget class="QSpinBox" name="spinbox_argcs_width">
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -3573,12 +3573,12 @@
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                 <property name="buddy">
-                 <cstring>spinbox_arg_corner_height</cstring>
+                 <cstring>spinbox_argcs_height</cstring>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="spinbox_arg_corner_height">
+               <widget class="QSpinBox" name="spinbox_argcs_height">
                 <property name="maximumSize">
                  <size>
                   <width>50</width>
@@ -3757,12 +3757,12 @@
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="buddy">
-               <cstring>combobox_nch_vf_notch_shape</cstring>
+               <cstring>combobox_nch_vf_shape</cstring>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QComboBox" name="combobox_nch_vf_notch_shape">
+             <widget class="QComboBox" name="combobox_nch_vf_shape">
               <property name="maximumSize">
                <size>
                 <width>100</width>
@@ -3790,12 +3790,12 @@
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="buddy">
-               <cstring>slider_nch_vf_notch_basis</cstring>
+               <cstring>slider_nch_vf_basis</cstring>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSlider" name="slider_nch_vf_notch_basis">
+             <widget class="QSlider" name="slider_nch_vf_basis">
               <property name="maximumSize">
                <size>
                 <width>150</width>
@@ -3822,12 +3822,12 @@
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="buddy">
-               <cstring>slider_vf_notch_x0</cstring>
+               <cstring>slider_nch_vf_x0</cstring>
               </property>
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QSlider" name="slider_vf_notch_x0">
+             <widget class="QSlider" name="slider_nch_vf_x0">
               <property name="maximumSize">
                <size>
                 <width>150</width>
@@ -3858,14 +3858,14 @@
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="buddy">
-               <cstring>spinbox_nch_vf_notch_width</cstring>
+               <cstring>spinbox_vfsz_width</cstring>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinbox_nch_vf_notch_width">
+             <widget class="QSpinBox" name="spinbox_vfsz_width">
               <property name="maximum">
-               <number>50</number>
+               <number>100</number>
               </property>
              </widget>
             </item>
@@ -3881,12 +3881,12 @@
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="buddy">
-               <cstring>spinbox_nch_vf_notch_height</cstring>
+               <cstring>spinbox_vfsz_height</cstring>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinbox_nch_vf_notch_height">
+             <widget class="QSpinBox" name="spinbox_vfsz_height">
               <property name="maximum">
                <number>50</number>
               </property>
@@ -3930,12 +3930,12 @@
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="buddy">
-               <cstring>combobox_nch_io_notch_shape</cstring>
+               <cstring>combobox_nch_io_shape</cstring>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QComboBox" name="combobox_nch_io_notch_shape">
+             <widget class="QComboBox" name="combobox_nch_io_shape">
               <property name="maximumSize">
                <size>
                 <width>100</width>
@@ -3963,12 +3963,12 @@
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="buddy">
-               <cstring>slider_nch_io_notch_basis</cstring>
+               <cstring>slider_nch_io_basis</cstring>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSlider" name="slider_nch_io_notch_basis">
+             <widget class="QSlider" name="slider_nch_io_basis">
               <property name="maximumSize">
                <size>
                 <width>150</width>
@@ -3999,12 +3999,12 @@
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="buddy">
-               <cstring>spinbox_nch_io_notch_width</cstring>
+               <cstring>spinbox_iosz_width</cstring>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinbox_nch_io_notch_width">
+             <widget class="QSpinBox" name="spinbox_iosz_width">
               <property name="maximum">
                <number>50</number>
               </property>
@@ -4022,12 +4022,12 @@
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
               <property name="buddy">
-               <cstring>spinbox_nch_io_notch_height</cstring>
+               <cstring>spinbox_iosz_height</cstring>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="spinbox_nch_io_notch_height">
+             <widget class="QSpinBox" name="spinbox_iosz_height">
               <property name="maximum">
                <number>50</number>
               </property>

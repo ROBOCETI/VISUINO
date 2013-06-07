@@ -1,4 +1,6 @@
 
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -9,8 +11,9 @@
     
     <title>visuino Package &mdash; VISUINO 0.0.1 documentation</title>
     
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/cloud.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -24,12 +27,17 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="_static/cloud.js"></script>
     <link rel="top" title="VISUINO 0.0.1 documentation" href="index.html" />
     <link rel="up" title="visuino" href="modules.html" />
-    <link rel="next" title="gui Package" href="visuino.gui.html" />
+    <link rel="next" title="core Package" href="visuino.core.html" />
     <link rel="prev" title="visuino" href="modules.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
+    <div class="relbar-top">
+        
     <div class="related">
       <h3>Navigation</h3>
       <ul>
@@ -38,17 +46,20 @@
              accesskey="I">index</a></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
+             >modules</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="visuino.gui.html" title="gui Package"
-             accesskey="N">next</a> |</li>
+          <a href="visuino.core.html" title="core Package"
+             accesskey="N">next</a> &nbsp; &nbsp;</li>
         <li class="right" >
           <a href="modules.html" title="visuino"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+             accesskey="P">previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
           <li><a href="modules.html" accesskey="U">visuino</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+    </div>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -62,55 +73,39 @@
 <span class="target" id="module-visuino.__init__"></span><p>The VISUINO project presents an a friendly user interface for visual
 programming of the Arduino platform.</p>
 </div>
-<div class="section" id="module-visuino.main">
-<span id="main-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">main</span></tt> Module<a class="headerlink" href="#module-visuino.main" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="visuino.main.execute">
-<tt class="descclassname">visuino.main.</tt><tt class="descname">execute</tt><big>(</big><em>opengl=None</em><big>)</big><a class="headerlink" href="#visuino.main.execute" title="Permalink to this definition">¶</a></dt>
-<dd><p>(bool) -&gt; NoneType</p>
-<p>Launch an instance of the Visuino application. The &#8216;opengl&#8217; flag can
-be used to force the use of Open GL rendering. If it is None, then
-the rendering engine will be decided based on the INI settings file.</p>
-</dd></dl>
-
-</div>
 <div class="section" id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="visuino.core.html">core Package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="visuino.core.html#module-visuino.core.lib_defs"><tt class="docutils literal"><span class="pre">lib_defs</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.core.html#module-visuino.core.sketch"><tt class="docutils literal"><span class="pre">sketch</span></tt> Module</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="visuino.gui.html">gui Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="visuino.gui.html#id1"><tt class="docutils literal"><span class="pre">gui</span></tt> Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gui.html#module-visuino.gui.field_info"><tt class="docutils literal"><span class="pre">field_info</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visuino.gui.html#module-visuino.gui.main_window"><tt class="docutils literal"><span class="pre">main_window</span></tt> Module</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="visuino.gx.html">gx Package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gx.html#id1"><tt class="docutils literal"><span class="pre">gx</span></tt> Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gx.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="visuino.gx.bases.html">bases Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="visuino.gx.bases.html#id1"><tt class="docutils literal"><span class="pre">bases</span></tt> Package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="visuino.gx.bases.html#module-visuino.gx.bases.bases"><tt class="docutils literal"><span class="pre">bases</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.html#modules">Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="visuino.gx.bases.html"><cite>gx.bases</cite> Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="visuino.gx.bases.html#gxview-class"><tt class="docutils literal"><span class="pre">GxView</span></tt> class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="visuino.gx.bases.html#gxsceneblocks-class"><tt class="docutils literal"><span class="pre">GxSceneBlocks</span></tt> class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="visuino.gx.bases.html#gxblock-class"><tt class="docutils literal"><span class="pre">GxBlock</span></tt> class</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="visuino.gx.shapes.html"><cite>gx.shapes</cite> Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="visuino.gx.shapes.html#cornerpath-class"><tt class="docutils literal"><span class="pre">CornerPath</span></tt> class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="visuino.gx.shapes.html#notchpath-class"><tt class="docutils literal"><span class="pre">NotchPath</span></tt> class</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="visuino.gx.blocks.html">blocks Package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="visuino.gx.blocks.html#id1"><tt class="docutils literal"><span class="pre">blocks</span></tt> Package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="visuino.gx.blocks.html#module-visuino.gx.blocks.expression"><tt class="docutils literal"><span class="pre">expression</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="visuino.gx.blocks.html#gxarglabel-class"><tt class="docutils literal"><span class="pre">GxArgLabel</span></tt> Class</a></li>
+<li class="toctree-l4"><a class="reference internal" href="visuino.gx.blocks.html#module-visuino.gx.blocks.do_while"><tt class="docutils literal"><span class="pre">do_while</span></tt> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="visuino.gx.blocks.html#expression-module"><tt class="docutils literal"><span class="pre">expression</span></tt> Module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="visuino.gx.blocks.html#module-visuino.gx.blocks.function_call"><tt class="docutils literal"><span class="pre">function_call</span></tt> Module</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="visuino.gx.palette.html">palette Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="visuino.gx.palette.html#id1"><tt class="docutils literal"><span class="pre">palette</span></tt> Package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="visuino.gx.palette.html#module-visuino.gx.palette.palette"><tt class="docutils literal"><span class="pre">palette</span></tt> Module</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="visuino.gx.shapes.html">shapes Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="visuino.gx.shapes.html#id1"><tt class="docutils literal"><span class="pre">shapes</span></tt> Package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="visuino.gx.shapes.html#module-visuino.gx.shapes.shapes"><tt class="docutils literal"><span class="pre">shapes</span></tt> Module</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="visuino.gx.utils.html">utils Package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="visuino.gx.utils.html#id1"><tt class="docutils literal"><span class="pre">utils</span></tt> Package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="visuino.gx.utils.html#module-visuino.gx.utils.utils"><tt class="docutils literal"><span class="pre">utils</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -119,6 +114,7 @@ the rendering engine will be decided based on the INI settings file.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="visuino.utils.html">utils Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="visuino.utils.html#id1"><tt class="docutils literal"><span class="pre">utils</span></tt> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.utils.html#module-visuino.utils.strings"><tt class="docutils literal"><span class="pre">strings</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visuino.utils.html#module-visuino.utils.type_check"><tt class="docutils literal"><span class="pre">type_check</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visuino.utils.html#module-visuino.utils.validate"><tt class="docutils literal"><span class="pre">validate</span></tt> Module</a></li>
 </ul>
@@ -134,11 +130,11 @@ the rendering engine will be decided based on the INI settings file.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <div class="sphinxlocaltoc">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">visuino Package</a><ul>
 <li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">visuino</span></tt> Package</a></li>
-<li><a class="reference internal" href="#module-visuino.main"><tt class="docutils literal"><span class="pre">main</span></tt> Module</a></li>
 <li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 </ul>
 </li>
@@ -146,12 +142,13 @@ the rendering engine will be decided based on the INI settings file.</p>
 </li>
 </ul>
 
+  </div>
   <h4>Previous topic</h4>
   <p class="topless"><a href="modules.html"
                         title="previous chapter">visuino</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="visuino.gui.html"
-                        title="next chapter">gui Package</a></p>
+  <p class="topless"><a href="visuino.core.html"
+                        title="next chapter">core Package</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/visuino.txt"
@@ -174,6 +171,8 @@ the rendering engine will be decided based on the INI settings file.</p>
       </div>
       <div class="clearer"></div>
     </div>
+    <div class="relbar-bottom">
+        
     <div class="related">
       <h3>Navigation</h3>
       <ul>
@@ -182,20 +181,24 @@ the rendering engine will be decided based on the INI settings file.</p>
              >index</a></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
+             >modules</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="visuino.gui.html" title="gui Package"
-             >next</a> |</li>
+          <a href="visuino.core.html" title="core Package"
+             >next</a> &nbsp; &nbsp;</li>
         <li class="right" >
           <a href="modules.html" title="visuino"
-             >previous</a> |</li>
-        <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+             >previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
           <li><a href="modules.html" >visuino</a> &raquo;</li> 
       </ul>
     </div>
+    </div>
+
     <div class="footer">
         &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
+    <!-- cloud_sptheme 1.4 -->
   </body>
 </html>

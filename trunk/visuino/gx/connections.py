@@ -9,7 +9,7 @@
 #              This file is part of VISUINO project - Copyright (C) 2013
 #
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
-#              tribute ONLY as 100% free. Also, remember to keep the credits.
+#              tribute Obackground-color: blue;NLY as 100% free. Also, remember to keep the credits.
 #-------------------------------------------------------------------------------
 from __future__ import division, print_function
 
@@ -20,11 +20,13 @@ from visuino.gx.bases import GxBlock
 from visuino.gx.shapes import *
 from visuino.gx.utils import *
 
+from visuino.settings import VGS
+
 __all__ = ['GxPluggableBlock']
 
 class GxColliPath(QGraphicsPathItem):
     '''
-    Path used for detecting IO notch collisions.
+    Path used for detecting notch collisions.
 
     Can be of the kind male ('M') or female ('F)', according with the type
     of notch associated with it. The intersection of a moving male with a
@@ -35,10 +37,10 @@ class GxColliPath(QGraphicsPathItem):
         '''
         self._kind, self._gender = kind.lower(), gender.upper()
         sp = self._start_point = start_point
-        sn = scene.style.notch
+        sn = VGS['styles']['notch']
 
-        iow, ioh = sn.io_notch_width, sn.io_notch_height
-        vfw, vfh = sn.vf_notch_width, sn.vf_notch_height
+        iow, ioh = sn['io_size']['width'], sn['io_size']['height']
+        vfw, vfh = sn['vf_size']['width'], sn['vf_size']['height']
 
         if kind.lower() == 'io':
             W, H = iow, 2/3 * ioh
@@ -60,6 +62,18 @@ class GxColliPath(QGraphicsPathItem):
             getattr(self.scene(), colli_set).add(self)
 #            print('Created colli path on self.scene.', colli_set, sep='')
 
+    @property
+    def kind(self):
+        return self._kind.lower()
+
+    @property
+    def gender(self):
+        return self._gender.upper()
+
+    @property
+    def gender_ext(self):
+        return 'male' if self._gender == 'M' else 'female'
+
     def isMale(self):
         ''' () -> bool
         '''
@@ -74,18 +88,6 @@ class GxColliPath(QGraphicsPathItem):
         ''' () -> QPointF
         '''
         return self.parentItem().mapToScene(self._start_point)
-
-    @property
-    def kind(self):
-        return self._kind.lower()
-
-    @property
-    def gender(self):
-        return self._gender.upper()
-
-    @property
-    def gender_ext(self):
-        return 'male' if self._gender == 'M' else 'female'
 
     def removeFromScene(self):
         ''' () -> NoneType
@@ -109,32 +111,34 @@ class GxInsertionMarker(QGraphicsPathItem):
     def __init__(self, kind, start_point, scene):
         ''' ('io'/'vf', QPointF, GxSceneBlocks)
         '''
-        sn = scene.style.notch
+        sn = VGS['styles']['notch']
         x0, y0 = start_point.x(), start_point.y()
-        self._pen = QPen(QColor(sn.insertion_marker_color),
-                         sn.insertion_marker_width,
+        self._pen = QPen(QColor(sn['insertion_marker_color']),
+                         sn['insertion_marker_width'],
                          Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
         pw = self._pen.width()
 
         if kind == 'io':
-            iow, ioh = sn.getIoNotchSize()
+            iow, ioh = sn['io_size']['width'], sn['io_size']['height']
             DY = ioh/2
 
             path = GxPainterPath(QPointF(iow + pw, pw))
             path.lineToInc(dy = DY)
-            NotchPath.connect(path, QSizeF(iow, ioh), sn.io_notch_shape,
+            NotchPath.connect(path, QSizeF(iow, ioh), sn['io_shape'] \
+                              + '/%f' % sn['io_basis'],
                               '+j', 'left')
             path.lineToInc(dy = DY)
 
             W, H = iow + 2*pw, 2*DY + ioh + 2*pw
             pos = QPointF(x0 - iow - pw, y0 - ((H - ioh)/2))
         else:
-            vfw, vfh = sn.getVfNotchSize()
+            vfw, vfh = sn['vf_size']['width'], sn['vf_size']['height']
             DX = vfw/2
 
             path = GxPainterPath(QPointF(pw, vfh + pw))
             path.lineToInc(dx = DX)
-            NotchPath.connect(path, QSizeF(vfw, vfh), sn.vf_notch_shape + '/0.85',
+            NotchPath.connect(path, QSizeF(vfw, vfh), sn['vf_shape'] \
+                              + '/%f' % sn['vf_basis'], 
                               '+i', 'down')
             path.lineToInc(dx = DX)
 
@@ -170,6 +174,12 @@ class GxInsertionMarker(QGraphicsPathItem):
 
 class GxPluggableBlock(GxBlock):
     '''
+    Provides means to make the block "pluggable" onto others that also are.
+    
+    :ivar mouse_active: ``bool``. 
+        Indicates if this item will recieve any mouse treatement besides the 
+        basic stuff.
+    
     Attributes:
         - io_male_start: QPointF <None>
         - io_male_colli_path: GxColliPath <None>
@@ -183,10 +193,11 @@ class GxPluggableBlock(GxBlock):
     '''
     NOTCHES = ('io_male', 'io_female', 'vf_male', 'vf_female')
 
-    def __init__(self, scene, parent=None, mouse_active=True):
-        ''' (GxSceneBlocks, QGraphicsItem, bool)
+    def __init__(self, scene, parent=None):
+        ''' (GxSceneBlocks)
         '''
-        GxBlock.__init__(self, scene, parent, mouse_active)        
+        GxBlock.__init__(self, scene, parent)
+        self.mouse_active = True
         
         for x in self.NOTCHES:
             setattr(self, x + '_start', None)
@@ -205,6 +216,27 @@ class GxPluggableBlock(GxBlock):
         self.child_vf = None
         
         self.bottom_child_vf = None
+        
+        self._element = None
+        self.snippet_id = None
+        self.sketch = None
+
+    @property
+    def element(self):
+        """ ``dict`` containing information about the block representation
+            on memory. See ``visuino.core.sketch``.
+        """
+        return self._element
+
+    def updateMySnippet(self):
+        '''
+        '''
+        if self.sketch and self.snippet_id:
+            self.sketch.updateSnippet(self)
+            
+    def updateMySnippetPos(self):
+        if self.sketch and self.snippet_id:
+            self.sketch.updateSnippetPos(self.snippet_id, self.pos())        
 
     def _updateNotch(self, notch):
         ''' (str in self.NOTCHES)
@@ -306,7 +338,8 @@ class GxPluggableBlock(GxBlock):
 #        print('Plugging IO...')
         self.setParentItem(target)
         x, y = target.io_female_start.x(), target.io_female_start.y()
-        x -= self.scene().style.notch.io_notch_width + self.getBorderWidth()/2
+        x -= VGS['styles']['notch']['io_size']['width'] \
+             + self.getBorderWidth()/2
         y += 2*target.getBorderWidth()
         y -= self.io_male_start.y()
         self.setPos(x, y)
@@ -545,7 +578,4 @@ class GxPluggableBlock(GxBlock):
             self.sketch.removeSnippet(self.snippet_id)
             
         self._cleanInsertionMarkers()
-        for child in self.childItems():
-            child.removeFromScene()
-        if self.scene():
-            self.scene().removeItem(self)
+        GxBlock.removeFromScene(self)

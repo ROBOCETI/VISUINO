@@ -10,8 +10,7 @@ from visuino.gx.shapes import *
 from visuino.gx.connections import *
 from visuino.gx.styles import *
 
-class GxBlockLoopDoWhile (ModelBlock):
-    
+class GxBlockLoopDoWhile(GxPluggableBlock):
     '''
     Class that implements the Do While Loop, and is the basis for any loop block.    
     
@@ -23,13 +22,10 @@ class GxBlockLoopDoWhile (ModelBlock):
     The Condition is a GxFunctionLabel containing a logical condition. Testing
     this condition will be made by the compiler.    
     '''
-
-
-
-    def __init__ (self, scene, parent=None):
-        ModelBlock.__init__ (self,scene, parent)
+    def __init__(self, scene, parent=None):
+        super(GxBlockLoopDoWhile, self).__init__(self, scene, parent)
     
-    def paint (self, painter, option=None, widget=None):
+    def paint(self, painter, option=None, widget=None):
         ''' QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
                                 QWidget widget=None) -> NoneType
 
@@ -37,12 +33,9 @@ class GxBlockLoopDoWhile (ModelBlock):
         '''
         sdw = self.scene().style.do_while
         painter.fillRect(self.boundingRect(),
-                         QColor (sdw.background_color))
-       ' painter.setBrush(QColor(sdw.background_color))
-       ' painter.drawPath(self._border_path)
-        
-    
-        pass
+                         QColor(sdw.background_color))
+        painter.setBrush(QColor(sdw.background_color))
+        painter.drawPath(self._border_path)
 
 def main ():
     app =  QApplication(sys.argv);

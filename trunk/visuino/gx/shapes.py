@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Purpose:     Provides two useful paths to be easily connected with others:
-#                 - CornerPath: used to construct corners.
-#                 - NotchPath: used to construct male/female connectors like
-#                              puzzle style.
-#
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
 #
 #              This file is part of VISUINO project - Copyright (C) 2013
@@ -13,6 +8,19 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
+"""
+This module provides ``QPainterPath`` based classes with configurable shapes
+that can be easily connected to another existing path. 
+
+The blocks on Visuino are meant to be fully customizable, which means that
+values such as corner/notch sizes (width and lenght), shapes, etc, will be
+available to the end user through global configurations - i.e., changes will
+apply to all blocks on each category.
+
+This module can also be executed on his own for testing all variations of
+attributes by using a simple GUI.
+"""
+
 from __future__ import division, print_function
 import sys
 if __name__ == '__main__':
@@ -25,156 +33,184 @@ from visuino.gx.bases import GxSceneBlocks, GxView
 from visuino.gx.utils import GxPainterPath
 from visuino.utils import vlarg
 
-__all__ = ['CornerPath', 'NotchPath', '_AppExampleShapes']
+__all__ = ['CornerPath', 'NotchPath']
 
 class CornerPath(GxPainterPath):
+    '''    
+    Path with the shape of a corner to be connected with other paths.
+
+    It has the following available shapes (``self.SHAPES``):
+        
+        * ``'trig'``: inclinated line (diagonal of the bounding rectangle);
+        * ``'arc'``: circular - can be used to create rounded rectangles;
+        * ``'rect'``: regular rectangular corner;
+        
+    For each one of those there is 4 possible places (see ``self.PLACES``).
+    Here we have an example of some ``'top-right'`` corner of ``'trig'`` shape::
+
+        -------------#\. . . .
+                     . \     .
+                     .  \    .
+                     .   \   .
+                     .    \  .
+                     .     \ .
+                     .      \ 
+                     . . . . @
+                             |
+
+    Considering clockwise drawing, ``#`` would be the starting point and
+    ``@``, the ending (and vice-versa for counterclockwise drawing).
+    PS: The dotted lines indicates the bounding rectangle for the corner.
+
+    The easiest way to go is using the ``connect()`` static method.    
     '''
-    Path on the shape of corners to be connected with another ones.
+    VALID_PLACES = ('bottom-left', 'bottom-right', 'top-left', 'top-right')
+    VALID_SHAPES = ('trig', 'arc', 'rect')
 
-    It has the following available shapes (self.SHAPES):
-        - 'trig': inclinated line (diagonal of the corner rectangle)
-        - 'arc': circular corner, for simulating rounded rectangles.
-        - 'rect': regular rectangular corner
-    each one for the 4 possible positions (see self.POSITIONS).
-
-    Here we have an example of some top-right corner of 'trig' shape:
-
-    -------------#\. . . .
-                 . \     .
-                 .  \    .
-                 .   \   .
-                 .    \  .
-                 .     \ .
-                 .      \
-                 . . . . @
-                         |
-                         |
-
-    The dotted lines are not drawned, they only indicates here the rectan-
-    gle defined by the corner area. On a clockwise drawning, '#' is the
-    starting point and '@', the ending. On a counterclockwise, otherwise.
-    It's up to the user of this class to be consist with the rest of the
-    drawing.
-
-    This path uses relative positions and displacements, so its easy to
-    connect with another path like you please.
-    '''
-    POSITIONS = ('bottom-left', 'bottom-right', 'top-left', 'top-right')
-    SHAPES = ('trig', 'arc', 'rect')
-
-    def __init__(self, start_point, rect_size, shape, position,
-                 clockwise=True):
-        ''' (QPointF, QSizeF, str in self.SHAPES, str in self.POSITIONS, bool)
+    def __init__(self, start_point, rect_size, shape, place, clockwise=True):
+        '''        
+        :param start_point: ``QPointF``
+            Point from where this path will begin to draw.
+        :param rect_size: ``QSizeF``
+            Size of the bounding rectangle of the corner area.
+            This is used to calculate the final point of the corner path.
+        :param shape: ``str`` in ``self.VALID_SHAPES``
+            Indicates the appearence of the corner path.
+        :param place: ``str`` in ``self.VALID_PLACES``
+            Indicates what kind of corner this will be on the final picture.
+        :param clockwise: ``bool``
+            Direction of the drawing. 
         '''
         W, H = rect_size.width(), rect_size.height()
-
-        vlarg('start_point', start_point, QPointF)
-        vlarg('rect_size', rect_size, QSizeF)
-        vlarg('position', position, str, self.POSITIONS)
-        vlarg('shape', shape, str, self.SHAPES)
-        vlarg('clockwise', clockwise, bool)
 
         GxPainterPath.__init__(self, start_point)
 
         if shape == 'trig':
 
             if clockwise:
-                if position == 'top-right':
+                if place == 'top-right':
                     self.lineToInc(W, H)
-                elif position == 'bottom-right':
+                elif place == 'bottom-right':
                     self.lineToInc(-W, H)
-                elif position == 'bottom-left':
+                elif place == 'bottom-left':
                     self.lineToInc(-W, -H)
-                elif position == 'top-left':
+                elif place == 'top-left':
                     self.lineToInc(W, -H)
             else:
-                if position == 'top-left':
+                if place == 'top-left':
                     self.lineToInc(-W, H)
-                elif position == 'bottom-left':
+                elif place == 'bottom-left':
                     self.lineToInc(W, H)
-                elif position == 'bottom-right':
+                elif place == 'bottom-right':
                     self.lineToInc(W, -H)
-                elif position == 'top-right':
+                elif place == 'top-right':
                     self.lineToInc(-W, -H)
 
         elif shape == 'arc':
 
             if clockwise:
-                if position == 'top-right':
+                if place == 'top-right':
                     self.arcTo(self.x - W, self.y, 2*W, 2*H, -270, -90)
-                elif position == 'bottom-right':
+                elif place == 'bottom-right':
                     self.arcTo(self.x - 2*W, self.y - H, 2*W, 2*H, 0, -90)
-                elif position == 'bottom-left':
+                elif place == 'bottom-left':
                     self.arcTo(self.x - W, self.y - 2*H, 2*W, 2*H, -90, -90)
-                elif position == 'top-left':
+                elif place == 'top-left':
                     self.arcTo(self.x, self.y - H, 2*W, 2*H, -180, -90)
             else:
-                if position == 'top-left':
+                if place == 'top-left':
                     self.arcTo(self.x - W, self.y, 2*W, 2*H, 90, 90)
-                elif position == 'bottom-left':
+                elif place == 'bottom-left':
                     self.arcTo(self.x, self.y - H, 2*W, 2*H, 180, 90)
-                elif position == 'bottom-right':
+                elif place == 'bottom-right':
                     self.arcTo(self.x - W, self.y - 2*H, 2*W, 2*H, 270, 90)
-                elif position == 'top-right':
+                elif place == 'top-right':
                     self.arcTo(self.x - 2*W, self.y - H, 2*W, 2*H, 0, 90)
 
         elif shape == 'rect':
 
             if clockwise:
-                if position == 'top-right':
+                if place == 'top-right':
                     self.lineToInc(dx = W)
                     self.lineToInc(dy = H)
-                elif position == 'bottom-right':
+                elif place == 'bottom-right':
                     self.lineToInc(dy = H)
                     self.lineToInc(dx = -W)
-                elif position == 'bottom-left':
+                elif place == 'bottom-left':
                     self.lineToInc(dx = -W)
                     self.lineToInc(dy = -H)
-                elif position == 'top-left':
+                elif place == 'top-left':
                     self.lineToInc(dy = -H)
                     self.lineToInc(dx = W)
             else:
-                if position == 'top-left':
+                if place == 'top-left':
                     self.lineToInc(dx = -W)
                     self.lineToInc(dy = H)
-                elif position == 'bottom-left':
+                elif place == 'bottom-left':
                     self.lineToInc(dy = H)
                     self.lineToInc(dx = W)
-                elif position == 'bottom-right':
+                elif place == 'bottom-right':
                     self.lineToInc(dx = W)
                     self.lineToInc(dy = -H)
-                elif position == 'top-right':
+                elif place == 'top-right':
                     self.lineToInc(dy = -H)
                     self.lineToInc(dx = -W)
 
     @staticmethod
-    def connect(path, rect_size, shape, position, clockwise=True):
+    def connect(path, rect_size, shape, place, clockwise=True):
+        '''        
+        This method provides a nice and clean way of connecting a corner
+        path to another path. Here is some usage example::
+            
+            >>> path = QPainterPath(QPointF(0, 0))
+            >>> path.lineTo(50, 0)
+            >>> CornerPath.connect(path, QSizeF(50, 50), 'trig', 'top-right')
+            >>> print(path.currenPosition())
+            QPointF(100.0, 50.0)
+        
+        :param path: ``QPainterPath``
+            Path on which the corner will be connected. The current position
+            will be used as the starting point for the corner path.
+        :param rect_size: ``QSizeF``
+            Size of the bounding rectangle of the corner area.
+            This is used to calculate the final point of the corner path.
+        :param shape: ``str`` in `self.VALID_SHAPES`
+            Indicates the appearence of the corner path.
+        :param place: ``str`` in ``self.VALID_PLACES``
+            Indicates what kind of corner this will be on the final picture.
+        :param clockwise: ``bool``
+            Direction of the drawing. 
+        '''
         path.connectPath(CornerPath(path.currentPosition(), rect_size,
-                                    shape, position, clockwise))
+                                    shape, place, clockwise))
 
 
 class NotchPath(GxPainterPath):
     '''
-    Path on the shape of a notch to be used as "puzzle-like" connectors.
+    Path with the shape of a notch to be used as "puzzle-like" connectors.
 
     The available shapes are:
-        - 'trig/%f': triangle or trapezium form.
-        - 'arc/%f': circular corners.
+        
+        * ``'trig/%f'``: triangle or trapezium form;
+        * ``'arc/%f'``: circular corners;
 
-    The '/%f' part is optional on both cases, where '%f' must be a real number
-    between 0.0 and 1.0. It determines the lenght of the trapezium top side,
-    relatively to the lenght of the trapezium base side. The default is
-    assumed 0.0, resulting on a triangular form for 'trig' shape, and on a
-    perfect half-circle/ellipse form for 'arc' shape.
+    The ``/%f`` part is optional on both cases, where ``%f`` must be a real 
+    number between ``0.0`` (default) and ``1.0``. It determines the lenght of 
+    the trapezium top side, relatively to the lenght of the trapezium base side. 
+    If ``0.0``, results on a triangular form for ``'trig'`` shape, and 
+    on a perfect half-circle/ellipse form for ``'arc'`` shape. If ``1.0``, then
+    the lenght of the top is the same of the base, resulting on a rectangled
+    notch for either shape value.
 
-    For the '+i' and '-i' directions (horizontal shapes), it can be facing
-    'up' or 'down'; similarly, for the '+j' and '-j' directions (vertical
-    shapes), it can be facing 'left' or 'right'.
+    With the ``'+i'`` and ``'-i'`` directions (horizontal shapes), it can be 
+    facing ``'up'`` or ``'down'``; similarly, with the ``'+j'`` and ``'-j'``
+    directions (vertical shapes), it can be facing ``'left'`` or ``'right'``.
 
-    The following notch is constructed with '-j' direction and facing 'left':
+    The following notch was constructed with ``'-j'`` direction and facing 
+    ``'left'``::
 
                            |
-                           #     +
+                           @     +
                           /      |
                         /        |
                       /          |
@@ -185,30 +221,34 @@ class NotchPath(GxPainterPath):
                       \          |
                         \        |
                           \      |
-                           @     +
+                           #     +
                            |
 
-    Here we have a 'trig/0.4' shape, where '@' is the starting point and
-    '#', the ending. The lenght of the top is 0.4 the lenght of the base.
+    Here we have a ``'trig/0.4'`` shape, where ``#`` is the starting point 
+    and ``@`` the ending. The lenght of the top is ``0.4`` times the lenght 
+    of the base.
     '''
-    SHAPES = ('trig/%f', 'arc/%f')
-    DIRECTIONS = ('+i',   # horizontal to the right
-                  '-i',   # horizontal to the left
-                  '+j',   # vertical down right
-                  '-j')   # vertical up right
-    FACING_SIDES = ('up', 'down', 'left', 'right')
+    VALID_SHAPES = ('trig/%f', 'arc/%f')
+    VALID_DIRECTIONS = ('+i',   # horizontal to the right
+                        '-i',   # horizontal to the left
+                        '+j',   # vertical down right
+                        '-j')   # vertical up right                        
+    VALID_FACING_SIDES = ('up', 'down', 'left', 'right')
 
     def __init__(self, start_point, rect_size, shape, direction, facing):
-        ''' (QPointF, QSizeF, str in self.SHAPES, str in self.DIRECTIONS,
-             str in self.FACING_SIDES)
         '''
-        vlarg('start_point', start_point, QPointF)
-        vlarg('rect_size', rect_size, QSizeF)
-
-        direction = vlarg('direction', direction.lower(),
-                          str, self.DIRECTIONS)
-
-        vlarg('facing', facing, str)
+        :param start_point: ``QPointF``
+            Point from where this path will begin to draw.
+        :param rect_size: ``QSizeF``
+            Size of the bounding rectangle for this path.
+        :param shape: ``str`` in ``self.VALID_SHAPES``
+            Shape of the notch.
+        :param direction: ``str`` in ``self.VALID_DIRECTIONS``
+            Indicates the direction of the drawing (using vectorial notation).
+        :param facing: ``str`` in ``self.VALID_FACING_SIDES``
+            Indicates to which side the top of the trapezium is going to be
+            pointing on.
+        '''
         if direction[1] == 'j':
             facing = vlarg('facing', facing.lower(), str,
                                   ('left', 'right'))
@@ -216,7 +256,7 @@ class NotchPath(GxPainterPath):
             facing = vlarg('facing', facing.lower(), str,
                                   ('up', 'down'))
 
-        valid_shapes = [x.split('/')[0] for x in self.SHAPES]
+        valid_shapes = [x.split('/')[0] for x in self.VALID_SHAPES]
 
         tf = 0.0    # top factor
         given_shape = shape
@@ -325,8 +365,28 @@ class NotchPath(GxPainterPath):
 
     @staticmethod
     def connect(path, rect_size, shape, direction, facing):
-        ''' (QPainterPath, QSizeF, <self.SHAPES>, <self.DIRECTIONS>,
-             <self.FACING_SIDES>)
+        '''
+        This method provides a nice and clean way of connecting a notch
+        path to another path. Here is some usage example::
+            
+            >>> path = QPainterPath(QPointF(0, 0))
+            >>> path.lineTo(50, 0)
+            >>> NotchPath.connect(path, QSizeF(100, 50), 'trig/0.8', 'i+', 'down')
+            >>> print(path.currenPosition())
+            QPointF(150.0, 0.0)
+        
+        :param path: ``QPainterPath``
+            Path on which the notch will be connected. The current position
+            will be used as the starting point for the notch path.
+        :param rect_size: ``QSizeF``
+            Size of the bounding rectangle for this path.
+        :param shape: ``str`` in ``self.VALID_SHAPES``
+            Shape of the notch.
+        :param direction: ``str`` in ``self.VALID_DIRECTIONS``
+            Indicates the direction of the drawing (using vectorial notation).
+        :param facing: ``str`` in ``self.VALID_FACING_SIDES``
+            Indicates to which side the top of the trapezium is going to be
+            pointing on.
         '''
         path.connectPath(NotchPath(path.currentPosition(),
                                    rect_size, shape, direction, facing))
@@ -369,12 +429,12 @@ class GxExamplePaths(QGraphicsItem):
         self.border_path = None
         self.updateMetrics()
 
-        self.setPos(50, 100)
+        self.setPos(50, 150)
 
     def boundingRect(self):
         ''' QGraphicsItem.boundingRect() -> QRectF
         '''
-        return QRectF(-100, -100, self._width + 400, self._height + 400)
+        return QRectF(-50, -50, self._width + 400, self._height + 400)
 
     def setNotchData(self, notch, data, value):
         ''' (str in ['top', 'bottom', 'left', 'right],
@@ -453,6 +513,7 @@ class ExampleMainWindow(QMainWindow):
         QMainWindow.__init__(self, parent)
 
         self.scene = GxSceneBlocks()
+        self.scene.setSceneRect(0, 0, 800, 800)
         self.gx_example_path = GxExamplePaths(self.scene)
 
         self.initUI()
@@ -523,7 +584,7 @@ class ExampleMainWindow(QMainWindow):
         hl.addWidget(self.wg_tab_command, 200)
         self.wg_area_win.setLayout(hl)
 
-        self.setGeometry(200, 50, 1000, 600)
+        self.setGeometry(200, 50, 1000, 550)
         self.setCentralWidget(self.wg_area_win)
 
     def setupNotchGroupBox(self, title, notch, follow_w, follow_h, parent):

@@ -23,6 +23,8 @@ from visuino.gx.utils import *
 from visuino.gx.styles import *
 from visuino.gx.connections import *
 
+from visuino.settings import VGS
+
 __all__ = ['GxArgLabel']
 
 class GxArgLabel(GxPluggableBlock):
@@ -33,13 +35,14 @@ class GxArgLabel(GxPluggableBlock):
     '''
 
     def __init__(self, arg_info, scene=None, parent=None, **kwargs):
-        ''' (dict, GxSceneBlocks, QGraphicsItem, **)
+        ''' (dict, GxSceneBlocks, GxBlock, **)
 
         kwargs:
             @ fixed_width: number <None>
             @ update_parent: True <False>
         '''
-        GxPluggableBlock.__init__(self, scene, parent, mouse_active=False)
+        GxPluggableBlock.__init__(self, scene, parent)
+        self.mouse_active = False
         self._arg_info = arg_info
 
         self._fixed_width = kwargs.get('fixed_width', None)
@@ -49,8 +52,7 @@ class GxArgLabel(GxPluggableBlock):
         self._name_font = QFont('Verdana', 12)
 
         self.updateMetrics()
-        
-            
+                    
     def __repr__(self):
         return "<GxArgLabel '%s'>" % str(self._arg_info['name'])
         
@@ -63,7 +65,7 @@ class GxArgLabel(GxPluggableBlock):
             return None
 
     def getBorderWidth(self):
-        return self.scene().style.arg_label.border_width        
+        return VGS['styles']['block_arg_label']['border_width']      
 
     def setFixedWidth(self, width):
         ''' (number) -> NoneType
@@ -75,18 +77,18 @@ class GxArgLabel(GxPluggableBlock):
         ''' QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
                                 QWidget widget=None) -> NoneType
         '''
-        sa = self.scene().style.arg_label
+        sa = VGS['styles']['block_arg_label']
         painter.fillRect(self.boundingRect(), Qt.transparent)
 
         # drawing the filled border path
-        painter.setPen(QPen(QColor(sa.border_color), sa.border_width,
+        painter.setPen(QPen(QColor(sa['border_color']), sa['border_width'],
                             Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-        painter.setBrush(QColor(sa.background_color))
+        painter.setBrush(QColor(sa['background_color']))
         painter.drawPath(self._border_path)
 
         # drawing the name
         painter.setFont(self._name_font)
-        painter.setPen(QPen(QColor(sa.font_color)))
+        painter.setPen(QPen(QColor(sa['font_color'])))
         painter.drawText(self._name_rect, Qt.AlignCenter, self._arg_info['name'])
 
         # drawing the name rectangle (for debugging purposes)
@@ -101,27 +103,24 @@ class GxArgLabel(GxPluggableBlock):
         '''
         self.prepareGeometryChange()
 
-        style_label = self.scene().style.arg_label
-        style_notch = self.scene().style.notch
+        sa, sn = VGS['styles']['block_arg_label'], VGS['styles']['notch']       
 
-        self._name_font = QFont(style_label.font_family,
-                                style_label.font_size)
+        self._name_font = QFont(sa['font_family'], sa['font_size'])
 
         # border corrections
-        bw = style_label.border_width/2
+        bw = sa['border_width']/2
 
         # main dimensions
-        name_metrics = QFontMetricsF(self._name_font)
-        fvc = style_label.font_vcorrection
-        nw, nh = name_metrics.width(self._arg_info['name']), name_metrics.height()
-        hp, vp = style_label.getPadding()
-        cw, ch = style_label.getCornerSize()
-        iow, ioh = style_notch.getIoNotchSize()
+        metrics = QFontMetricsF(self._name_font)
+        nw, nh = metrics.width(self._arg_info['name']), metrics.height()
+        fvc = sa['font_vcorrection']
+        hp, vp = sa['padding']['horizontal'], sa['padding']['vertical']
+        cw, ch = sa['corner_size']['width'], sa['corner_size']['height']
+        c_shape = sa['corner_shape']
+        iow, ioh = sn['io_size']['width'], sn['io_size']['height']
 
-        io_notch_shape = style_notch.io_notch_shape + '/' + \
-                         str(style_notch.io_notch_basis)
-        io_notch_size = QSizeF(iow, ioh)
-        corner_shape = style_label.corner_shape
+        io_notch_shape = sn['io_shape'] + '/' + str(sn['io_basis'])
+        io_notch_size = QSizeF(iow, ioh)        
 
         # corner corrections (occours if corner rect intercepts name rect)
         ccw = cw - hp #if cw > hp else -(hp - cw)
@@ -135,7 +134,7 @@ class GxArgLabel(GxPluggableBlock):
         if 2*ch > H:
             ch = H/2
 
-        corner_size = QSizeF(cw, ch)
+        c_size = QSizeF(cw, ch)
 
         if self.child_io:
             H = self.child_io.getHeight()
@@ -145,9 +144,9 @@ class GxArgLabel(GxPluggableBlock):
         # starts on the top-right corner
         path = GxPainterPath(QPointF(W + bw, bw))
         path.lineToInc(dx = - W + cw)
-        CornerPath.connect(path, corner_size, corner_shape, 'top-left', False)
+        CornerPath.connect(path, c_size, c_shape, 'top-left', False)
         path.lineToInc(dy = H - 2*ch)
-        CornerPath.connect(path, corner_size, corner_shape, 'bottom-left', False)
+        CornerPath.connect(path, c_size, c_shape, 'bottom-left', False)
         path.lineToInc(dx = W - cw)
 
         if self.child_io:
@@ -224,9 +223,8 @@ class WinCustomizeArgLabel(QMainWindow):
 
         self.scene = GxSceneBlocks()
 
-        self.arg_label = GxArgLabel({'name': 'value', 'type': 'int', 
-                                     'restriction': 'HIGH,LOW'}, 
-                                    self.scene)
+        self.arg_label = GxArgLabel({'name': 'value', 'type': 'const', 
+                                     'restriction': 'HIGH,LOW'}, self.scene)
         self.arg_label.setPos(30, 30)
         self.arg_label.setFlags(QGraphicsItem.ItemIsMovable)
         self.arg_label.setCursor(Qt.OpenHandCursor)
@@ -239,25 +237,37 @@ class WinCustomizeArgLabel(QMainWindow):
         dock_customize = QDockWidget('Customize', self)
         dock_customize.setWidget(self.ui)
         self.addDockWidget(Qt.RightDockWidgetArea, dock_customize)
+        
+        self.hollow_item = HollowItem(200, 20) 
+        
+        sa, sn = VGS['styles']['block_arg_label'], VGS['styles']['notch']
+        
+        self._setupSignal(self.ui.spinbox_hpadd, sa['padding'], 'horizontal')        
+        self._setupSignal(self.ui.spinbox_vpadd, sa['padding'], 'vertical') 
+        self._setupSignal(self.ui.spinbox_font_vcorrection, sa) 
+        
+        self._setupSignal(self.ui.spinbox_font_size, sa)
+        self._setupSignal(self.ui.frame_font_color, sa)
+        self._setupSignal(self.ui.combobox_font_family, sa)
+        
+        self._setupSignal(self.ui.frame_border_color, sa)
+        self._setupSignal(self.ui.spinbox_border_width, sa)        
+        self._setupSignal(self.ui.frame_background_color, sa)
+        
+        self._setupSignal(self.ui.combobox_corner_shape, sa)
 
-        sa, sn = self.scene.style.arg_label, self.scene.style.notch
-
-        # take advantage of the following convention: the first word of
-        # the object name identifies the type of widget, and the rest
-        # (after the first '_') is some key of the sty dict above.
-        # exemple: combobox_font_family --> 'font_family' key in sty.
-        for k, wg in self.ui.__dict__.items():
-            suffix = k[k.find('_')+1:]
-            if not hasattr(sa, suffix) and not hasattr(sn, suffix):
-                continue
-            elif isinstance(wg, QFrame) and not isinstance(wg, QLabel):
-                # those QFrame are for color selection
-                self._setupFrameClick(wg, suffix)
-            elif isinstance(wg, (QSpinBox, QComboBox, QSlider)):
-                self._setupSignal(wg, suffix)
-                
-        self.hollow_item = HollowItem(200, 20)
-
+        self._setupSignal(self.ui.spinbox_corner_width, sa['corner_size'], 
+                          'width')
+        self._setupSignal(self.ui.spinbox_corner_height, sa['corner_size'], 
+                          'height')
+                          
+        self._setupSignal(self.ui.combobox_io_shape, sn)
+        self._setupSignal(self.ui.slider_io_basis, sn)
+        self._setupSignal(self.ui.spinbox_io_width, sn['io_size'], 
+                          'width')
+        self._setupSignal(self.ui.spinbox_io_height, sn['io_size'], 
+                          'height')                        
+   
         self.ui.checkbox_plug_io.stateChanged[int].connect(
             self._updatePluggedIO)
         self.ui.slider_io_plugged_height.valueChanged[int].connect(
@@ -266,52 +276,44 @@ class WinCustomizeArgLabel(QMainWindow):
             self._updatePluggedIO)
 
 
-    def _setupSignal(self, sender, attr):
-        ''' (QSpinBox/QComboBox/QSlider, str) -> NoneType
-
-        Configures on the sender widget the current value of 'attr' in 'style',
-        and also setup its suitable signal to customization changes.
+    def _setupSignal(self, sender, style, attr=None):
         '''
-        sty, sa, sn = None, self.scene.style.arg_label, self.scene.style.notch
-        if hasattr(sa, attr):
-            sty = sa
-        elif hasattr(sn, attr):
-            sty = sn
-        else:
+        :param sender: ``QObject``
+        :param style: ``dict``
+        :param attr: ``str`` <None>
+            Attribute name (key on the style dict)
+        '''        
+        if attr is None:
+            n = str(sender.objectName())
+            attr = n[n.find('_')+1:]
+            
+        if attr not in style:
             return
-
+            
         if isinstance(sender, QSpinBox):
-            sender.setValue(getattr(sty, attr, 0))
+            sender.setValue(int(style[attr]))
             sender.valueChanged[int].connect(
-                lambda: self._updateStyles(sty, attr, sender.value()))
+                lambda: self._updateStyle(style, attr, sender.value()))
 
         elif isinstance(sender, QComboBox):
-            sender.setCurrentIndex(sender.findText(getattr(sty, attr, '')))
+            sender.setCurrentIndex(sender.findText(str(style[attr])))
             sender.currentIndexChanged[int].connect(
-                lambda: self._updateStyles(sty, attr,
-                                           str(sender.currentText())))
+                lambda: self._updateStyle(style, attr,
+                                          str(sender.currentText())))
 
         elif isinstance(sender, QSlider):
-            sender.setValue(getattr(sty, attr, 0)*100)
+            sender.setValue(int(style[attr])*100)
             sender.valueChanged[int].connect(
-                lambda: self._updateStyles(sty, attr,
-                                           float(sender.value()/100)))
-
-    def _setupFrameClick(self, frame, attr):
-        ''' (QFrame, str) -> NoneType
-
-        Configures the frame background color to the current color of
-        'attr' in 'style', and also enable its mousePressEvent to execute
-        a color dialog.
-        '''
-        palette = frame.palette()
-        current_color = QColor(getattr(self.scene.style.arg_label,
-                                       attr, 'white'))
-        palette.setColor(QPalette.Background, current_color)
-        frame.setPalette(palette)
-        frame.mousePressEvent = \
-            lambda event: self._chooseColor(frame, attr)
-
+                lambda: self._updateStyle(style, attr,
+                                          float(sender.value()/100)))
+                                          
+        elif isinstance(sender, QFrame) and not isinstance(sender, QLabel):
+            palette = sender.palette()
+            palette.setColor(QPalette.Background, QColor(style[attr]))
+            sender.setPalette(palette)
+            sender.mousePressEvent = \
+                lambda event: self._chooseColor(sender, attr)
+                
 
     def _chooseColor(self, frame, attr):
         ''' (QFrame, str) -> NoneType
@@ -320,12 +322,12 @@ class WinCustomizeArgLabel(QMainWindow):
         Changes on the dialog are reflected immediately on the GxArgLabel.
         If the dialog is cancelled, restores 'old_color'.
         '''
-        palette, sa = frame.palette(), self.scene.style.arg_label
+        palette, sa = frame.palette(), VGS['styles']['block_arg_label']
         old_color = palette.background().color()
         color_dialog = QColorDialog(old_color)
 
         color_dialog.currentColorChanged[QColor].connect(
-            lambda: self._updateStyles(sa, attr,
+            lambda: self._updateStyle(sa, attr,
                     str(color_dialog.currentColor().name())))
 
         answer = color_dialog.exec_()
@@ -333,12 +335,13 @@ class WinCustomizeArgLabel(QMainWindow):
             new_color = color_dialog.currentColor()
             palette.setColor(QPalette.Background, new_color)
             frame.setPalette(palette)
-            self._updateStyles(sa, attr, str(new_color.name()))
+            self._updateStyle(sa, attr, str(new_color.name()))
         else:
-            self._updateStyles(sa, attr, str(old_color.name()))
+            self._updateStyle(sa, attr, str(old_color.name()))
 
-    def _updateStyles(self, style, attr, value):
-        setattr(style, attr, value)
+        
+    def _updateStyle(self, style, attr, value):
+        style[attr] = value
         self.arg_label.updateMetrics()
 
     def _updatePluggedIO(self):

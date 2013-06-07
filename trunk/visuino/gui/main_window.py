@@ -24,16 +24,6 @@ from visuino.resources import *
 
 __all__ = ['MainWindow', 'AppVisuino']
 
-sketch = {'snippets': {}}
-sketch['snippets'][1] = {'pos': [400, 200], 'body': []}
-sketch['snippets'][1]['body'].append(
-    {'tag': 'function_call', 'name': 'digitalWrite', 'library': 'Arduino.h',
-     'args': {
-         1: {'tag': 'function_call', 'name': 'digitalRead', 
-             'library': 'Arduino.h', 'args': {}}
-             }
-    })
-
 class MainWindow(QMainWindow):
     '''
     Attributes:

@@ -1,22 +1,12 @@
 gx Package
 ==========
 
-:mod:`gx` Package
------------------
-
-.. automodule:: visuino.gx
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Subpackages
+Modules
 -----------
 
 .. toctree::
 
     visuino.gx.bases
-    visuino.gx.blocks
-    visuino.gx.palette
     visuino.gx.shapes
-    visuino.gx.utils
+    visuino.gx.blocks
 

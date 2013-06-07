@@ -1,4 +1,6 @@
 
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -9,8 +11,9 @@
     
     <title>gx Package &mdash; VISUINO 0.0.1 documentation</title>
     
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/cloud.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -24,12 +27,17 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="_static/cloud.js"></script>
     <link rel="top" title="VISUINO 0.0.1 documentation" href="index.html" />
     <link rel="up" title="visuino Package" href="visuino.html" />
-    <link rel="next" title="bases Package" href="visuino.gx.bases.html" />
+    <link rel="next" title="gx.bases Module" href="visuino.gx.bases.html" />
     <link rel="prev" title="gui Package" href="visuino.gui.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
+    <div class="relbar-top">
+        
     <div class="related">
       <h3>Navigation</h3>
       <ul>
@@ -38,18 +46,21 @@
              accesskey="I">index</a></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
+             >modules</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="visuino.gx.bases.html" title="bases Package"
-             accesskey="N">next</a> |</li>
+          <a href="visuino.gx.bases.html" title="gx.bases Module"
+             accesskey="N">next</a> &nbsp; &nbsp;</li>
         <li class="right" >
           <a href="visuino.gui.html" title="gui Package"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+             accesskey="P">previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
           <li><a href="modules.html" >visuino</a> &raquo;</li>
           <li><a href="visuino.html" accesskey="U">visuino Package</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+    </div>
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -58,39 +69,27 @@
             
   <div class="section" id="gx-package">
 <h1>gx Package<a class="headerlink" href="#gx-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="id1">
-<h2><tt class="xref py py-mod docutils literal"><span class="pre">gx</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<span class="target" id="module-visuino.gx"></span><p>Provides all things related to the Graphics View Framework of PyQt.
-Mainly, we talk about objects that inherit QGraphicsItem.</p>
-</div>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="modules">
+<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="visuino.gx.bases.html">bases Package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gx.bases.html#id1"><tt class="docutils literal"><span class="pre">bases</span></tt> Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gx.bases.html#module-visuino.gx.bases.bases"><tt class="docutils literal"><span class="pre">bases</span></tt> Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visuino.gx.bases.html"><cite>gx.bases</cite> Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.bases.html#gxview-class"><tt class="docutils literal"><span class="pre">GxView</span></tt> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.bases.html#gxsceneblocks-class"><tt class="docutils literal"><span class="pre">GxSceneBlocks</span></tt> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.bases.html#gxblock-class"><tt class="docutils literal"><span class="pre">GxBlock</span></tt> class</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="visuino.gx.shapes.html"><cite>gx.shapes</cite> Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.shapes.html#cornerpath-class"><tt class="docutils literal"><span class="pre">CornerPath</span></tt> class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.shapes.html#notchpath-class"><tt class="docutils literal"><span class="pre">NotchPath</span></tt> class</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="visuino.gx.blocks.html">blocks Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="visuino.gx.blocks.html#id1"><tt class="docutils literal"><span class="pre">blocks</span></tt> Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gx.blocks.html#module-visuino.gx.blocks.expression"><tt class="docutils literal"><span class="pre">expression</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.blocks.html#gxarglabel-class"><tt class="docutils literal"><span class="pre">GxArgLabel</span></tt> Class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.blocks.html#module-visuino.gx.blocks.do_while"><tt class="docutils literal"><span class="pre">do_while</span></tt> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visuino.gx.blocks.html#expression-module"><tt class="docutils literal"><span class="pre">expression</span></tt> Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="visuino.gx.blocks.html#module-visuino.gx.blocks.function_call"><tt class="docutils literal"><span class="pre">function_call</span></tt> Module</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="visuino.gx.palette.html">palette Package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gx.palette.html#id1"><tt class="docutils literal"><span class="pre">palette</span></tt> Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gx.palette.html#module-visuino.gx.palette.palette"><tt class="docutils literal"><span class="pre">palette</span></tt> Module</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="visuino.gx.shapes.html">shapes Package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gx.shapes.html#id1"><tt class="docutils literal"><span class="pre">shapes</span></tt> Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gx.shapes.html#module-visuino.gx.shapes.shapes"><tt class="docutils literal"><span class="pre">shapes</span></tt> Module</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="visuino.gx.utils.html">utils Package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gx.utils.html#id1"><tt class="docutils literal"><span class="pre">utils</span></tt> Package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="visuino.gx.utils.html#module-visuino.gx.utils.utils"><tt class="docutils literal"><span class="pre">utils</span></tt> Module</a></li>
 </ul>
 </li>
 </ul>
@@ -104,23 +103,24 @@ Mainly, we talk about objects that inherit QGraphicsItem.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <div class="sphinxlocaltoc">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">gx Package</a><ul>
-<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">gx</span></tt> Package</a></li>
-<li><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li><a class="reference internal" href="#modules">Modules</a><ul>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 
+  </div>
   <h4>Previous topic</h4>
   <p class="topless"><a href="visuino.gui.html"
                         title="previous chapter">gui Package</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="visuino.gx.bases.html"
-                        title="next chapter">bases Package</a></p>
+                        title="next chapter"><cite>gx.bases</cite> Module</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/visuino.gx.txt"
@@ -143,6 +143,8 @@ Mainly, we talk about objects that inherit QGraphicsItem.</p>
       </div>
       <div class="clearer"></div>
     </div>
+    <div class="relbar-bottom">
+        
     <div class="related">
       <h3>Navigation</h3>
       <ul>
@@ -151,21 +153,25 @@ Mainly, we talk about objects that inherit QGraphicsItem.</p>
              >index</a></li>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
+             >modules</a> &nbsp; &nbsp;</li>
         <li class="right" >
-          <a href="visuino.gx.bases.html" title="bases Package"
-             >next</a> |</li>
+          <a href="visuino.gx.bases.html" title="gx.bases Module"
+             >next</a> &nbsp; &nbsp;</li>
         <li class="right" >
           <a href="visuino.gui.html" title="gui Package"
-             >previous</a> |</li>
-        <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+             >previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
           <li><a href="modules.html" >visuino</a> &raquo;</li>
           <li><a href="visuino.html" >visuino Package</a> &raquo;</li> 
       </ul>
     </div>
+    </div>
+
     <div class="footer">
         &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
+    <!-- cloud_sptheme 1.4 -->
   </body>
 </html>

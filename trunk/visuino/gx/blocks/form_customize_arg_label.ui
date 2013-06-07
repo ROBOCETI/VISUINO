@@ -1812,12 +1812,12 @@
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="buddy">
-           <cstring>combobox_io_notch_shape</cstring>
+           <cstring>combobox_io_shape</cstring>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QComboBox" name="combobox_io_notch_shape">
+         <widget class="QComboBox" name="combobox_io_shape">
           <property name="maximumSize">
            <size>
             <width>100</width>
@@ -1845,12 +1845,12 @@
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="buddy">
-           <cstring>slider_io_notch_basis</cstring>
+           <cstring>slider_io_basis</cstring>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSlider" name="slider_io_notch_basis">
+         <widget class="QSlider" name="slider_io_basis">
           <property name="maximumSize">
            <size>
             <width>150</width>
@@ -1881,12 +1881,12 @@
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="buddy">
-           <cstring>spinbox_io_notch_width</cstring>
+           <cstring>spinbox_io_width</cstring>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="spinbox_io_notch_width">
+         <widget class="QSpinBox" name="spinbox_io_width">
           <property name="maximum">
            <number>50</number>
           </property>
@@ -1904,12 +1904,12 @@
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="buddy">
-           <cstring>spinbox_io_notch_height</cstring>
+           <cstring>spinbox_io_height</cstring>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QSpinBox" name="spinbox_io_notch_height">
+         <widget class="QSpinBox" name="spinbox_io_height">
           <property name="maximum">
            <number>50</number>
           </property>

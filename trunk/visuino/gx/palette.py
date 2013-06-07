@@ -332,6 +332,7 @@ class GxViewPalette(GxView):
         ''' (QWidget, bool)
         '''
         GxView.__init__(self, GxSceneBlocks(), parent, opengl)
+        GxView
         
         self.libs = LibraryDefinitions()
         self.sketch = SketchBlocks(self.libs)

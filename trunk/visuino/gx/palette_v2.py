@@ -24,53 +24,7 @@ from visuino.gx.styles import *
 from visuino.gui import *
 from visuino.resources import *
 
-from visuino.core.xml_libs import *
-from visuino.core.definitions import *
-
 __all__ = ['GxPaletteLibrary', 'GxViewPalette']
-
-XML_LIBRARIES = \
-"""<?xml version="1.0" encoding="UTF-8"?>
-<Libraries>
-	<library name="Arduino.h">
-		<function name="pinMode" return_type="" section="Digital I/O">
-			<arg name="pin" type="int" restriction="[0,)"/>
-			<arg name="mode" type="int" restriction="INPUT,OUTPUT"/>
-		</function> 
-		<function name="digitalWrite" return_type="" section="Digital I/O">
-			<arg name="pin" type="int" restriction="[1,13]"/>
-			<arg name="value" type="int" restriction="HIGH,LOW"/>
-		</function>
-		<function name="digitalRead" return_type="int" section="Digital I/O">
-			<arg name="pin" type="int" restriction="[1,13]"/>
-		</function>
-		<function name="analogReference" return_type="" section="Analog I/O">
-			<arg name="pin" type="int" restriction="DEFAULT,INTERNAL,INTERNAL1V1,INTERNAL2V56,EXTERNAL"/>
-		</function>    
-  		<function name="analogWrite" return_type="" section="Analog I/O">
-			<arg name="pin" type="int" restriction="[1,13]"/>
-			<arg name="value" type="int" restriction="[0, 255]"/>
-		</function>
-		<function name="analogRead" return_type="int" section="Analog I/O">
-			<arg name="pin" type="int" restriction="[1,13]"/>
-		</function>
-  		<function name="tone" return_type="" section="Advanced I/O">
-			<arg name="pin" type="int" restriction="[1,13]"/>
-			<arg name="frequency" type="int" restriction="[0,)"/>
-            <arg name="duration" type="int" restriction="[0,)"/>
-		</function>  
-        <function name="pulseIn" return_type="int" section="Advanced I/O">
-            <arg name="pin" type="int" restriction="[1,13]"/>
-            <arg name="value" type="int" restriction="HIGH,LOW"/>
-            <arg name="timeout" type="int" restriction="0|"/>
-        </function>
-        <function name="millis" return_type="int" section="Time"/>
-		<function name="delay" return_type="" section="Time">
-			<arg name="milliseconds" type="int" restriction="[0,)"/>
-		</function>
-	</library>
-</Libraries>
-"""
 
 class GxPaletteSection(QGraphicsItem):
     

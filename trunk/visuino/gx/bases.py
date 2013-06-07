@@ -16,6 +16,26 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free. Also, remember to keep the credits.
 #-------------------------------------------------------------------------------
+"""
+The Graphics View Framework of PyQt relies on the following three main objects:
+    
+    * **QGraphicsItem** : Represents a 2D graphical object. Can be drawn using
+      primitives from ``QPainter`` or also can load images.
+    
+    * **QGraphicsScene** : Container for ``QGraphicsItem`` objects, managing
+      all the itens positions, rectangles and stacking order.
+    
+    * **QGraphicsView** : A ``QWidget`` specialized on draw contents from some
+      ``QGraphicsScene``.
+    
+This module provides re-implementations for each one of those objects, by
+setting up some attributes project-specific and also adding some new funtionality.
+
+**Convention**: Classes beginning with ``Gx`` mean that they are somehow related
+to the Graphics View Framework or represents subclasses of ``QGraphicsItem``,
+i.e., can be inserted on the scene.
+"""
+
 from __future__ import division, print_function
 import sys
 if __name__ == '__main__':
@@ -29,33 +49,37 @@ try:
 except:
     QGLWidget = None
 
-from visuino.gx.styles import *
-
 __all__ = ['GxSceneBlocks', 'GxBlock','GxView']
 
 class GxView(QGraphicsView):
     '''
     Holds optimization flags for the project in general and also
-    offers wheel zooming functionality.
-
-    Attributes:
-        wheel_zoom: bool. Enable/disable "wheel zooming" feature.
-        zoom_level: int. Indicates the current zoom magnification.
+    offers wheel zooming.
+    
+    :ivar wheel_zoom: ``bool`` <False>. 
+        Enable/disable the wheel zooming feature.
+    :ivar _zoom_level: ``int`` <0>. 
+        Keeps track of how many scalings have occured.
     '''
     def __init__(self, scene=None, parent=None, opengl=False,
                  wheel_zoom=False):
-        ''' (QGraphicsScene, QWidget, bool) -> NoneType
+        '''        
+        :param scene: ``QGraphicsScene`` <None>.
+            *QGraphicsView.__init__()*.
+        :param parent: ``QWidget`` <None>.
+            *QGraphicsView.__init__()*.
+        :param opengl: ``bool`` <False>.
+            Enables use of Open GL rendering through **PyQt4.QtOpenGL.QGLWidget**.
+        :param wheel_zoom: ``bool`` <False>.
+            Enables wheel zooming functionality.
         '''
         QGraphicsView.__init__(self, scene, parent)
-##        QGraphicsView.__init__(self)  # for PySide
 
-        # activates wheel zooming functionality
         self.wheel_zoom = wheel_zoom
-        self.zoom_level = 0     # incr/decr by 1 according to scaling calls
-                                # just for monitoring purposes
+        self._zoom_level = 0
 
         if QGLWidget and opengl:
-            self.setViewport(QGLWidget())     # uses OpenGL for rendering
+            self.setViewport(QGLWidget())
 
 ##        self.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
         self.setRenderHint(QPainter.Antialiasing)
@@ -72,7 +96,10 @@ class GxView(QGraphicsView):
         self.centerOn(0, 0)
 
     def wheelEvent(self, event):
-        ''' QGraphicsView.wheelEvent(QWheelEvent) -> NoneType
+        ''' *QGraphicsView.wheelEvent(QWheelEvent) -> NoneType*
+        
+        Provides the wheel zooming functionality by calling 
+        ``QGraphicsView.scale()`` according to the amount of scrolling.
         '''
         QGraphicsView.wheelEvent(self, event)
 
@@ -83,10 +110,10 @@ class GxView(QGraphicsView):
             factor = 1.41 ** (event.delta() / 240.0)
             self.scale(factor, factor)
 
-            if factor < 1: self.zoom_level -= 1
-            else: self.zoom_level += 1
+            if factor < 1: self._zoom_level -= 1
+            else: self._zoom_level += 1
 
-            print("Zoom level:", self.zoom_level)
+            print("Zoom level:", self._zoom_level)
 
             #self.centerOn(event.x(), event.y())
 
@@ -106,68 +133,93 @@ class GxView(QGraphicsView):
 
 class GxSceneBlocks(QGraphicsScene):
     '''
-    In addition to the bring to front functionality, manages resources for
-    the blocks, such as its styles and colli paths.
-
-    Attributes:
-        Z_INCR: float
-        _top_item: QGraphicsItem <None>. Item with the highest zValue.
-        _top_z: float. zValue of the top most item.
-        _click_to_front: bool. Enable/disable "click to front" feature.
-        _background_grid: bool. Enable/disable the background grid.
-        style: StyleBlocks.
-        #io_colli_paths: set of GxColliPath, of kind 'io'.
-        #vf_colli_paths: set of GxColliPath, of kind 'vf'.
+    Besides adding the "bring to front" functionality (along with "click to
+    front"), this class also holds sets of paths used to detect collision 
+    between notches (see ``visuino.gx.connections``).
+        
+    :ivar background_grid: ``bool`` <True>.
+        Enables the drawing of a grid on the background layer of the scene.
+        
+    :ivar click_to_front: ``bool`` <True>.
+        Enables the "click to front" feature, on which the clicked item always        
+        is brought to the front of the scene.
+        
+    :ivar vf_male_colli_paths: ``set`` of ``visuino.gx.connections.GxColliPath``.
+        Hold paths for detecting collision of moving female -> male VF notches.
+        
+    :ivar vf_female_colli_paths: ``set`` of ``visuino.gx.connections.GxColliPath``.
+        Hold paths for detecting collision of moving male -> female VF notches.
+        
+    :ivar io_female_colli_paths: ``set`` of ``visuino.gx.connections.GxColliPath``.
+        Hold paths for detecting collision of moving male -> female IO notches.        
+        
+    :ivar _top_item: ``QGraphicsItem`` <None>.
+        Holds the last item brought to the front. Therefore, changes with 
+        ``self.bringToFront()``.
+    
+    :ivar _top_z: ``float`` <None>.
+        zValue of the top-most item on the scene. Changes with 
+        ``self.bringToFront()``.
     '''
-    Z_INCREMENT = 0.0000000001   # increment on zValue for self.bringToFront()
+    #: Increment on zValue for use on ``self.bringToFront()``
+    Z_INCREMENT = 0.0000000001       
 
-    def __init__(self, background_grid=True, parent=None):
-        ''' (QObject) -> NoneType
+    def __init__(self, parent=None, background_grid=True):
+        '''
+        :param parent: ``QObject``. *QGraphicsScene.__init__()*
+        :param background_grid: ``bool``.
+            Enables drawing of a grid on the background layer of the scene.
         '''
         QGraphicsScene.__init__(self, parent)
-
-        self.setSceneRect(0, 0, 800, 600)
+        
+        self.background_grid = background_grid
+        self.setSceneRect(0, 0, 800, 600)        
+        self.setBackgroundBrush(QBrush(QColor('lightgray')))        
 ##        self.setItemIndexMethod(QGraphicsScene.NoIndex)
 
-        self.style = StyleBlocks()
-
-        # information about the top-most item (changes with "bringToFront")
-        self._top_item = None
-        self._top_z = 0.0
-
         # if true, perform "self.bringToFront()" on the clicked item
-        self._click_to_front = True
+        self.click_to_front = True
 
         # holds all the collidable items
-        self._vf_male_colli_paths = set()
-        self._vf_female_colli_paths = set()
-        self._io_female_colli_paths = set()
-
-        self._background_grid = background_grid
-        self.setBackgroundBrush(QBrush(QColor('lightgray')))
+        self.vf_male_colli_paths = set()
+        self.vf_female_colli_paths = set()
+        self.io_female_colli_paths = set()
         
-        self._active_blocks = set()
+        # information about the top-most item (changes with "bringToFront")
+        self._top_item = None
+        self._top_z = 0.0     
+        
+    def getTopItem(self):
+        ''' 
+        :return: ``QGraphicsItem`` - The top-most item on the scene.
+        '''
+        if self._top_item:
+            return self._top_item
+        else:
+            items = self.items()
+            if items:
+                return items[0]
 
-    @property
-    def vf_male_colli_paths(self):
-        return self._vf_male_colli_paths
-
-    @property
-    def vf_female_colli_paths(self):
-        return self._vf_female_colli_paths
-
-    @property
-    def io_female_colli_paths(self):
-        return self._io_female_colli_paths    
+    def bringToFront(self, item):
+        '''
+        Make the given item the top-most on the scene by setting properly
+        a new zValue (if necessary).
+        
+        :param item: ``QGraphicsItem``.        
+        '''
+        if item != self._top_item:
+            item.setZValue(self._top_z + self.Z_INCREMENT)
+            self._top_z = item.zValue()
+            self._top_item = item        
 
     def drawBackground(self, painter, rect):
-        ''' QGraphicsScene.drawBrackground(QPainter, QRectF) -> NoneType
+        ''' *QGraphicsScene.drawBrackground(QPainter, QRectF) -> NoneType*
 
-        If self._background_grid flag is True, then draws a series of vertical
-        and horizontal paralell lines to form a squared grid.
+        If ``self.background_grid`` flag is ``True``, then draws a series of 
+        vertical and horizontal paralell lines to form a squared grid.
         '''
         QGraphicsScene.drawBackground(self, painter, rect)
-        if self._background_grid:
+        if self.background_grid:
             painter.setPen(QPen(QColor(203, 203, 203)))
             painter.fillRect(rect, QColor(219, 219, 219))
 
@@ -178,87 +230,65 @@ class GxSceneBlocks(QGraphicsScene):
                 painter.drawLine(0, j, W, j)
 
     def mousePressEvent(self, event):
-        ''' QGraphicsScene.mousePressEvent(QGraphicsSceneMouseEvent)
-            -> NoneType
+        ''' *QGraphicsScene.mousePressEvent(QGraphicsSceneMouseEvent) -> NoneType*
 
-        Appends treatement for the 'click to front' functionality.
+        Appends the "click to front" functionality.
         '''
         QGraphicsScene.mousePressEvent(self, event)
         
         grabber = self.mouseGrabberItem()   # item under the mouse
-        if grabber and self._click_to_front:
-            self.bringToFront(grabber)
-            
-
-    def setClickToFront(self, value):
-        ''' (bool) -> NoneType
-
-        Activates or not the "click to front" functionality, in which the
-        clicked item always become the top-most one.
-        '''
-        self._click_to_front = value
-
-    def getTopItem(self):
-        ''' () -> QGraphicsItem
-
-        Return the top-most item on the scene.
-        '''
-        if self._top_item:
-            return self._top_item
-        else:
-            items = self.items()
-            if items:
-                return items[0]
-
-    def bringToFront(self, item):
-        ''' (QGraphicsItem) -> NoneType
-
-        Make the given item the top-most on the scene by setting properly
-        a new zValue (if necessary).
-        '''
-        if item != self._top_item:
-            item.setZValue(self._top_z + self.Z_INCREMENT)
-            self._top_z = item.zValue()
-            self._top_item = item
+        if grabber and self.click_to_front:
+            self.bringToFront(grabber)    
 
 
 class GxBlock(QGraphicsItem):
     '''
-    Base class for any graphical block to be inserted on GxSceneBlocks.
-    Its 
+    Abstract base class that implements basic attributes and functionality for
+    any graphical block to be inserted on ``GxSceneBlocks``.
     
-    Attributes:
-        _width: int. Width of the bounding rectangle.
+    The virtual method ``paint()`` of ``QGraphicsItem`` base class must be
+    re-implemented, also with the three following ones:
         
-        _height: int. Height of the bounding rectangle.
+        * ``getBorderWidth()``;        
+        * ``updateMetrics()``;        
+        * ``cloneMe()``;
+          
+    No need to re-implement ``QGraphicsItem.boundingRect()``.
     
-        _border_path: QPainterPath. Defines the shape of the item.
+    :ivar _width: ``number`` <200>. 
+        Width of the bounding rectangle.
         
-        palette_blocks: GxPalette <None>. Used for palette colliding events.
-            It is condigured by the GxPalette itself, and should not be 
-            changed anyware else.
-                
-        _palette_colliding: bool. Flag to indicate palette collision.
+    :ivar _height: ``number`` <100>.
+        Height of the bounding rectangle.
         
-        new_block: bool. Indicates if this block has just been instantiated
-            from the palette, on which case self.checksPaletteCollide() will
-            not activate the exclusion cursor when still colliding with it.
+    :ivar _border_path: ``QPainterPath``.
+        Path that defines the shape of this item. The default path is a rect
+        that contains its bounding rectangle.
         
-        mouse_active: bool. Indicates if this item will recieve any mouse
-            treatement besides the basic stuff.
-            
-        _default_block_cursor: QCursor. Cursor used when the block is NOT
-            colliding with the palette.
+    :ivar _default_block_cursor: ``QCursor`` <Qt.OpenHandCursor>.
+        Cursor used when the block is not colliding with the palette.
+        
+    :ivar _palette_colliding: ``bool``.
+        Flag to indicate palette collision. See ````self.checksPaletteCollide()``.
+    
+    :ivar palette_blocks: ``visuino.gx.palette.GxPalette`` <None>.
+        Used to detecting collision with the palette. Should be set only 
+        by the palette itself. See ``self.checksPaletteCollide()``.
+
+    :ivar new_block: ``bool``.
+        Tells if this block has just been instantiated by the palette.
+        See ``self.checksPaletteCollide()``. Should be set only by the palette
+        itself.
     '''
-    def __init__(self, scene, parent=None, mouse_active=True):
-        ''' (GxSceneBlocks, QGraphicsItem, bool)
+    def __init__(self, scene, parent=None):
+        '''
+        :param scene: ``GxSceneBlocks``.
+            By convention, in this project all blocks are inserted on the
+            scene right here, on instantiation.
+        :param parent: ``GxBlock``.
         '''
         QGraphicsItem.__init__(self, parent, scene)
         self._width, self._height = 200, 100
-                
-        self._element = None       
-        self.snippet_id = None
-        self.sketch = None
 
         path = QPainterPath()
         path.addRect(self.boundingRect())
@@ -271,115 +301,11 @@ class GxBlock(QGraphicsItem):
         self._default_block_cursor = Qt.OpenHandCursor
 #        self.setCursor(self._default_block_cursor)
 
-        self.mouse_active = mouse_active
-        
-    @property
-    def element(self):
-        return self._element        
-        
-    def boundingRect(self):
-        ''' QGraphicsItem.boundingRect() -> QRectF
-        
-        Area of the item that will be re-painted.
-        '''
-        return QRectF(0, 0, self._width, self._height)
-
-    def shape(self):
-        ''' QGraphicsItem.shape() -> QPainterPath
-        
-        Returns its border path as the limiting shape, which defines things
-        such collidable mouse click sensitive area.
-        '''
-        return self._border_path
-
-    def paint(self, painter, option=None, widget=None):
-        ''' QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
-                                QWidget widget=None) -> NoneType
-
-        TO BE REIMPLEMENTED.
-        
-        The main task here should be draw its border path.
-        Good pratice: re-create QPen and QBrush for every drawing action.
-        '''
-        pass
-
-    def updateMetrics(self):
-        ''' TO BE REIMPLEMENTED
-        
-        The main purpose of this method should be to update the block dimen-,
-        sions, by re-defining its _width and _height attributes and also 
-        re-creating its border path.
-        ''' 
-        self.prepareGeometryChange()
-        
-        self._width, self._height = 200, 100
-
-        path = QPainterPath()
-        path.addRect(self.boundingRect())
-        self._border_path = path
-
-        self.update(self.boundingRect()) 
-        
-    def updateMySnippet(self):
-        if self.sketch and self.snippet_id:
-            self.sketch.updateSnippet(self)
-            
-    def updateMySnippetPos(self):
-        if self.sketch and self.snippet_id:
-            self.sketch.updateSnippetPos(self.snippet_id, self.pos())
-
-    def cloneMe(self, scene):
-        ''' (GxSceneBlocks) -> GxBlock subclass
-
-        TO BE REIMPLEMENTED (only if this block will be on the palette).
-        
-        Should return an instance of itself, with the very same attribute 
-        values. This method is used mainly by GxPalette to instantiate new 
-        blocks on the given scene. 
-        '''
-        return GxBlock(scene)
-    
-    def getBorderWidth(self):
-        ''' () -> number
-        
-        TO BE REIMPLEMENTED
-        
-        Should return the border widht value configured on the appropriate 
-        style class attribute for this block.
+    def _checkPaletteCollide(self):
         '''        
-        return 2
-    
-    def getWidth(self):
-        ''' () -> number
-        
-        Returns its border path width.
-        '''
-        return self._border_path.boundingRect().width()
-
-    def getHeight(self):
-        ''' () -> number
-        
-        Returns its border path height.
-        '''        
-        return self._border_path.boundingRect().height()
-        
-    def getTopParentItem(self):
-        parent = self.parentItem()
-        if not parent:
-            return self
-        else:
-            while True:
-                if parent.parentItem() is None:
-                    return parent
-                else:
-                    parent = parent.parentItem()        
-        
-    def checkPaletteCollide(self):
-        ''' () -> NoneType
-        
         Check if it is colliding with the palette and respond properly
         by updating the cursor shape. Designed to be called on the mouse 
-        move event of the item.
+        move event of this item.
         '''
         if self.palette_blocks:
             collide = self.collidesWithItem(self.palette_blocks) 
@@ -391,28 +317,123 @@ class GxBlock(QGraphicsItem):
                 self.setCursor(self._default_block_cursor)
                 self.new_block = False
                 self._palette_colliding = False
-                            
-    def mousePressEvent(self, event):
-        ''' QGraphicsItem.mousePressEvent(QGraphicsSceneMouseEvent) 
-            -> NoneType            
+        
+    def boundingRect(self):
+        ''' *QGraphicsItem.boundingRect() -> QRectF*
+        
+        :return: ``QRectF`` - retangle with dimensions (``self._width``, 
+                 ``self._height``).
         '''
-        QGraphicsItem.mousePressEvent(self, event) 
+        return QRectF(0, 0, self._width, self._height)
+
+    def shape(self):
+        '''        
+        :return: ``QPainterPath`` - Item delimiting shape.
+        '''
+        return self._border_path
+
+    def updateMetrics(self):
+        ''' *TO BE RE-IMPLEMENTED*
+        
+        The purpose of this method should be to update the block dimentions
+        and also its border path according to its contents.
+        
+        Example::
+        
+            def updateMetrics(self):
+                self.prepareGeometryChange()
+            
+                self._width, self._height = 200, 100
+        
+                path = QPainterPath()
+                path.addRect(self.boundingRect())
+                self._border_path = path
+        
+                self.update(self.boundingRect())
+            
+        ''' 
+        pass        
+
+    def cloneMe(self, scene):
+        ''' *TO BE RE-IMPLEMENTED*
+        
+        Should return an instance of itself, with the very same attribute 
+        values. This method is used mainly ``visuino.gx.palette.GxPalette`` 
+        to instantiate new blocks on the given scene.
+        
+        :param scene: ``GxSceneBlocks``.
+        :return: ``GxBlock`` subclass.
+        '''
+        return GxBlock(scene)
+    
+    def getBorderWidth(self):
+        ''' *TO BE RE-IMPLEMENTED*
+        
+        Should return the correct border width value for this kind of block.
+        See ``visuino.settings``.
+        '''        
+        return 2
+    
+    def getWidth(self):
+        '''
+        :return: ``number``. Width of its path bounding rectangle.
+        '''
+        return self._border_path.boundingRect().width()
+
+    def getHeight(self):
+        '''
+        :return: ``number``. Height of its path bounding rectangle.
+        '''
+        return self._border_path.boundingRect().height()
+        
+    def getTopParentItem(self):
+        '''
+        :return: ``GxBlock`` - The top-most parent item (if no parent, then return ``self``).
+        '''
+        parent = self.parentItem()
+        if not parent:
+            return self
+        else:
+            while True:
+                if parent.parentItem() is None:
+                    return parent
+                else:
+                    parent = parent.parentItem()
+
+    def removeFromScene(self):
+        '''
+        This method should be used to remove a ``GxBlock`` from the scene.
+        First, it calls ``removeFromScene`` on all its childs, because some
+        of them might be ``visuino.gx.connections.GxColliPath``, which has
+        its on ``removeFromScene()`` special behavior.
+        '''
+        for child in self.childItems():
+            child.removeFromScene()
+        if self.scene():
+            self.scene().removeItem(self)
+                            
+#    def mousePressEvent(self, event):
+#        ''' *QGraphicsItem.mousePressEvent(QGraphicsSceneMouseEvent) -> NoneType*
+#        '''
+#        QGraphicsItem.mousePressEvent(self, event) 
         
     def mouseMoveEvent(self, event):
-        ''' QGraphicsItem.mouseMoveEvent(QGraphicsSceneMouseEvent) 
-            -> NoneType            
+        ''' *QGraphicsItem.mouseMoveEvent(QGraphicsSceneMouseEvent) -> NoneType*
+        
+        Calls ``self._checkPaletteCollide()``.
         '''        
         QGraphicsItem.mouseMoveEvent(self, event)
-        self.checkPaletteCollide()        
+        self._checkPaletteCollide()        
 
     def mouseReleaseEvent(self, event):
-        ''' QGraphicsItem.mouseReleaseEvent(QGraphicsSceneMouseEvent) 
-            -> NoneType            
-        '''                
+        ''' *QGraphicsItem.mouseReleaseEvent(QGraphicsSceneMouseEvent) -> NoneType*
+        
+        If it is colliding with the palette, then remove itself from the scene.
+        '''   
         QGraphicsItem.mouseReleaseEvent(self, event)
         
-#        # this is for the case when de item is grabbed on the mouse by
-#        # the palette, and not by some mouse click event (drag and drop)
+        # this is for the case when de item is grabbed on the mouse by
+        # the palette, and not by some mouse click event (drag and drop)
         mouse_grabber = self.scene().mouseGrabberItem()
         if mouse_grabber and mouse_grabber is self:
             self.ungrabMouse()
@@ -426,7 +447,7 @@ class GxBlock(QGraphicsItem):
                     item.removeFromScene()                  
 
 
-# -------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # all the defintions from here are just for demonstration purposes
 
 class GxExampleItem(QGraphicsItem):

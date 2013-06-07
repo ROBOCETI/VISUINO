@@ -23,7 +23,7 @@ from visuino.gx.utils import *
 from visuino.gx.connections import *
 from visuino.gx.blocks.arg_label import GxArgLabel
 
-from pprint import pprint
+from visuino.settings import VGS
 
 __all__ = ['GxBlockFunctionCall']
 
@@ -60,10 +60,10 @@ class GxBlockFunctionCall(GxPluggableBlock):
         "On GxBlockFunctionCall.__init__(), parameter 'args', invalid value"\
         " in position %d. Expected <class 'FieldInfo'>, but was given %s."        
 
-    def __init__(self, definition, scene, parent=None):
+    def __init__(self, definition, scene):
         ''' (dict, GxSceneBlocks, QGraphicsItem)
         '''
-        GxPluggableBlock.__init__(self, scene, parent)
+        GxPluggableBlock.__init__(self, scene)
         
         self._def = definition
 
@@ -97,7 +97,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
     def getBorderWidth(self):
         ''' () -> int
         '''
-        return self.scene().style.function_call.border_width   
+        return VGS['styles']['block_function_call']['border_width']
             
     def cloneMe(self, scene):
         ''' (GxSceneBlocks) -> GxBlockFunctionCall
@@ -108,18 +108,18 @@ class GxBlockFunctionCall(GxPluggableBlock):
         ''' QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
                                 QWidget widget=None) -> NoneType
         '''
-        sfc = self.scene().style.function_call
+        sfc = VGS['styles']['block_function_call']
 
         painter.fillRect(self.boundingRect(), Qt.transparent)
 
         painter.setPen(QPen(
-            QBrush(QColor(sfc.border_color)), sfc.border_width,
+            QBrush(QColor(sfc['border_color'])), sfc['border_width'],
             Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-        painter.setBrush(QColor(sfc.background_color))
+        painter.setBrush(QColor(sfc['background_color']))
         painter.drawPath(self._border_path)
 
         painter.setFont(self._name_font)
-        painter.setPen(QPen(QColor(sfc.name_font_color)))
+        painter.setPen(QPen(QColor(sfc['name_font_color'])))
         painter.drawText(self._name_rect, Qt.AlignVCenter | Qt.AlignLeft, 
                          self._def['name'])
 
@@ -135,7 +135,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
         '''
         if self._def['args'] is None:
             return
-        sa, sn = self.scene().style.arg_label, self.scene().style.notch
+        sa, sn = VGS['styles']['block_arg_label'], VGS['styles']['notch']
 
         for arg in self._args_labels:
             arg.removeFromScene()
@@ -166,36 +166,34 @@ class GxBlockFunctionCall(GxPluggableBlock):
         self.prepareGeometryChange()
         self.old_size = self.boundingRect().size()
 
-        style_fc = self.scene().style.function_call
-        style_notch = self.scene().style.notch
+        style_fc = VGS['styles']['block_function_call']
+        style_notch = VGS['styles']['notch']
+        npadd, c_size = style_fc['name_padding'], style_fc['corner_size']
 
         # half of the border width, for use as correction
-        bw = style_fc.border_width/2
+        bw = style_fc['border_width']/2
 
-        self._name_font = QFont(style_fc.name_font_family,
-                                style_fc.name_font_size)
+        self._name_font = QFont(style_fc['name_font_family'],
+                                style_fc['name_font_size'])
         name_metrics = QFontMetricsF(self._name_font)
 
         # setting up nice short names for all the metrics
         nw, nh = name_metrics.width(self._def['name']), name_metrics.height()
-        fvc = style_fc.name_font_vcorrection
-        hp, vp = style_fc.getNamePadding()
-        bp = style_fc.bottom_padd
-        cw, ch = style_fc.getCornerSize()
-        malp = style_fc.arg_min_left_padd
-        asp = style_fc.arg_spacing
-        iow, ioh = style_notch.getIoNotchSize()
-        vfw, vfh = style_notch.getVfNotchSize()
-        vfs = bw + style_notch.vf_notch_x0
+        fvc = style_fc['name_vcorrection']
+        hp, vp = npadd['horizontal'], npadd['vertical']
+#        bp = style_fc['bottom_padd']
+        cw, ch = c_size['width'], c_size['height']
+        malp = style_fc['arg_min_left_padd']
+        asp = style_fc['arg_spacing']
+        iow, ioh = style_notch['io_size']['width'], style_notch['io_size']['height']
+        vfw, vfh = style_notch['vf_size']['width'], style_notch['vf_size']['height']
+        vfs = bw + style_notch['vf_x0']
 
-        # some nice short names for more attributes
-        corner_shape = style_fc.corner_shape
+        corner_shape = style_fc['corner_shape']
         corner_size = QSizeF(cw, ch)
-        io_shape = style_notch.io_notch_shape + '/' + \
-                   str(style_notch.io_notch_basis)
+        io_shape = style_notch['io_shape'] + '/' + str(style_notch['io_basis'])
         io_size = QSizeF(iow, ioh)
-        vf_shape = style_notch.vf_notch_shape + '/' + \
-                   str(style_notch.vf_notch_basis)
+        vf_shape = style_notch['vf_shape'] + '/' + str(style_notch['vf_basis'])
         vf_size = QSizeF(vfw, vfh)
 
         maw = 0    # minimum width to comport arguments, if any
@@ -211,7 +209,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
 
         if self._args_labels:
             self._args_height += (len(self._args_labels) - 1) * \
-                self.scene().style.function_call.arg_spacing
+                style_fc['arg_spacing']
 
         if self._def['return_type']:
             # height from the top up to the args y0
@@ -305,20 +303,13 @@ class GxBlockFunctionCall(GxPluggableBlock):
 
         Set its arguments information, and also update the graphics.
         '''
-        self._def['name'] = kwargs.get('name', self._def['name'])
-        self._def['return_type'] = kwargs.get('return_type', self._def['return_type'])
-        if 'args' in kwargs:
-            self._def['args'] = kwargs.get('args')
-            self.setupArgLabels()
+        for x in ('name', 'return_type', 'args'):
+            if x in kwargs:
+                self._def[x] = kwargs[x]
+                if x == 'args':
+                    self.setupArgLabels()
         self.updateMetrics()
-        
-#    def mousePressEvent(self, event):
-#        print('-' * 30)
-#        pprint(self.getTopParentVf().sketch. self._element)
-#        print('-' * 30)
-#        super(GxBlockFunctionCall, self).mousePressEvent(event) 
-
-        
+    
 
 class WinCustomizeFunctionCall(QMainWindow):
     def __init__(self, parent=None):
@@ -335,10 +326,6 @@ class WinCustomizeFunctionCall(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
 
         self.scene = GxSceneBlocks()
-
-        sfc = self.scene.style.function_call
-        sa = self.scene.style.arg_label
-        sn = self.scene.style.notch    
         
         self.block_function_call = GxBlockFunctionCall(
             {'name': 'digitalWrite', 'return_type': None, 'library': 'Arduino.h',
@@ -368,47 +355,41 @@ class WinCustomizeFunctionCall(QMainWindow):
             
         self.ui.edit_fc_args.textChanged[str].connect(
             lambda: self._updateFunctionArgs(self.ui.edit_fc_args.text()))
-
+            
         # UI name convention:
-        #   widget kind + '_' + tab identifier + '_' + style attribute
+        #   widget kind + '_' + tab identifier + '_' + style attribute        
 
-        s_tabs = {'fc': sfc, 'arg': sa, 'nch': sn}
-        for k, wg in self.ui.__dict__.items():
-            suffix = k[k.find('_')+1:]
+        sfc = VGS['styles']['block_function_call']
+        sa = VGS['styles']['block_arg_label']
+        sn = VGS['styles']['notch']        
+
+        s_tabs = {'fc': sfc, 'arg': sa, 'nch': sn, 'fcnp': sfc['name_padding'],
+                  'fccs': sfc['corner_size'], 'argpd': sa['padding'],
+                  'argcs': sa['corner_size'], 'vfsz': sn['vf_size'],
+                  'iosz': sn['io_size']}
+                  
+        for name, wg in self.ui.__dict__.items():
+            suffix = name[name.find('_')+1:]
             tab_prefix = suffix[:suffix.find('_')]
-            style_attr = suffix[suffix.find('_')+1:]
-##            print('Testing %s' % k)
-
-            if (not hasattr(sa, style_attr) and not hasattr(sn, style_attr) \
-                and not hasattr(sfc, style_attr)):
-                continue
-            elif isinstance(wg, (QSpinBox, QComboBox, QSlider)):
-                self._setupSignal(wg, s_tabs[tab_prefix], style_attr)
+            attr = suffix[suffix.find('_')+1:]
+            
+            if isinstance(wg, (QSpinBox, QComboBox, QSlider)):
+                self._setupSignal(wg, s_tabs[tab_prefix], attr)
             elif isinstance(wg, QFrame) and not isinstance(wg, QLabel):
                 # those QFrame are for color selection
-                self._setupFrameClick(wg, s_tabs[tab_prefix], style_attr)
-
-        self.ui.slider_vf_notch_x0.setValue(sn.vf_notch_x0)
-        self.ui.slider_vf_notch_x0.valueChanged[int].connect(
-            lambda: self._updateStyle(sn, 'vf_notch_x0',
-                    self.ui.slider_vf_notch_x0.value()))
-                    
-
-    def _strToFieldInfo(self, str_list):
-        return [ArgInfo(x, 'int') for x in str_list]
+                self._setupFrameClick(wg, s_tabs[tab_prefix], attr)                  
 
     def _updateFunctionArgs(self, text):
-        self.args = []
+        self.args, text = [], str(text)
         if len(text.strip()) != 0:
             for x in [x.strip() for x in text.split(',')]:
-                self.args.append({'name': x, 'type': 'int'})
+                self.args.append({'name': x, 'type': 'int', 'restriction': None})
         self.block_function_call.updateDefinition(args=self.args)
 
     def _updateStyle(self, style, attr, value):
-        setattr(style, attr, value)
+        style[attr] = value
         self.block_function_call.setupArgLabels()
         self.block_function_call.updateMetrics()
-            
 
     def _setupSignal(self, sender, style, attr):
         ''' (QSpinBox/QComboBox/QSlider, str) -> NoneType
@@ -416,22 +397,31 @@ class WinCustomizeFunctionCall(QMainWindow):
         Configures on the sender widget the current value of 'attr' in 'style',
         and also setup its suitable signal to customization changes.
         '''
+        if attr not in style:
+            return
+            
         if isinstance(sender, QSpinBox):
-            sender.setValue(getattr(style, attr, 0))
+            sender.setValue(style.get(attr, 0))
             sender.valueChanged[int].connect(
                 lambda: self._updateStyle(style, attr, sender.value()))
 
         elif isinstance(sender, QComboBox):
-            sender.setCurrentIndex(sender.findText(getattr(style, attr, '')))
+            sender.setCurrentIndex(sender.findText(style.get(attr, '')))
             sender.currentIndexChanged[int].connect(
                 lambda: self._updateStyle(style, attr,
                                            str(sender.currentText())))
 
         elif isinstance(sender, QSlider):
-            sender.setValue(getattr(style, attr, 0)*100)
-            sender.valueChanged[int].connect(
-                lambda: self._updateStyle(style, attr,
-                                           float(sender.value()/100)))
+            if attr == 'vf_x0':
+                sender.setValue(style.get(attr, 0))
+                sender.valueChanged[int].connect(
+                    lambda: self._updateStyle(style, attr,
+                                              float(sender.value())))
+            else:
+                sender.setValue(style.get(attr, 0)*100)
+                sender.valueChanged[int].connect(
+                    lambda: self._updateStyle(style, attr,
+                                              float(sender.value()/100)))
 
     def _setupFrameClick(self, frame, style, attr):
         ''' (QFrame, str) -> NoneType
@@ -441,7 +431,7 @@ class WinCustomizeFunctionCall(QMainWindow):
         a color dialog.
         '''
         palette = frame.palette()
-        current_color = QColor(getattr(style, attr, 'white'))
+        current_color = QColor(style.get(attr, 'white'))
         palette.setColor(QPalette.Background, current_color)
         frame.setPalette(palette)
         frame.mousePressEvent = \
