@@ -1,0 +1,353 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>blocks Package &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="_static/cloud.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="index.html" />
+    <link rel="up" title="gx Package" href="visuino.gx.html" />
+    <link rel="next" title="utils Package" href="visuino.utils.html" />
+    <link rel="prev" title="gx.shapes Module" href="visuino.gx.shapes.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.utils.html" title="utils Package"
+             accesskey="N">next</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.shapes.html" title="gx.shapes Module"
+             accesskey="P">previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" >visuino</a> &raquo;</li>
+          <li><a href="visuino.html" >visuino Package</a> &raquo;</li>
+          <li><a href="visuino.gx.html" accesskey="U">gx Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="blocks-package">
+<h1>blocks Package<a class="headerlink" href="#blocks-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">blocks</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-visuino.gx.blocks"></span><span class="target" id="module-visuino.gx.blocks.arg_label"></span></div>
+<div class="section" id="gxarglabel-class">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">GxArgLabel</span></tt> Class<a class="headerlink" href="#gxarglabel-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="visuino.gx.blocks.arg_label.GxArgLabel">
+<em class="property">class </em><tt class="descclassname">visuino.gx.blocks.arg_label.</tt><tt class="descname">GxArgLabel</tt><big>(</big><em>arg_info</em>, <em>scene=None</em>, <em>parent=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/arg_label.html#GxArgLabel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.arg_label.GxArgLabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">visuino.gx.connections.GxPluggableBlock</span></tt></p>
+<p>Shape that represents argument names to be used on function call blocks.
+It has a female IO notch on the right and resizes itself according to the 
+plugged male IO block.</p>
+<dl class="function">
+<dt id="visuino.gx.blocks.arg_label.GxArgLabel.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>self</em>, <em>arg_info</em>, <em>scene=None</em>, <em>parent=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/arg_label.html#GxArgLabel.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.arg_label.GxArgLabel.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>(dict, GxSceneBlocks, GxBlock, <a href="#id2"><span class="problematic" id="id3">**</span></a>)</p>
+<dl class="docutils">
+<dt>kwargs:</dt>
+<dd>&#64; fixed_width: number &lt;None&gt;
+&#64; update_parent: True &lt;False&gt;</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.arg_label.GxArgLabel.setFixedWidth">
+<tt class="descname">setFixedWidth</tt><big>(</big><em>self</em>, <em>width</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/arg_label.html#GxArgLabel.setFixedWidth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.arg_label.GxArgLabel.setFixedWidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>(number) -&gt; NoneType</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.arg_label.GxArgLabel.paint">
+<tt class="descname">paint</tt><big>(</big><em>self</em>, <em>painter</em>, <em>option=None</em>, <em>widget=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/arg_label.html#GxArgLabel.paint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.arg_label.GxArgLabel.paint" title="Permalink to this definition">¶</a></dt>
+<dd><p>QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
+QWidget widget=None) -&gt; NoneType</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.arg_label.GxArgLabel.updateMetrics">
+<tt class="descname">updateMetrics</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/arg_label.html#GxArgLabel.updateMetrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.arg_label.GxArgLabel.updateMetrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>() -&gt; NoneType</p>
+<p>Recreates its border path based on the current styles.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.arg_label.GxArgLabel.updateElement">
+<tt class="descname">updateElement</tt><big>(</big><em>self</em>, <em>new_element</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/arg_label.html#GxArgLabel.updateElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.arg_label.GxArgLabel.updateElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>(dict)</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-visuino.gx.blocks.do_while">
+<span id="do-while-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">do_while</span></tt> Module<a class="headerlink" href="#module-visuino.gx.blocks.do_while" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="visuino.gx.blocks.do_while.GxBlockLoopDoWhile">
+<em class="property">class </em><tt class="descclassname">visuino.gx.blocks.do_while.</tt><tt class="descname">GxBlockLoopDoWhile</tt><big>(</big><em>scene</em>, <em>parent=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/do_while.html#GxBlockLoopDoWhile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.do_while.GxBlockLoopDoWhile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">visuino.gx.connections.GxPluggableBlock</span></tt></p>
+<p>Class that implements the Do While Loop, and is the basis for any loop block.</p>
+<p>Do {Code}    
+While (Condition)</p>
+<p>The Code contains other concatenated blocks, the code to be looped.</p>
+<p>The Condition is a GxFunctionLabel containing a logical condition. Testing
+this condition will be made by the compiler.</p>
+<dl class="function">
+<dt id="visuino.gx.blocks.do_while.GxBlockLoopDoWhile.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>self</em>, <em>scene</em>, <em>parent=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/do_while.html#GxBlockLoopDoWhile.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.do_while.GxBlockLoopDoWhile.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.do_while.GxBlockLoopDoWhile.paint">
+<tt class="descname">paint</tt><big>(</big><em>self</em>, <em>painter</em>, <em>option=None</em>, <em>widget=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/do_while.html#GxBlockLoopDoWhile.paint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.do_while.GxBlockLoopDoWhile.paint" title="Permalink to this definition">¶</a></dt>
+<dd><p>QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
+QWidget widget=None) -&gt; NoneType</p>
+<p>TO BE REIMPLEMENTED</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.do_while.main">
+<tt class="descclassname">visuino.gx.blocks.do_while.</tt><tt class="descname">main</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/do_while.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.do_while.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.do_while.bin_">
+<tt class="descclassname">visuino.gx.blocks.do_while.</tt><tt class="descname">bin_</tt><big>(</big><em>QTextStream</em><big>)</big> &rarr; QTextStream<a class="headerlink" href="#visuino.gx.blocks.do_while.bin_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.do_while.hex_">
+<tt class="descclassname">visuino.gx.blocks.do_while.</tt><tt class="descname">hex_</tt><big>(</big><em>QTextStream</em><big>)</big> &rarr; QTextStream<a class="headerlink" href="#visuino.gx.blocks.do_while.hex_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.do_while.oct_">
+<tt class="descclassname">visuino.gx.blocks.do_while.</tt><tt class="descname">oct_</tt><big>(</big><em>QTextStream</em><big>)</big> &rarr; QTextStream<a class="headerlink" href="#visuino.gx.blocks.do_while.oct_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="expression-module">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">expression</span></tt> Module<a class="headerlink" href="#expression-module" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-visuino.gx.blocks.expression"></span></div>
+<div class="section" id="module-visuino.gx.blocks.function_call">
+<span id="function-call-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">function_call</span></tt> Module<a class="headerlink" href="#module-visuino.gx.blocks.function_call" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall">
+<em class="property">class </em><tt class="descclassname">visuino.gx.blocks.function_call.</tt><tt class="descname">GxBlockFunctionCall</tt><big>(</big><em>definition</em>, <em>scene</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/function_call.html#GxBlockFunctionCall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">visuino.gx.connections.GxPluggableBlock</span></tt></p>
+<p>Block that represents the function call syntax on imperative languages.
+For instance, a funcion call in C or even in Python given by:</p>
+<blockquote>
+<div>function_name(arg1, arg2, ..., argN)</div></blockquote>
+<p>On this block, each argument is given by an GxArgLabel object and the 
+function return (optional) is indicated signaled by a male IO connector 
+on the left side.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd><p class="first">_def: FunctionDefiniton. Saves all information about the function.</p>
+<dl class="last docutils">
+<dt>_name_rect: QRectF. Rectangle in which the name text will be drawn.</dt>
+<dd>Gets updated via updateMetrics(), using Style attributes.</dd>
+<dt>_args_labels: list of GxArgLabel. Saves reference for each one of the</dt>
+<dd>argument label object.</dd>
+<dt>_args_height: number. Total height of the GxArgLabel objects in</dt>
+<dd>self._args_labels, including the spacing between them.
+Gets updated via updateMetrics().</dd>
+</dl>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall.MSG_ERR_TYPE_ARGS">
+<tt class="descname">MSG_ERR_TYPE_ARGS</tt><em class="property"> = &quot;On GxBlockFunctionCall.__init__(), parameter 'args' must be a tuple/list of &lt;class 'FieldInfo'&gt;.&quot;</em><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall.MSG_ERR_TYPE_ARGS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall.MSG_ERR_NOT_FIELD_INFO">
+<tt class="descname">MSG_ERR_NOT_FIELD_INFO</tt><em class="property"> = &quot;On GxBlockFunctionCall.__init__(), parameter 'args', invalid value in position %d. Expected &lt;class 'FieldInfo'&gt;, but was given %s.&quot;</em><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall.MSG_ERR_NOT_FIELD_INFO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>self</em>, <em>definition</em>, <em>scene</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/function_call.html#GxBlockFunctionCall.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>(dict, GxSceneBlocks, QGraphicsItem)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall.args_labels">
+<tt class="descname">args_labels</tt><a class="reference internal" href="_modules/visuino/gx/blocks/function_call.html#GxBlockFunctionCall.args_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall.args_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall.definition">
+<tt class="descname">definition</tt><a class="reference internal" href="_modules/visuino/gx/blocks/function_call.html#GxBlockFunctionCall.definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall.definition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall.getBorderWidth">
+<tt class="descname">getBorderWidth</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/function_call.html#GxBlockFunctionCall.getBorderWidth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall.getBorderWidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>() -&gt; int</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall.cloneMe">
+<tt class="descname">cloneMe</tt><big>(</big><em>self</em>, <em>scene</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/function_call.html#GxBlockFunctionCall.cloneMe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall.cloneMe" title="Permalink to this definition">¶</a></dt>
+<dd><p>(GxSceneBlocks) -&gt; GxBlockFunctionCall</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall.paint">
+<tt class="descname">paint</tt><big>(</big><em>self</em>, <em>painter</em>, <em>option=None</em>, <em>widget=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/function_call.html#GxBlockFunctionCall.paint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall.paint" title="Permalink to this definition">¶</a></dt>
+<dd><p>QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,
+QWidget widget=None) -&gt; NoneType</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall.setupArgLabels">
+<tt class="descname">setupArgLabels</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/function_call.html#GxBlockFunctionCall.setupArgLabels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall.setupArgLabels" title="Permalink to this definition">¶</a></dt>
+<dd><p>() -&gt; NoneType</p>
+<p>Should be called whenever self._args changes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall.updateMetrics">
+<tt class="descname">updateMetrics</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/function_call.html#GxBlockFunctionCall.updateMetrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall.updateMetrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>() -&gt; NoneType</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.blocks.function_call.GxBlockFunctionCall.updateDefinition">
+<tt class="descname">updateDefinition</tt><big>(</big><em>self</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/blocks/function_call.html#GxBlockFunctionCall.updateDefinition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.blocks.function_call.GxBlockFunctionCall.updateDefinition" title="Permalink to this definition">¶</a></dt>
+<dd><p>(kwargs) -&gt; NoneType</p>
+<p>Set its arguments information, and also update the graphics.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <div class="sphinxlocaltoc">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">blocks Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">blocks</span></tt> Package</a></li>
+<li><a class="reference internal" href="#gxarglabel-class"><tt class="docutils literal"><span class="pre">GxArgLabel</span></tt> Class</a></li>
+<li><a class="reference internal" href="#module-visuino.gx.blocks.do_while"><tt class="docutils literal"><span class="pre">do_while</span></tt> Module</a></li>
+<li><a class="reference internal" href="#expression-module"><tt class="docutils literal"><span class="pre">expression</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-visuino.gx.blocks.function_call"><tt class="docutils literal"><span class="pre">function_call</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="visuino.gx.shapes.html"
+                        title="previous chapter"><cite>gx.shapes</cite> Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="visuino.utils.html"
+                        title="next chapter">utils Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/visuino.gx.blocks.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.utils.html" title="utils Package"
+             >next</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.shapes.html" title="gx.shapes Module"
+             >previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" >visuino</a> &raquo;</li>
+          <li><a href="visuino.html" >visuino Package</a> &raquo;</li>
+          <li><a href="visuino.gx.html" >gx Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

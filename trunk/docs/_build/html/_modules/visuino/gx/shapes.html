@@ -1,0 +1,889 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>visuino.gx.shapes &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../../_static/cloud.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for visuino.gx.shapes</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="c"># Author:      Nelso G. Jost (nelsojost@gmail.com)</span>
+<span class="c">#</span>
+<span class="c">#              This file is part of VISUINO project - Copyright (C) 2013</span>
+<span class="c">#</span>
+<span class="c"># Licence:     GNU GPL. Its simple: use and modify as you please, and redis-</span>
+<span class="c">#              tribute ONLY as 100% free and keeping the credits.</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides ``QPainterPath`` based classes with configurable shapes</span>
+<span class="sd">that can be easily connected to another existing path. </span>
+
+<span class="sd">The blocks on Visuino are meant to be fully customizable, which means that</span>
+<span class="sd">values such as corner/notch sizes (width and lenght), shapes, etc, will be</span>
+<span class="sd">available to the end user through global configurations - i.e., changes will</span>
+<span class="sd">apply to all blocks on each category.</span>
+
+<span class="sd">This module can also be executed on his own for testing all variations of</span>
+<span class="sd">attributes by using a simple GUI.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;../../&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">PyQt4.QtGui</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt4.QtCore</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">visuino.gx.bases</span> <span class="kn">import</span> <span class="n">GxSceneBlocks</span><span class="p">,</span> <span class="n">GxView</span>
+<span class="kn">from</span> <span class="nn">visuino.gx.utils</span> <span class="kn">import</span> <span class="n">GxPainterPath</span>
+<span class="kn">from</span> <span class="nn">visuino.utils</span> <span class="kn">import</span> <span class="n">vlarg</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;CornerPath&#39;</span><span class="p">,</span> <span class="s">&#39;NotchPath&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="CornerPath"><a class="viewcode-back" href="../../../visuino.gx.shapes.html#visuino.gx.shapes.CornerPath">[docs]</a><span class="k">class</span> <span class="nc">CornerPath</span><span class="p">(</span><span class="n">GxPainterPath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;    </span>
+<span class="sd">    Path with the shape of a corner to be connected with other paths.</span>
+
+<span class="sd">    It has the following available shapes (``self.SHAPES``):</span>
+<span class="sd">        </span>
+<span class="sd">        * ``&#39;trig&#39;``: inclinated line (diagonal of the bounding rectangle);</span>
+<span class="sd">        * ``&#39;arc&#39;``: circular - can be used to create rounded rectangles;</span>
+<span class="sd">        * ``&#39;rect&#39;``: regular rectangular corner;</span>
+<span class="sd">        </span>
+<span class="sd">    For each one of those there is 4 possible places (see ``self.PLACES``).</span>
+<span class="sd">    Here we have an example of some ``&#39;top-right&#39;`` corner of ``&#39;trig&#39;`` shape::</span>
+
+<span class="sd">        -------------#\. . . .</span>
+<span class="sd">                     . \     .</span>
+<span class="sd">                     .  \    .</span>
+<span class="sd">                     .   \   .</span>
+<span class="sd">                     .    \  .</span>
+<span class="sd">                     .     \ .</span>
+<span class="sd">                     .      \ </span>
+<span class="sd">                     . . . . @</span>
+<span class="sd">                             |</span>
+
+<span class="sd">    Considering clockwise drawing, ``#`` would be the starting point and</span>
+<span class="sd">    ``@``, the ending (and vice-versa for counterclockwise drawing).</span>
+<span class="sd">    PS: The dotted lines indicates the bounding rectangle for the corner.</span>
+
+<span class="sd">    The easiest way to go is using the ``connect()`` static method.    </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">VALID_PLACES</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;bottom-left&#39;</span><span class="p">,</span> <span class="s">&#39;bottom-right&#39;</span><span class="p">,</span> <span class="s">&#39;top-left&#39;</span><span class="p">,</span> <span class="s">&#39;top-right&#39;</span><span class="p">)</span>
+    <span class="n">VALID_SHAPES</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;trig&#39;</span><span class="p">,</span> <span class="s">&#39;arc&#39;</span><span class="p">,</span> <span class="s">&#39;rect&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CornerPath.__init__"><a class="viewcode-back" href="../../../visuino.gx.shapes.html#visuino.gx.shapes.CornerPath.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">rect_size</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">place</span><span class="p">,</span> <span class="n">clockwise</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;        </span>
+<span class="sd">        :param start_point: ``QPointF``</span>
+<span class="sd">            Point from where this path will begin to draw.</span>
+<span class="sd">        :param rect_size: ``QSizeF``</span>
+<span class="sd">            Size of the bounding rectangle of the corner area.</span>
+<span class="sd">            This is used to calculate the final point of the corner path.</span>
+<span class="sd">        :param shape: ``str`` in ``self.VALID_SHAPES``</span>
+<span class="sd">            Indicates the appearence of the corner path.</span>
+<span class="sd">        :param place: ``str`` in ``self.VALID_PLACES``</span>
+<span class="sd">            Indicates what kind of corner this will be on the final picture.</span>
+<span class="sd">        :param clockwise: ``bool``</span>
+<span class="sd">            Direction of the drawing. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">W</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="n">rect_size</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">rect_size</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+
+        <span class="n">GxPainterPath</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_point</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s">&#39;trig&#39;</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">clockwise</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">W</span><span class="p">,</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">W</span><span class="p">,</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="s">&#39;arc&#39;</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">clockwise</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="o">-</span><span class="mi">270</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">270</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="s">&#39;rect&#39;</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">clockwise</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="n">W</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="n">H</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="n">W</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="n">W</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="n">W</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="n">W</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="n">H</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="n">W</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;bottom-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="n">W</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;top-right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="n">W</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="CornerPath.connect"><a class="viewcode-back" href="../../../visuino.gx.shapes.html#visuino.gx.shapes.CornerPath.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">rect_size</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">place</span><span class="p">,</span> <span class="n">clockwise</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;        </span>
+<span class="sd">        This method provides a nice and clean way of connecting a corner</span>
+<span class="sd">        path to another path. Here is some usage example::</span>
+<span class="sd">            </span>
+<span class="sd">            &gt;&gt;&gt; path = QPainterPath(QPointF(0, 0))</span>
+<span class="sd">            &gt;&gt;&gt; path.lineTo(50, 0)</span>
+<span class="sd">            &gt;&gt;&gt; CornerPath.connect(path, QSizeF(50, 50), &#39;trig&#39;, &#39;top-right&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; print(path.currenPosition())</span>
+<span class="sd">            QPointF(100.0, 50.0)</span>
+<span class="sd">        </span>
+<span class="sd">        :param path: ``QPainterPath``</span>
+<span class="sd">            Path on which the corner will be connected. The current position</span>
+<span class="sd">            will be used as the starting point for the corner path.</span>
+<span class="sd">        :param rect_size: ``QSizeF``</span>
+<span class="sd">            Size of the bounding rectangle of the corner area.</span>
+<span class="sd">            This is used to calculate the final point of the corner path.</span>
+<span class="sd">        :param shape: ``str`` in `self.VALID_SHAPES`</span>
+<span class="sd">            Indicates the appearence of the corner path.</span>
+<span class="sd">        :param place: ``str`` in ``self.VALID_PLACES``</span>
+<span class="sd">            Indicates what kind of corner this will be on the final picture.</span>
+<span class="sd">        :param clockwise: ``bool``</span>
+<span class="sd">            Direction of the drawing. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">connectPath</span><span class="p">(</span><span class="n">CornerPath</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">currentPosition</span><span class="p">(),</span> <span class="n">rect_size</span><span class="p">,</span>
+                                    <span class="n">shape</span><span class="p">,</span> <span class="n">place</span><span class="p">,</span> <span class="n">clockwise</span><span class="p">))</span>
+
+</div></div>
+<div class="viewcode-block" id="NotchPath"><a class="viewcode-back" href="../../../visuino.gx.shapes.html#visuino.gx.shapes.NotchPath">[docs]</a><span class="k">class</span> <span class="nc">NotchPath</span><span class="p">(</span><span class="n">GxPainterPath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Path with the shape of a notch to be used as &quot;puzzle-like&quot; connectors.</span>
+
+<span class="sd">    The available shapes are:</span>
+<span class="sd">        </span>
+<span class="sd">        * ``&#39;trig/%f&#39;``: triangle or trapezium form;</span>
+<span class="sd">        * ``&#39;arc/%f&#39;``: circular corners;</span>
+
+<span class="sd">    The ``/%f`` part is optional on both cases, where ``%f`` must be a real </span>
+<span class="sd">    number between ``0.0`` (default) and ``1.0``. It determines the lenght of </span>
+<span class="sd">    the trapezium top side, relatively to the lenght of the trapezium base side. </span>
+<span class="sd">    If ``0.0``, results on a triangular form for ``&#39;trig&#39;`` shape, and </span>
+<span class="sd">    on a perfect half-circle/ellipse form for ``&#39;arc&#39;`` shape. If ``1.0``, then</span>
+<span class="sd">    the lenght of the top is the same of the base, resulting on a rectangled</span>
+<span class="sd">    notch for either shape value.</span>
+
+<span class="sd">    With the ``&#39;+i&#39;`` and ``&#39;-i&#39;`` directions (horizontal shapes), it can be </span>
+<span class="sd">    facing ``&#39;up&#39;`` or ``&#39;down&#39;``; similarly, with the ``&#39;+j&#39;`` and ``&#39;-j&#39;``</span>
+<span class="sd">    directions (vertical shapes), it can be facing ``&#39;left&#39;`` or ``&#39;right&#39;``.</span>
+
+<span class="sd">    The following notch was constructed with ``&#39;-j&#39;`` direction and facing </span>
+<span class="sd">    ``&#39;left&#39;``::</span>
+
+<span class="sd">                           |</span>
+<span class="sd">                           @     +</span>
+<span class="sd">                          /      |</span>
+<span class="sd">                        /        |</span>
+<span class="sd">                      /          |</span>
+<span class="sd">               +     |           |</span>
+<span class="sd">               |     |           |</span>
+<span class="sd">          top  |     |           |  base</span>
+<span class="sd">               +     |           |</span>
+<span class="sd">                      \          |</span>
+<span class="sd">                        \        |</span>
+<span class="sd">                          \      |</span>
+<span class="sd">                           #     +</span>
+<span class="sd">                           |</span>
+
+<span class="sd">    Here we have a ``&#39;trig/0.4&#39;`` shape, where ``#`` is the starting point </span>
+<span class="sd">    and ``@`` the ending. The lenght of the top is ``0.4`` times the lenght </span>
+<span class="sd">    of the base.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">VALID_SHAPES</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;trig/</span><span class="si">%f</span><span class="s">&#39;</span><span class="p">,</span> <span class="s">&#39;arc/</span><span class="si">%f</span><span class="s">&#39;</span><span class="p">)</span>
+    <span class="n">VALID_DIRECTIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;+i&#39;</span><span class="p">,</span>   <span class="c"># horizontal to the right</span>
+                        <span class="s">&#39;-i&#39;</span><span class="p">,</span>   <span class="c"># horizontal to the left</span>
+                        <span class="s">&#39;+j&#39;</span><span class="p">,</span>   <span class="c"># vertical down right</span>
+                        <span class="s">&#39;-j&#39;</span><span class="p">)</span>   <span class="c"># vertical up right                        </span>
+    <span class="n">VALID_FACING_SIDES</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;up&#39;</span><span class="p">,</span> <span class="s">&#39;down&#39;</span><span class="p">,</span> <span class="s">&#39;left&#39;</span><span class="p">,</span> <span class="s">&#39;right&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NotchPath.__init__"><a class="viewcode-back" href="../../../visuino.gx.shapes.html#visuino.gx.shapes.NotchPath.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_point</span><span class="p">,</span> <span class="n">rect_size</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">facing</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param start_point: ``QPointF``</span>
+<span class="sd">            Point from where this path will begin to draw.</span>
+<span class="sd">        :param rect_size: ``QSizeF``</span>
+<span class="sd">            Size of the bounding rectangle for this path.</span>
+<span class="sd">        :param shape: ``str`` in ``self.VALID_SHAPES``</span>
+<span class="sd">            Shape of the notch.</span>
+<span class="sd">        :param direction: ``str`` in ``self.VALID_DIRECTIONS``</span>
+<span class="sd">            Indicates the direction of the drawing (using vectorial notation).</span>
+<span class="sd">        :param facing: ``str`` in ``self.VALID_FACING_SIDES``</span>
+<span class="sd">            Indicates to which side the top of the trapezium is going to be</span>
+<span class="sd">            pointing on.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">direction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;j&#39;</span><span class="p">:</span>
+            <span class="n">facing</span> <span class="o">=</span> <span class="n">vlarg</span><span class="p">(</span><span class="s">&#39;facing&#39;</span><span class="p">,</span> <span class="n">facing</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="nb">str</span><span class="p">,</span>
+                                  <span class="p">(</span><span class="s">&#39;left&#39;</span><span class="p">,</span> <span class="s">&#39;right&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">facing</span> <span class="o">=</span> <span class="n">vlarg</span><span class="p">(</span><span class="s">&#39;facing&#39;</span><span class="p">,</span> <span class="n">facing</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="nb">str</span><span class="p">,</span>
+                                  <span class="p">(</span><span class="s">&#39;up&#39;</span><span class="p">,</span> <span class="s">&#39;down&#39;</span><span class="p">))</span>
+
+        <span class="n">valid_shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">VALID_SHAPES</span><span class="p">]</span>
+
+        <span class="n">tf</span> <span class="o">=</span> <span class="mf">0.0</span>    <span class="c"># top factor</span>
+        <span class="n">given_shape</span> <span class="o">=</span> <span class="n">shape</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">vlarg</span><span class="p">(</span><span class="s">&#39;shape&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">shape</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">vlarg</span><span class="p">(</span><span class="s">&#39;shape&#39;</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">valid_shapes</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sp</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">vlarg</span><span class="p">(</span><span class="s">&#39;shape&#39;</span><span class="p">,</span> <span class="n">sp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="nb">str</span><span class="p">,</span> <span class="n">valid_shapes</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">tf</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sp</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">sp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span> <span class="k">else</span> <span class="mf">0.0</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Argument &#39;shape&#39; must have the format&quot;</span> <span class="o">+</span>\
+                    <span class="s">&quot; &#39;</span><span class="si">%%</span><span class="s">s/</span><span class="si">%%</span><span class="s">f&#39;. Was given &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">given_shape</span><span class="p">)</span>
+            <span class="n">tf</span> <span class="o">=</span> <span class="n">vlarg</span><span class="p">(</span><span class="s">&#39;shape&#39;</span><span class="p">,</span> <span class="n">tf</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">range_</span><span class="o">=</span><span class="s">&#39;0.0|1.0&#39;</span><span class="p">)</span>
+
+        <span class="c"># setting up some useful dimensions</span>
+        <span class="n">W</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="n">rect_size</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">rect_size</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">direction</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;j&#39;</span><span class="p">:</span>
+            <span class="n">tl</span> <span class="o">=</span> <span class="n">tf</span> <span class="o">*</span> <span class="n">H</span>             <span class="c"># top lenght   (for vertical)</span>
+            <span class="n">ts</span> <span class="o">=</span> <span class="p">(</span><span class="n">H</span> <span class="o">-</span> <span class="n">tl</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>         <span class="c"># top spacing  (for vertical)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tl</span> <span class="o">=</span> <span class="n">tf</span> <span class="o">*</span> <span class="n">W</span>             <span class="c"># top lenght   (for horizontal)</span>
+            <span class="n">ts</span> <span class="o">=</span> <span class="p">(</span><span class="n">W</span> <span class="o">-</span> <span class="n">tl</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>         <span class="c"># top spacing  (for horizontal)</span>
+
+        <span class="n">QPainterPath</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_point</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s">&#39;trig&#39;</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;+j&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">W</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">W</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;-j&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">W</span><span class="p">,</span> <span class="o">-</span><span class="n">ts</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="o">-</span><span class="n">ts</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="o">-</span><span class="n">ts</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">W</span><span class="p">,</span> <span class="o">-</span><span class="n">ts</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;+i&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;up&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;down&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;-i&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;up&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">ts</span><span class="p">,</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">ts</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;down&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">ts</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="o">-</span><span class="n">ts</span><span class="p">,</span> <span class="o">-</span><span class="n">H</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="s">&#39;arc&#39;</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;+j&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;-j&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;left&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;right&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="o">-</span><span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">W</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;+i&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;up&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">ts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;down&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">ts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;-i&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;up&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">ts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">facing</span> <span class="o">==</span> <span class="s">&#39;down&#39;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="n">tl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">arcTo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">ts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">H</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NotchPath.connect"><a class="viewcode-back" href="../../../visuino.gx.shapes.html#visuino.gx.shapes.NotchPath.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">rect_size</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">facing</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        This method provides a nice and clean way of connecting a notch</span>
+<span class="sd">        path to another path. Here is some usage example::</span>
+<span class="sd">            </span>
+<span class="sd">            &gt;&gt;&gt; path = QPainterPath(QPointF(0, 0))</span>
+<span class="sd">            &gt;&gt;&gt; path.lineTo(50, 0)</span>
+<span class="sd">            &gt;&gt;&gt; NotchPath.connect(path, QSizeF(100, 50), &#39;trig/0.8&#39;, &#39;i+&#39;, &#39;down&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; print(path.currenPosition())</span>
+<span class="sd">            QPointF(150.0, 0.0)</span>
+<span class="sd">        </span>
+<span class="sd">        :param path: ``QPainterPath``</span>
+<span class="sd">            Path on which the notch will be connected. The current position</span>
+<span class="sd">            will be used as the starting point for the notch path.</span>
+<span class="sd">        :param rect_size: ``QSizeF``</span>
+<span class="sd">            Size of the bounding rectangle for this path.</span>
+<span class="sd">        :param shape: ``str`` in ``self.VALID_SHAPES``</span>
+<span class="sd">            Shape of the notch.</span>
+<span class="sd">        :param direction: ``str`` in ``self.VALID_DIRECTIONS``</span>
+<span class="sd">            Indicates the direction of the drawing (using vectorial notation).</span>
+<span class="sd">        :param facing: ``str`` in ``self.VALID_FACING_SIDES``</span>
+<span class="sd">            Indicates to which side the top of the trapezium is going to be</span>
+<span class="sd">            pointing on.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">connectPath</span><span class="p">(</span><span class="n">NotchPath</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">currentPosition</span><span class="p">(),</span>
+                                   <span class="n">rect_size</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">facing</span><span class="p">))</span>
+</div></div>
+<span class="k">class</span> <span class="nc">GxExamplePaths</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Combines all 4 CornerPath positions and the 4 NotchPath directions</span>
+<span class="sd">    on a single path. Can be tweaked, for purposes of demonstration.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">DEFAULT_SIZE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>       <span class="c"># (width, height) of the graphics item</span>
+
+    <span class="n">BORDER_WIDTH</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">BORDER_COLOR</span> <span class="o">=</span> <span class="s">&#39;black&#39;</span>              <span class="c"># for QColor(...)</span>
+    <span class="n">BACKGROUND_COLOR</span> <span class="o">=</span> <span class="s">&#39;lightgreen&#39;</span>     <span class="c"># for QColor(...)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (QGraphicsScene, QGraphicsItem) -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">scene</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCacheMode</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">DeviceCoordinateCache</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_SIZE</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">corner_size</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;tl&#39;</span><span class="p">:</span> <span class="n">QSizeF</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+                            <span class="s">&#39;tr&#39;</span><span class="p">:</span> <span class="n">QSizeF</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+                            <span class="s">&#39;bl&#39;</span><span class="p">:</span> <span class="n">QSizeF</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+                            <span class="s">&#39;br&#39;</span><span class="p">:</span> <span class="n">QSizeF</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">)}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corner_shape</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;tl&#39;</span><span class="p">:</span> <span class="s">&#39;arc&#39;</span><span class="p">,</span> <span class="s">&#39;tr&#39;</span><span class="p">:</span> <span class="s">&#39;arc&#39;</span><span class="p">,</span>
+                             <span class="s">&#39;bl&#39;</span><span class="p">:</span> <span class="s">&#39;arc&#39;</span><span class="p">,</span> <span class="s">&#39;br&#39;</span><span class="p">:</span> <span class="s">&#39;arc&#39;</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">notch_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;top&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;shape&#39;</span><span class="p">:</span> <span class="s">&#39;arc&#39;</span><span class="p">,</span> <span class="s">&#39;base_fc&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+                                   <span class="s">&#39;size&#39;</span><span class="p">:</span> <span class="n">QSizeF</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="s">&#39;facing&#39;</span><span class="p">:</span> <span class="s">&#39;up&#39;</span><span class="p">},</span>
+                           <span class="s">&#39;bottom&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;shape&#39;</span><span class="p">:</span> <span class="s">&#39;arc&#39;</span><span class="p">,</span> <span class="s">&#39;base_fc&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+                                   <span class="s">&#39;size&#39;</span><span class="p">:</span> <span class="n">QSizeF</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="s">&#39;facing&#39;</span><span class="p">:</span> <span class="s">&#39;up&#39;</span><span class="p">},</span>
+                           <span class="s">&#39;left&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;shape&#39;</span><span class="p">:</span> <span class="s">&#39;arc&#39;</span><span class="p">,</span> <span class="s">&#39;base_fc&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+                                   <span class="s">&#39;size&#39;</span><span class="p">:</span> <span class="n">QSizeF</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span> <span class="s">&#39;facing&#39;</span><span class="p">:</span> <span class="s">&#39;right&#39;</span><span class="p">},</span>
+                           <span class="s">&#39;right&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;shape&#39;</span><span class="p">:</span> <span class="s">&#39;arc&#39;</span><span class="p">,</span> <span class="s">&#39;base_fc&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+                                   <span class="s">&#39;size&#39;</span><span class="p">:</span> <span class="n">QSizeF</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span> <span class="s">&#39;facing&#39;</span><span class="p">:</span> <span class="s">&#39;right&#39;</span><span class="p">}}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">border_path</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">150</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">boundingRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; QGraphicsItem.boundingRect() -&gt; QRectF</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">QRectF</span><span class="p">(</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">+</span> <span class="mi">400</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">+</span> <span class="mi">400</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setNotchData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notch</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (str in [&#39;top&#39;, &#39;bottom&#39;, &#39;left&#39;, &#39;right],</span>
+<span class="sd">             str in [&#39;shape&#39;, &#39;base_fc&#39;, &#39;size&#39;, &#39;facing&#39;],</span>
+<span class="sd">             various) -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="n">data</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">getNotch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">notch</span><span class="p">,</span> <span class="n">direction</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (str in [&#39;top&#39;, &#39;bottom&#39;, &#39;left&#39;, &#39;right]) -&gt; NotchPath</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">NotchPath</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">currentPosition</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;size&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;shape&#39;</span><span class="p">]</span> \
+            <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;base_fc&#39;</span><span class="p">]),</span>
+            <span class="n">direction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;facing&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">updateMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; () -&gt; NoneType</span>
+
+<span class="sd">        Update its border path based on its size, by properly connecting</span>
+<span class="sd">        the notch and corner paths.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepareGeometryChange</span><span class="p">()</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">GxPainterPath</span><span class="p">(</span><span class="n">QPointF</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">connectPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getNotch</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;top&#39;</span><span class="p">,</span> <span class="s">&#39;+i&#39;</span><span class="p">))</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">connectPath</span><span class="p">(</span><span class="n">CornerPath</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">currentPosition</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">corner_size</span><span class="p">[</span><span class="s">&#39;tr&#39;</span><span class="p">],</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">corner_shape</span><span class="p">[</span><span class="s">&#39;tr&#39;</span><span class="p">],</span> <span class="s">&#39;top-right&#39;</span><span class="p">))</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">connectPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getNotch</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;right&#39;</span><span class="p">,</span> <span class="s">&#39;+j&#39;</span><span class="p">))</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">connectPath</span><span class="p">(</span><span class="n">CornerPath</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">currentPosition</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">corner_size</span><span class="p">[</span><span class="s">&#39;br&#39;</span><span class="p">],</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">corner_shape</span><span class="p">[</span><span class="s">&#39;br&#39;</span><span class="p">],</span> <span class="s">&#39;bottom-right&#39;</span><span class="p">))</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">100</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">connectPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getNotch</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;bottom&#39;</span><span class="p">,</span> <span class="s">&#39;-i&#39;</span><span class="p">))</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">100</span><span class="p">)</span>
+
+        <span class="n">path</span><span class="o">.</span><span class="n">connectPath</span><span class="p">(</span><span class="n">CornerPath</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">currentPosition</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">corner_size</span><span class="p">[</span><span class="s">&#39;bl&#39;</span><span class="p">],</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">corner_shape</span><span class="p">[</span><span class="s">&#39;bl&#39;</span><span class="p">],</span> <span class="s">&#39;bottom-left&#39;</span><span class="p">))</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">connectPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getNotch</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;left&#39;</span><span class="p">,</span> <span class="s">&#39;-j&#39;</span><span class="p">))</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">connectPath</span><span class="p">(</span><span class="n">CornerPath</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">currentPosition</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">corner_size</span><span class="p">[</span><span class="s">&#39;tl&#39;</span><span class="p">],</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">corner_shape</span><span class="p">[</span><span class="s">&#39;tl&#39;</span><span class="p">],</span> <span class="s">&#39;top-left&#39;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">border_path</span> <span class="o">=</span> <span class="n">path</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; QGraphicsItem.paint(QPainter, QStyleOptionGrpahicsItem,</span>
+<span class="sd">                                QWidget) -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">fillRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(),</span> <span class="n">Qt</span><span class="o">.</span><span class="n">transparent</span><span class="p">)</span>
+        <span class="n">pen</span> <span class="o">=</span> <span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BORDER_COLOR</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">BORDER_WIDTH</span><span class="p">,</span>
+                         <span class="n">Qt</span><span class="o">.</span><span class="n">SolidLine</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">RoundCap</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">RoundJoin</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">pen</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BACKGROUND_COLOR</span><span class="p">))</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">border_path</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">ExampleMainWindow</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+    <span class="n">POSITIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;top&#39;</span><span class="p">,</span> <span class="s">&#39;bottom&#39;</span><span class="p">,</span> <span class="s">&#39;left&#39;</span><span class="p">,</span> <span class="s">&#39;right&#39;</span><span class="p">)</span>
+    <span class="n">DIMENSIONS</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="s">&#39;h&#39;</span><span class="p">)</span>
+    <span class="n">CORNER_PLACES</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;tl&#39;</span><span class="p">,</span> <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="s">&#39;bl&#39;</span><span class="p">,</span> <span class="s">&#39;br&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (QWidget) -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QMainWindow</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="n">GxSceneBlocks</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">setSceneRect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">800</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span> <span class="o">=</span> <span class="n">GxExamplePaths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">initUI</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">initUI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; () -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c"># --- corner settings ----------------------------------------------</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_corners</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_bl_corner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupCornerGroupBox</span><span class="p">(</span><span class="s">&#39; Bottom-Left &#39;</span><span class="p">,</span>
+            <span class="s">&#39;bl&#39;</span><span class="p">,</span> <span class="s">&#39;tl&#39;</span><span class="p">,</span> <span class="s">&#39;br&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_corners</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_br_corner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupCornerGroupBox</span><span class="p">(</span><span class="s">&#39; Bottom-Right &#39;</span><span class="p">,</span>
+            <span class="s">&#39;br&#39;</span><span class="p">,</span> <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="s">&#39;bl&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_corners</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_tl_corner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupCornerGroupBox</span><span class="p">(</span><span class="s">&#39; Top-Left &#39;</span><span class="p">,</span>
+            <span class="s">&#39;tl&#39;</span><span class="p">,</span> <span class="s">&#39;bl&#39;</span><span class="p">,</span> <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_corners</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_tr_corner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupCornerGroupBox</span><span class="p">(</span><span class="s">&#39; Top-Right &#39;</span><span class="p">,</span>
+            <span class="s">&#39;tr&#39;</span><span class="p">,</span> <span class="s">&#39;br&#39;</span><span class="p">,</span> <span class="s">&#39;tl&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_corners</span><span class="p">)</span>
+
+        <span class="n">vl</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">vl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_bl_corner</span><span class="p">)</span>
+        <span class="n">vl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_br_corner</span><span class="p">)</span>
+        <span class="n">vl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_tl_corner</span><span class="p">)</span>
+        <span class="n">vl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_tr_corner</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_corners</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">vl</span><span class="p">)</span>
+
+        <span class="c"># ---- notch settings ----------------------------------------------</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_notch</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_top_notch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupNotchGroupBox</span><span class="p">(</span><span class="s">&#39; Top &#39;</span><span class="p">,</span>
+            <span class="s">&#39;top&#39;</span><span class="p">,</span> <span class="s">&#39;bottom&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_notch</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_bottom_notch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupNotchGroupBox</span><span class="p">(</span><span class="s">&#39; Bottom &#39;</span><span class="p">,</span>
+            <span class="s">&#39;bottom&#39;</span><span class="p">,</span> <span class="s">&#39;top&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_notch</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_left_notch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupNotchGroupBox</span><span class="p">(</span><span class="s">&#39; Left &#39;</span><span class="p">,</span>
+            <span class="s">&#39;left&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;right&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_notch</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_right_notch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupNotchGroupBox</span><span class="p">(</span><span class="s">&#39; Right &#39;</span><span class="p">,</span>
+            <span class="s">&#39;right&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;left&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_notch</span><span class="p">)</span>
+
+        <span class="n">vl</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">vl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_top_notch</span><span class="p">)</span>
+        <span class="n">vl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_bottom_notch</span><span class="p">)</span>
+        <span class="n">vl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_left_notch</span><span class="p">)</span>
+        <span class="n">vl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_gbx_right_notch</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_notch</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">vl</span><span class="p">)</span>
+
+        <span class="c"># --------------------------------------------------------------</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_win</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_view</span> <span class="o">=</span> <span class="n">GxView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_tab_command</span> <span class="o">=</span> <span class="n">QTabWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_tab_command</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_area_corners</span><span class="p">,</span> <span class="s">&#39;Corners&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_tab_command</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_area_notch</span><span class="p">,</span> <span class="s">&#39;Notch&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_tab_command</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+
+        <span class="n">hl</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
+        <span class="n">hl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_view</span><span class="p">)</span>
+        <span class="n">hl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_tab_command</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_win</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">hl</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">550</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_area_win</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setupNotchGroupBox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">notch</span><span class="p">,</span> <span class="n">follow_w</span><span class="p">,</span> <span class="n">follow_h</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (str, str in self.POSITIONS, QWidget) -&gt; QGroupBox</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">groupbox</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+
+        <span class="n">combobox_shape</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">combobox_shape</span><span class="o">.</span><span class="n">addItems</span><span class="p">([</span><span class="s">&#39;trig&#39;</span><span class="p">,</span> <span class="s">&#39;arc&#39;</span><span class="p">])</span>
+        <span class="n">combobox_shape</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">combobox_shape</span><span class="o">.</span><span class="n">findText</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;shape&#39;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">combobox_shape</span><span class="p">,</span> <span class="n">SIGNAL</span><span class="p">(</span><span class="s">&#39;currentIndexChanged(int)&#39;</span><span class="p">),</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">setNotchData</span><span class="p">(</span><span class="n">notch</span><span class="p">,</span> <span class="s">&#39;shape&#39;</span><span class="p">,</span>
+                    <span class="n">combobox_shape</span><span class="o">.</span><span class="n">currentText</span><span class="p">()))</span>
+
+        <span class="n">slider_base</span> <span class="o">=</span> <span class="n">QSlider</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">slider_base</span><span class="o">.</span><span class="n">setOrientation</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">)</span>
+        <span class="n">slider_base</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">slider_base</span><span class="o">.</span><span class="n">setSingleStep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">slider_base</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;base_fc&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">slider_base</span><span class="p">,</span> <span class="n">SIGNAL</span><span class="p">(</span><span class="s">&#39;valueChanged(int)&#39;</span><span class="p">),</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">setNotchData</span><span class="p">(</span><span class="n">notch</span><span class="p">,</span> <span class="s">&#39;base_fc&#39;</span><span class="p">,</span>
+                    <span class="n">slider_base</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">/</span><span class="mi">100</span><span class="p">))</span>
+
+        <span class="n">combobox_facing</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">combobox_facing</span><span class="o">.</span><span class="n">addItems</span><span class="p">([</span><span class="s">&#39;up&#39;</span><span class="p">,</span> <span class="s">&#39;down&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">notch</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;top&#39;</span><span class="p">,</span> <span class="s">&#39;bottom&#39;</span><span class="p">)</span>
+                                                <span class="k">else</span> <span class="p">[</span><span class="s">&#39;left&#39;</span><span class="p">,</span> <span class="s">&#39;right&#39;</span><span class="p">])</span>
+        <span class="n">combobox_facing</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">combobox_facing</span><span class="o">.</span><span class="n">findText</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;facing&#39;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">combobox_facing</span><span class="p">,</span> <span class="n">SIGNAL</span><span class="p">(</span><span class="s">&#39;currentIndexChanged(int)&#39;</span><span class="p">),</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">setNotchData</span><span class="p">(</span><span class="n">notch</span><span class="p">,</span> <span class="s">&#39;facing&#39;</span><span class="p">,</span>
+                    <span class="n">combobox_facing</span><span class="o">.</span><span class="n">currentText</span><span class="p">()))</span>
+
+        <span class="n">slider_width</span> <span class="o">=</span> <span class="n">QSlider</span><span class="p">()</span>
+        <span class="n">slider_width</span><span class="o">.</span><span class="n">setOrientation</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">notch</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;top&#39;</span><span class="p">,</span> <span class="s">&#39;bottom&#39;</span><span class="p">):</span>
+            <span class="n">slider_width</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">slider_width</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">slider_width</span><span class="o">.</span><span class="n">setSingleStep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">slider_width</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">width</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">slider_width</span><span class="p">,</span> <span class="n">SIGNAL</span><span class="p">(</span><span class="s">&#39;valueChanged(int)&#39;</span><span class="p">),</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setNotchSize</span><span class="p">(</span><span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="n">notch</span><span class="p">,</span> <span class="n">follow_w</span><span class="p">,</span>
+                    <span class="n">slider_width</span><span class="p">))</span>
+
+        <span class="n">slider_height</span> <span class="o">=</span> <span class="n">QSlider</span><span class="p">()</span>
+        <span class="n">slider_height</span><span class="o">.</span><span class="n">setOrientation</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">notch</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;top&#39;</span><span class="p">,</span> <span class="s">&#39;bottom&#39;</span><span class="p">):</span>
+            <span class="n">slider_height</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">slider_height</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+        <span class="n">slider_height</span><span class="o">.</span><span class="n">setSingleStep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">slider_height</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">height</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">slider_height</span><span class="p">,</span> <span class="n">SIGNAL</span><span class="p">(</span><span class="s">&#39;valueChanged(int)&#39;</span><span class="p">),</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setNotchSize</span><span class="p">(</span><span class="s">&#39;h&#39;</span><span class="p">,</span> <span class="n">notch</span><span class="p">,</span> <span class="n">follow_h</span><span class="p">,</span>
+                    <span class="n">slider_height</span><span class="p">))</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;wg_slider_</span><span class="si">%s</span><span class="s">_notch_size_w&#39;</span> <span class="o">%</span> <span class="n">notch</span><span class="p">,</span> <span class="n">slider_width</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;wg_slider_</span><span class="si">%s</span><span class="s">_notch_size_h&#39;</span> <span class="o">%</span> <span class="n">notch</span><span class="p">,</span> <span class="n">slider_height</span><span class="p">)</span>
+
+        <span class="n">gl</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">()</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&#39;shape&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">combobox_shape</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&#39;base&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">slider_base</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&#39;facing&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">combobox_facing</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&#39;width&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">slider_width</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&#39;height&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">),</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">slider_height</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">groupbox</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">gl</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">groupbox</span>
+
+    <span class="k">def</span> <span class="nf">setNotchSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">notch</span><span class="p">,</span> <span class="n">follow_notch</span><span class="p">,</span> <span class="n">slider</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (str in self.DIMENSIONS, str in self.DIRECTIONS,</span>
+<span class="sd">             float) -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">slider</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">dimension</span> <span class="o">==</span> <span class="s">&#39;w&#39;</span><span class="p">:</span>
+            <span class="n">new_size</span> <span class="o">=</span> <span class="n">QSizeF</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span>\
+                              <span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_size</span> <span class="o">=</span> <span class="n">QSizeF</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">notch</span><span class="p">][</span><span class="s">&#39;size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_size</span>
+
+        <span class="k">if</span> <span class="n">follow_notch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dimension</span> <span class="o">==</span> <span class="s">&#39;w&#39;</span><span class="p">:</span>
+                <span class="n">new_follow_size</span> <span class="o">=</span> <span class="n">QSizeF</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span>\
+                                  <span class="n">notch_data</span><span class="p">[</span><span class="n">follow_notch</span><span class="p">][</span><span class="s">&#39;size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_follow_size</span> <span class="o">=</span> <span class="n">QSizeF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">notch_data</span> \
+                                         <span class="p">[</span><span class="n">follow_notch</span><span class="p">][</span><span class="s">&#39;size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">value</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">notch_data</span><span class="p">[</span><span class="n">follow_notch</span><span class="p">][</span><span class="s">&#39;size&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">new_follow_size</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;wg_slider_</span><span class="si">%s</span><span class="s">_notch_size_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="n">follow_notch</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">setupCornerGroupBox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">corner</span><span class="p">,</span> <span class="n">follow_w</span><span class="p">,</span> <span class="n">follow_h</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (str, str in self.CORNER_PLACES, QWidget) -&gt; QGroupBox</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">corner</span> <span class="o">=</span> <span class="n">corner</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">follow_w</span><span class="p">,</span> <span class="n">follow_h</span> <span class="o">=</span> <span class="n">follow_w</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">follow_h</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="n">groupbox</span> <span class="o">=</span> <span class="n">QGroupBox</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+
+        <span class="n">combobox</span> <span class="o">=</span> <span class="n">QComboBox</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">combobox</span><span class="o">.</span><span class="n">addItems</span><span class="p">([</span><span class="s">&#39;trig&#39;</span><span class="p">,</span> <span class="s">&#39;arc&#39;</span><span class="p">,</span> <span class="s">&#39;rect&#39;</span><span class="p">])</span>
+        <span class="n">combobox</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">combobox</span><span class="p">,</span> <span class="n">SIGNAL</span><span class="p">(</span><span class="s">&#39;currentIndexChanged(int)&#39;</span><span class="p">),</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setCornerShape</span><span class="p">(</span><span class="n">combobox</span><span class="p">,</span> <span class="n">corner</span><span class="p">))</span>
+
+        <span class="n">slider_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupCornerSlider</span><span class="p">(</span><span class="s">&#39;w&#39;</span><span class="p">,</span> <span class="n">corner</span><span class="p">,</span> <span class="n">follow_w</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="n">slider_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setupCornerSlider</span><span class="p">(</span><span class="s">&#39;h&#39;</span><span class="p">,</span> <span class="n">corner</span><span class="p">,</span> <span class="n">follow_h</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;wg_cbx_</span><span class="si">%s</span><span class="s">_corner_shape&#39;</span> <span class="o">%</span> <span class="n">corner</span><span class="p">,</span> <span class="n">combobox</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;wg_slider_</span><span class="si">%s</span><span class="s">_corner_size_w&#39;</span> <span class="o">%</span> <span class="n">corner</span><span class="p">,</span> <span class="n">slider_width</span><span class="p">)</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;wg_slider_</span><span class="si">%s</span><span class="s">_corner_size_h&#39;</span> <span class="o">%</span> <span class="n">corner</span><span class="p">,</span> <span class="n">slider_height</span><span class="p">)</span>
+
+        <span class="n">gl</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">()</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&#39;shape&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">combobox</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&#39;width&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">slider_width</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="s">&#39;height&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">gl</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">slider_height</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">groupbox</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">gl</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">groupbox</span>
+
+    <span class="k">def</span> <span class="nf">setupCornerSlider</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">corner</span><span class="p">,</span> <span class="n">follow_corner</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (str in self.DIMENSIONS, str in self.CORNER_PLACES,</span>
+<span class="sd">             str in self.CORNER_PLACES, QWidget) -&gt; QSlider</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">slider</span> <span class="o">=</span> <span class="n">QSlider</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">slider</span><span class="o">.</span><span class="n">setOrientation</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Horizontal</span><span class="p">)</span>
+        <span class="n">slider</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">slider</span><span class="o">.</span><span class="n">setSingleStep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">slider</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">slider</span><span class="p">,</span> <span class="n">SIGNAL</span><span class="p">(</span><span class="s">&#39;valueChanged(int)&#39;</span><span class="p">),</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setCornerSize</span><span class="p">(</span><span class="n">slider</span><span class="p">,</span> <span class="n">dimension</span><span class="p">[:],</span> <span class="n">corner</span><span class="p">,</span>
+                                       <span class="n">follow_corner</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">slider</span>
+
+    <span class="k">def</span> <span class="nf">setCornerShape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cbx</span><span class="p">,</span> <span class="n">corner</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (QComboBox, str in self.CORNER_PLACES) -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">corner_shape</span><span class="p">[</span><span class="n">corner</span><span class="p">]</span> <span class="o">=</span> <span class="n">cbx</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">setCornerSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slider</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">corner</span><span class="p">,</span> <span class="n">follow_corner</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (QSlider, str in self.DIMENSIONS, str in self.CORNER_PLACES,</span>
+<span class="sd">             str in self.CORNER_PLACES) -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="n">slider</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">dimension</span> <span class="o">==</span> <span class="s">&#39;w&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">corner_size</span><span class="p">[</span><span class="n">corner</span><span class="p">]</span><span class="o">.</span><span class="n">setWidth</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">corner_size</span><span class="p">[</span><span class="n">follow_corner</span><span class="p">]</span><span class="o">.</span><span class="n">setWidth</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">corner_size</span><span class="p">[</span><span class="n">corner</span><span class="p">]</span><span class="o">.</span><span class="n">setHeight</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">corner_size</span><span class="p">[</span><span class="n">follow_corner</span><span class="p">]</span><span class="o">.</span><span class="n">setHeight</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;wg_slider_</span><span class="si">%s</span><span class="s">_corner_size_</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="n">follow_corner</span><span class="p">,</span> <span class="n">dimension</span><span class="p">))</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gx_example_path</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_AppExampleShapes</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39; () -&gt; NoneType</span>
+
+<span class="sd">    Executes some simple example PyQt application that uses the resources</span>
+<span class="sd">    of this module.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">setStyle</span><span class="p">(</span><span class="n">QStyleFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s">&quot;plastique&quot;</span><span class="p">))</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">ExampleMainWindow</span><span class="p">()</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">_AppExampleShapes</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

@@ -1,0 +1,228 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>visuino.core.lib_defs &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../../_static/cloud.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for visuino.core.lib_defs</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="c"># Purpose:</span>
+<span class="c">#</span>
+<span class="c"># Author:      Nelso G. Jost (nelsojost@gmail.com)</span>
+<span class="c">#</span>
+<span class="c">#              This file is part of VISUINO project - Copyright (C) 2013</span>
+<span class="c">#</span>
+<span class="c"># Licence:     GNU GPL. Its simple: use and modify as you please, and redis-</span>
+<span class="c">#              tribute ONLY as 100% free and keeping the credits.</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>    
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+ 
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;LibraryDefinitions&#39;</span><span class="p">]</span>
+    
+<span class="n">DEFAULT_YAML_LIBS</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Arduino.h:</span>
+<span class="sd">    functions:</span>
+<span class="sd">        - name: &quot;digitalWrite&quot;</span>
+<span class="sd">          palette_section: &quot;Digital I/O&quot;</span>
+<span class="sd">          return_type: &quot;&quot; </span>
+<span class="sd">          args:</span>
+<span class="sd">              - name: &quot;pin&quot;</span>
+<span class="sd">                type: &quot;int&quot;</span>
+<span class="sd">                restriction: &quot;1|13&quot;</span>
+<span class="sd">              - name: &quot;value&quot;</span>
+<span class="sd">                type: &quot;const&quot;</span>
+<span class="sd">                restriction: &quot;HIGH,LOW&quot;</span>
+<span class="sd">                </span>
+<span class="sd">        - name: &quot;digitalRead&quot;</span>
+<span class="sd">          palette_section: &quot;Digital I/O&quot;</span>
+<span class="sd">          return_type: &quot;int&quot;</span>
+<span class="sd">          args:</span>
+<span class="sd">              - name: &quot;pin&quot;</span>
+<span class="sd">                type: &quot;int&quot;</span>
+<span class="sd">                restriction: &quot;1|13&quot;        </span>
+<span class="sd">                </span>
+<span class="sd">        - name: &quot;analogRead&quot;</span>
+<span class="sd">          palette_section: &quot;Analog I/O&quot;</span>
+<span class="sd">          return_type: None</span>
+<span class="sd">          args:</span>
+<span class="sd">              - name: &quot;pin&quot;</span>
+<span class="sd">                type: &quot;int&quot;</span>
+<span class="sd">                restriction: &quot;1|13&quot;</span>
+<span class="sd">                </span>
+<span class="sd">        - name: &quot;analogWrite&quot;</span>
+<span class="sd">          palette_section: &quot;Analog I/O&quot;</span>
+<span class="sd">          return_type: &quot;&quot;</span>
+<span class="sd">          args:</span>
+<span class="sd">              - name: &quot;pin&quot;</span>
+<span class="sd">                type: &quot;int&quot;</span>
+<span class="sd">                restriction: &quot;1|13&quot;</span>
+<span class="sd">              - name: &quot;value&quot;</span>
+<span class="sd">                type: &quot;int&quot;</span>
+<span class="sd">                restriction: &quot;0|255&quot;</span>
+<span class="sd">                </span>
+<span class="sd">        - name: &quot;delay&quot;</span>
+<span class="sd">          palette_section: &quot;Time&quot;</span>
+<span class="sd">          return_type: &quot;&quot;</span>
+<span class="sd">          args:</span>
+<span class="sd">              - name: &quot;milliseconds&quot;</span>
+<span class="sd">                type: &quot;int&quot;</span>
+<span class="sd">                restriction: &quot;0|&quot;</span>
+<span class="sd">                </span>
+<span class="sd">        - name: &quot;millis&quot;</span>
+<span class="sd">          palette_section: &quot;Time&quot;</span>
+<span class="sd">          return_type: &quot;int&quot;</span>
+<span class="sd">          args: null</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LibraryDefinitions"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.lib_defs.LibraryDefinitions">[docs]</a><span class="k">class</span> <span class="nc">LibraryDefinitions</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LibraryDefinitions.__init__"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.lib_defs.LibraryDefinitions.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">dict</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parseYAML</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="LibraryDefinitions.parseYAML"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.lib_defs.LibraryDefinitions.parseYAML">[docs]</a>    <span class="k">def</span> <span class="nf">parseYAML</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">DEFAULT_YAML_LIBS</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">lib_name</span><span class="p">,</span> <span class="n">lib_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>            
+            <span class="n">functions</span><span class="p">,</span> <span class="n">sections</span> <span class="o">=</span> <span class="p">{},</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="s">&#39;functions&#39;</span> <span class="ow">in</span> <span class="n">lib_dict</span><span class="p">:</span>
+                
+                <span class="k">for</span> <span class="n">defn</span> <span class="ow">in</span> <span class="n">lib_dict</span><span class="p">[</span><span class="s">&#39;functions&#39;</span><span class="p">]:</span>
+                    
+                    <span class="n">defn</span><span class="p">[</span><span class="s">&#39;library&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lib_name</span>
+                    
+<span class="c">#                    print(&#39;parsing function %s (%s)...&#39; % (defn[&#39;name&#39;], </span>
+<span class="c">#                          defn[&#39;palette_section&#39;]))</span>
+                    
+                    <span class="n">functions</span><span class="p">[</span><span class="n">defn</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defn</span>
+                    
+                    <span class="k">if</span> <span class="s">&#39;palette_section&#39;</span> <span class="ow">in</span> <span class="n">defn</span><span class="p">:</span>
+                        <span class="n">sec</span> <span class="o">=</span> <span class="n">defn</span><span class="p">[</span><span class="s">&#39;palette_section&#39;</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">sec</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sections</span><span class="p">:</span>
+                            <span class="n">sections</span><span class="p">[</span><span class="n">sec</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>                            
+                        <span class="n">sections</span><span class="p">[</span><span class="n">sec</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">defn</span><span class="p">)</span>                                        
+                    
+            <span class="bp">self</span><span class="p">[</span><span class="n">lib_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;functions&#39;</span><span class="p">:</span> <span class="n">functions</span><span class="p">,</span> 
+                              <span class="s">&#39;palette_sections&#39;</span><span class="p">:</span> <span class="n">sections</span><span class="p">}</span>
+        </div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">libs</span> <span class="o">=</span> <span class="n">LibraryDefinitions</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Sections in &#39;Arduino.h&#39;:&quot;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>    
+    <span class="n">pprint</span><span class="p">(</span><span class="n">libs</span><span class="p">[</span><span class="s">&#39;Arduino.h&#39;</span><span class="p">][</span><span class="s">&#39;palette_sections&#39;</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Functions in &#39;Arduino.h&#39;:&quot;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">libs</span><span class="p">[</span><span class="s">&#39;Arduino.h&#39;</span><span class="p">][</span><span class="s">&#39;functions&#39;</span><span class="p">])</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

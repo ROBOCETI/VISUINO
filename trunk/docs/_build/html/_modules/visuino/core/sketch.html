@@ -1,0 +1,352 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>visuino.core.sketch &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../../_static/cloud.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for visuino.core.sketch</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="c"># Purpose:</span>
+<span class="c">#</span>
+<span class="c"># Author:      Nelso G. Jost (nelsojost@gmail.com)</span>
+<span class="c">#</span>
+<span class="c">#              This file is part of VISUINO project - Copyright (C) 2013</span>
+<span class="c">#</span>
+<span class="c"># Licence:     GNU GPL. Its simple: use and modify as you please, and redis-</span>
+<span class="c">#              tribute ONLY as 100% free and keeping the credits.</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;../../&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">PyQt4.QtGui</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt4.QtCore</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">visuino.gx.blocks</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;SketchBlocks&#39;</span><span class="p">]</span>
+
+<span class="n">SKETCH_YAML_EXAMPLE</span> <span class="o">=</span> \
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">snippets:</span>
+<span class="sd">    1:</span>
+<span class="sd">        pos: [400, 200]</span>
+<span class="sd">        body:</span>
+<span class="sd">            - command: &quot;function_call&quot;</span>
+<span class="sd">              name: &quot;digitalWrite&quot;</span>
+<span class="sd">              library: &quot;Arduino.h&quot;</span>
+<span class="sd">              args:</span>
+<span class="sd">                  - command: &quot;function_call&quot;</span>
+<span class="sd">                    name: &quot;analogRead&quot;</span>
+<span class="sd">                    library: &quot;Arduino.h&quot;</span>
+<span class="sd">                    args:</span>
+<span class="sd">                        - null</span>
+<span class="sd">                  - command: &quot;function_call&quot;</span>
+<span class="sd">                    name: &quot;digitalRead&quot;</span>
+<span class="sd">                    library: &quot;Arduino.h&quot;</span>
+<span class="sd">                    args:</span>
+<span class="sd">                        - command: &quot;function_call&quot;</span>
+<span class="sd">                          name: &quot;digitalRead&quot;</span>
+<span class="sd">                          library: &quot;Arduino.h&quot;</span>
+<span class="sd">                          args: null</span>
+<span class="sd">              </span>
+<span class="sd">            - command: &quot;function_call&quot;</span>
+<span class="sd">              name: &quot;delay&quot;</span>
+<span class="sd">              library: &quot;Arduino.h&quot;</span>
+<span class="sd">              args:</span>
+<span class="sd">                  - null</span>
+<span class="sd">                 </span>
+<span class="sd">            - command: &quot;function_call&quot;</span>
+<span class="sd">              name: &quot;digitalWrite&quot;</span>
+<span class="sd">              library: &quot;Arduino.h&quot;</span>
+<span class="sd">              args:</span>
+<span class="sd">                  - null</span>
+<span class="sd">                  - null</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SketchBlocks"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.sketch.SketchBlocks">[docs]</a><span class="k">class</span> <span class="nc">SketchBlocks</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="SketchBlocks.__init__"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.sketch.SketchBlocks.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">libs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (LibraryDefinitions)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_libs</span> <span class="o">=</span> <span class="n">libs</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_snippet_id_count</span> <span class="o">=</span> <span class="mi">1</span>       
+        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;snippets&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+        
+<span class="c">#        self._root = yaml.load(SKETCH_YAML_EXAMPLE)        </span>
+
+<span class="c">#        self._root = {&#39;snippets&#39;: {1: {&#39;pos&#39;: [400, 200], &#39;body&#39;: [</span>
+<span class="c">#            {&#39;command&#39;: &#39;function_call&#39;, &#39;name&#39;: &#39;digitalWrite&#39;, </span>
+<span class="c">#             &#39;library&#39;: &#39;Arduino.h&#39;, &#39;args&#39;: {}},</span>
+<span class="c">#            {&#39;command&#39;: &#39;function_call&#39;, &#39;name&#39;: &#39;analogWrite&#39;,</span>
+<span class="c">#             &#39;library&#39;: &#39;Arduino.h&#39;, &#39;args&#39;: {}},</span>
+<span class="c">#            {&#39;command&#39;: &#39;function_call&#39;, &#39;name&#39;: &#39;digitalWrite&#39;}</span>
+<span class="c">#            ]}}}</span>
+</div>
+<div class="viewcode-block" id="SketchBlocks.loadSketch"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.sketch.SketchBlocks.loadSketch">[docs]</a>    <span class="k">def</span> <span class="nf">loadSketch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="c">#        print(&#39;#&#39;*40)</span>
+<span class="c">#        print(&#39;The following content was loaded:&#39;)</span>
+<span class="c">#        print(&#39;-&#39;*40)</span>
+<span class="c">#        pprint(yaml.dump(self._root), indent=4)</span>
+<span class="c">#        print(&#39;#&#39;*40)        </span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        </div>
+<div class="viewcode-block" id="SketchBlocks.dumpSketch"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.sketch.SketchBlocks.dumpSketch">[docs]</a>    <span class="k">def</span> <span class="nf">dumpSketch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="c">#        print(&#39;#&#39;*40)</span>
+<span class="c">#        print(&#39;The following content was saved:&#39;)</span>
+<span class="c">#        print(&#39;-&#39;*40)</span>
+<span class="c">#        pprint(yaml.dump(self._root), indent=4)</span>
+<span class="c">#        print(&#39;#&#39;*40)</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        </div>
+<div class="viewcode-block" id="SketchBlocks.addSnippet"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.sketch.SketchBlocks.addSnippet">[docs]</a>    <span class="k">def</span> <span class="nf">addSnippet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first_block</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (GxPluggableBlock) -&gt; int</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">new_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_snippet_id_count</span>
+        <span class="n">first_block</span><span class="o">.</span><span class="n">snippet_id</span> <span class="o">=</span> <span class="n">new_id</span>
+        <span class="n">new_snippet</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;pos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">first_block</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">first_block</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">()],</span> 
+                       <span class="s">&#39;body&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">][</span><span class="n">new_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_snippet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_snippet_id_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateSnippet</span><span class="p">(</span><span class="n">first_block</span><span class="p">)</span>
+        
+<span class="c">#        print(&#39;Created new snippet!&#39;)</span>
+        <span class="k">return</span> <span class="n">new_id</span> 
+        </div>
+<div class="viewcode-block" id="SketchBlocks.drawSnippets"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.sketch.SketchBlocks.drawSnippets">[docs]</a>    <span class="k">def</span> <span class="nf">drawSnippets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">,</span> <span class="n">palette</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">snippet_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+<span class="c">#            print(&#39;Drawing snippet %d...&#39; % snippet_id)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drawSnippet</span><span class="p">(</span><span class="n">snippet_id</span><span class="p">,</span> <span class="n">scene</span><span class="p">,</span> <span class="n">palette</span><span class="p">)</span>
+            </div>
+<div class="viewcode-block" id="SketchBlocks.drawSnippet"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.sketch.SketchBlocks.drawSnippet">[docs]</a>    <span class="k">def</span> <span class="nf">drawSnippet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snippet_id</span><span class="p">,</span> <span class="n">scene</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (int, QGraphicsScene, GxPalette)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">snippet_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">]:</span> 
+            <span class="k">return</span>
+        <span class="n">snippet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">][</span><span class="n">snippet_id</span><span class="p">]</span>
+                
+        <span class="n">parent_vf</span> <span class="o">=</span> <span class="bp">None</span>
+        
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">snippet</span><span class="p">[</span><span class="s">&#39;body&#39;</span><span class="p">]:</span>
+            
+            <span class="n">new_block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drawElementBlock</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">scene</span><span class="p">,</span> <span class="n">palette</span><span class="p">)</span>             
+            
+            <span class="k">if</span> <span class="n">parent_vf</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">new_block</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">snippet</span><span class="p">[</span><span class="s">&#39;pos&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">snippet</span><span class="p">[</span><span class="s">&#39;pos&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">new_block</span><span class="o">.</span><span class="n">sketch</span> <span class="o">=</span> <span class="bp">self</span>
+                <span class="n">new_block</span><span class="o">.</span><span class="n">snippet_id</span> <span class="o">=</span> <span class="n">snippet_id</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_block</span><span class="o">.</span><span class="n">plugVfFemale</span><span class="p">(</span><span class="n">parent_vf</span><span class="p">,</span> <span class="n">update_snippet</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            
+            <span class="n">parent_vf</span> <span class="o">=</span> <span class="n">new_block</span>
+</div>
+<div class="viewcode-block" id="SketchBlocks.updateSnippet"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.sketch.SketchBlocks.updateSnippet">[docs]</a>    <span class="k">def</span> <span class="nf">updateSnippet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first_block</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (GxPluggableBlock)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">s_id</span> <span class="o">=</span> <span class="n">first_block</span><span class="o">.</span><span class="n">snippet_id</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">s_id</span> <span class="ow">or</span> <span class="n">s_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">]:</span>
+            <span class="k">return</span>
+
+        <span class="n">snippet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">][</span><span class="n">s_id</span><span class="p">]</span>        
+        <span class="n">snippet</span><span class="p">[</span><span class="s">&#39;body&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">first_block</span><span class="o">.</span><span class="n">element</span><span class="p">]</span>
+        <span class="n">child_vf</span> <span class="o">=</span> <span class="n">first_block</span><span class="o">.</span><span class="n">child_vf</span>
+        
+        <span class="k">while</span> <span class="n">child_vf</span><span class="p">:</span>
+            <span class="n">snippet</span><span class="p">[</span><span class="s">&#39;body&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child_vf</span><span class="o">.</span><span class="n">element</span><span class="p">)</span>
+            <span class="n">child_vf</span> <span class="o">=</span> <span class="n">child_vf</span><span class="o">.</span><span class="n">child_vf</span>
+            
+<span class="c">#        print(&#39;Updated snippet %d!&#39; % s_id)</span>
+</div>
+<div class="viewcode-block" id="SketchBlocks.updateSnippetPos"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.sketch.SketchBlocks.updateSnippetPos">[docs]</a>    <span class="k">def</span> <span class="nf">updateSnippetPos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snippet_id</span><span class="p">,</span> <span class="n">pos</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (int, QPointF)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">snippet_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">][</span><span class="n">snippet_id</span><span class="p">][</span><span class="s">&#39;pos&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="p">[</span><span class="n">pos</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">pos</span><span class="o">.</span><span class="n">y</span><span class="p">()]</span>
+                </div>
+<div class="viewcode-block" id="SketchBlocks.removeSnippet"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.sketch.SketchBlocks.removeSnippet">[docs]</a>    <span class="k">def</span> <span class="nf">removeSnippet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snippet_id</span><span class="p">,</span> <span class="n">update_id_count</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (int, bool)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">][</span><span class="n">snippet_id</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">update_id_count</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_snippet_id_count</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_snippet_id_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+            </div>
+<div class="viewcode-block" id="SketchBlocks.getSnippetCodeString"><a class="viewcode-back" href="../../../visuino.core.html#visuino.core.sketch.SketchBlocks.getSnippetCodeString">[docs]</a>    <span class="k">def</span> <span class="nf">getSnippetCodeString</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snippet_id</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (int)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">snippet_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">]:</span> 
+            <span class="k">return</span>
+        <span class="n">snippet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">][</span><span class="n">snippet_id</span><span class="p">]</span>
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">snippet</span><span class="p">[</span><span class="s">&#39;body&#39;</span><span class="p">]:</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getElementCodeString</span><span class="p">(</span><span class="n">command</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;;</span><span class="se">\n</span><span class="s">&#39;</span>
+            
+        <span class="k">return</span> <span class="n">result</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        </div>
+    <span class="k">def</span> <span class="nf">_getElementCodeString</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (dict)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">element</span><span class="p">[</span><span class="s">&#39;command&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;function_call&#39;</span><span class="p">:</span>
+        
+            <span class="n">result</span> <span class="o">=</span> <span class="n">element</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&#39;(&#39;</span>
+            
+            <span class="k">if</span> <span class="n">element</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">element</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">arg</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getElementCodeString</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+                    <span class="n">result</span> <span class="o">+=</span> <span class="s">&#39;, &#39;</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">element</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+                    
+            <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="s">&#39;)&#39;</span>
+            
+        <span class="k">return</span> <span class="s">&#39;&#39;</span>
+        
+        
+    <span class="k">def</span> <span class="nf">_drawElementBlock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">scene</span><span class="p">,</span> <span class="n">palette</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (dict, GxSceneBlocks, GxPalette)    </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="n">element</span>
+        <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="s">&#39;command&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;function_call&#39;</span><span class="p">:</span>
+<span class="c">#            print(&#39;Creating function call %s...&#39; % e[&#39;name&#39;])</span>
+            
+            <span class="n">new_block</span> <span class="o">=</span> <span class="n">GxBlockFunctionCall</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_libs</span><span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s">&#39;library&#39;</span><span class="p">]][</span><span class="s">&#39;functions&#39;</span><span class="p">][</span><span class="n">e</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]],</span> <span class="n">scene</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">]):</span>
+                    <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>                        
+                        <span class="n">arg_block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drawElementBlock</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">scene</span><span class="p">,</span> <span class="n">palette</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_setBlockProperties</span><span class="p">(</span><span class="n">arg_block</span><span class="p">,</span> <span class="n">palette</span><span class="p">)</span>
+                        <span class="n">arg_block</span><span class="o">.</span><span class="n">plugIo</span><span class="p">(</span><span class="n">new_block</span><span class="o">.</span><span class="n">args_labels</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>      
+                
+            <span class="bp">self</span><span class="o">.</span><span class="n">_setBlockProperties</span><span class="p">(</span><span class="n">new_block</span><span class="p">,</span> <span class="n">palette</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_block</span>            
+        
+    <span class="k">def</span> <span class="nf">_setBlockProperties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">,</span> <span class="n">palette</span><span class="p">):</span>
+        <span class="n">block</span><span class="o">.</span><span class="n">setCacheMode</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">DeviceCoordinateCache</span><span class="p">)</span>
+        <span class="n">block</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsMovable</span> <span class="o">|</span> <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsSelectable</span><span class="p">)</span>
+        <span class="n">block</span><span class="o">.</span><span class="n">palette_blocks</span> <span class="o">=</span> <span class="n">palette</span>
+        <span class="n">block</span><span class="o">.</span><span class="n">setCursor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">OpenHandCursor</span><span class="p">)</span>        
+        
+        </div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">sketch</span> <span class="o">=</span> <span class="n">SketchBlocks</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+    <span class="n">pprint</span><span class="p">(</span><span class="n">sketch</span><span class="o">.</span><span class="n">_root</span><span class="p">)</span>
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

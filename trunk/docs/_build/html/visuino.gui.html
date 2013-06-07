@@ -1,0 +1,270 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gui Package &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="_static/cloud.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="index.html" />
+    <link rel="up" title="visuino Package" href="visuino.html" />
+    <link rel="next" title="gx Package" href="visuino.gx.html" />
+    <link rel="prev" title="core Package" href="visuino.core.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.html" title="gx Package"
+             accesskey="N">next</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.core.html" title="core Package"
+             accesskey="P">previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" >visuino</a> &raquo;</li>
+          <li><a href="visuino.html" accesskey="U">visuino Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="gui-package">
+<h1>gui Package<a class="headerlink" href="#gui-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">gui</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-visuino.gui"></span></div>
+<div class="section" id="module-visuino.gui.main_window">
+<span id="main-window-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">main_window</span></tt> Module<a class="headerlink" href="#module-visuino.gui.main_window" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="visuino.gui.main_window.MainWindow">
+<em class="property">class </em><tt class="descclassname">visuino.gui.main_window.</tt><tt class="descname">MainWindow</tt><big>(</big><em>app</em>, <em>opengl=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#MainWindow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.MainWindow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QMainWindow</span></tt></p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd>_app: QApplication. The application that lauched this window.
+_opengl: bool. Says if use Open GL rendering or not.</dd>
+</dl>
+<dl class="function">
+<dt id="visuino.gui.main_window.MainWindow.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>self</em>, <em>app</em>, <em>opengl=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#MainWindow.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.MainWindow.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>(QApplication, QWidget, bool) -&gt; NoneType</p>
+<p>The &#8216;app&#8217; just saves the reference for the PyQt application that
+called this class. And, if the &#8216;opengl&#8217; flag is not None, i.e.,
+if it is True or False, this value will be used to override the
+one configurated on the INI settings.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gui.main_window.MainWindow.setupIniSettings">
+<tt class="descname">setupIniSettings</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#MainWindow.setupIniSettings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.MainWindow.setupIniSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>() -&gt; NoneType</p>
+<p>Reads the INI file, if there is one, and configures the application
+according to it. If there is no INI yet, then create one from scratch
+with default values.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gui.main_window.MainWindow.createDefaultIni">
+<tt class="descname">createDefaultIni</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#MainWindow.createDefaultIni"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.MainWindow.createDefaultIni" title="Permalink to this definition">¶</a></dt>
+<dd><p>(QSettings) -&gt; NoneType</p>
+<p>Create the default INI settings.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gui.main_window.MainWindow.updateIniSettings">
+<tt class="descname">updateIniSettings</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#MainWindow.updateIniSettings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.MainWindow.updateIniSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>() -&gt; NoneType</p>
+<p>Update the INI settings file.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gui.main_window.MainWindow.closeEvent">
+<tt class="descname">closeEvent</tt><big>(</big><em>QCloseEvent</em><big>)</big> &rarr; NoneType<a class="reference internal" href="_modules/visuino/gui/main_window.html#MainWindow.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.MainWindow.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the INI settings before closing.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gui.main_window.MainWindow.initUI">
+<tt class="descname">initUI</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#MainWindow.initUI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.MainWindow.initUI" title="Permalink to this definition">¶</a></dt>
+<dd><p>() -&gt; NoneType</p>
+<p>Initializes the User Interface by creating all the child widgets
+and setting its properties.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gui.main_window.MainWindow.actionLoadSketch">
+<tt class="descname">actionLoadSketch</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#MainWindow.actionLoadSketch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.MainWindow.actionLoadSketch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visuino.gui.main_window.MainWindow.actionSaveSketch">
+<tt class="descname">actionSaveSketch</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#MainWindow.actionSaveSketch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.MainWindow.actionSaveSketch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visuino.gui.main_window.MainWindow.actionSetOptionOpenGl">
+<tt class="descname">actionSetOptionOpenGl</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#MainWindow.actionSetOptionOpenGl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.MainWindow.actionSetOptionOpenGl" title="Permalink to this definition">¶</a></dt>
+<dd><p>() -&gt; NoneType</p>
+<p>Trigger of the main menu Option &gt; Open GL. If the new checked value
+is True, will prompt for a confirmation, since the use of Open GL
+rendering may cause problems on some systems.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="visuino.gui.main_window.AppVisuino">
+<em class="property">class </em><tt class="descclassname">visuino.gui.main_window.</tt><tt class="descname">AppVisuino</tt><big>(</big><em>argv</em>, <em>main_cwd=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#AppVisuino"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.AppVisuino" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QApplication</span></tt></p>
+<p>The hole Visuino application is launched by this class. It holds
+the main window and all the proccess starts with the execute() method,
+and ends with it.</p>
+<dl class="docutils">
+<dt>Attributes:</dt>
+<dd>MAIN_CWD: str. Path to the main file of the application.
+INI_NAME: str. Name of the INI configuration file.</dd>
+</dl>
+<dl class="attribute">
+<dt id="visuino.gui.main_window.AppVisuino.INI_NAME">
+<tt class="descname">INI_NAME</tt><em class="property"> = '.visuino.ini'</em><a class="headerlink" href="#visuino.gui.main_window.AppVisuino.INI_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visuino.gui.main_window.AppVisuino.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>self</em>, <em>argv</em>, <em>main_cwd=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#AppVisuino.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.AppVisuino.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>(list of str, str) -&gt; NoneType</p>
+<p>The &#8216;argv&#8217; parameter is used to pass command line arguments, and
+the &#8216;main_cwd&#8217; is stored on the self.MAIN_CWD attribute.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gui.main_window.AppVisuino.execute">
+<tt class="descname">execute</tt><big>(</big><em>self</em>, <em>opengl=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gui/main_window.html#AppVisuino.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gui.main_window.AppVisuino.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>(bool) -&gt; int</p>
+<p>Creates an instance of the PyQt application and show its main
+window (instance of a MainWindow object, which uses the &#8216;opengl&#8217;
+flag).</p>
+<p>Returns the QApplication.exec_() result.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <div class="sphinxlocaltoc">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">gui Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">gui</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-visuino.gui.main_window"><tt class="docutils literal"><span class="pre">main_window</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="visuino.core.html"
+                        title="previous chapter">core Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="visuino.gx.html"
+                        title="next chapter">gx Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/visuino.gui.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.html" title="gx Package"
+             >next</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.core.html" title="core Package"
+             >previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" >visuino</a> &raquo;</li>
+          <li><a href="visuino.html" >visuino Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

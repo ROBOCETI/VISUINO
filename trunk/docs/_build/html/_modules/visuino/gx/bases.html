@@ -1,0 +1,654 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>visuino.gx.bases &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../../_static/cloud.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for visuino.gx.bases</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="c"># Purpose:     Offer re-implementations of the two most basic objects on</span>
+<span class="c">#              the PyQt Graphics View Framework:</span>
+<span class="c">#                  - QGraphicsView ---&gt; GxView</span>
+<span class="c">#                  - QGraphicsScene ---&gt; GxScene.</span>
+<span class="c">#</span>
+<span class="c">#              Convention: All QGraphicsXXXXX related objects will have</span>
+<span class="c">#              their names started by &quot;Gx&quot; on this project.</span>
+<span class="c">#</span>
+<span class="c"># Author:      Nelso G. Jost (nelsojost@gmail.com)</span>
+<span class="c">#</span>
+<span class="c">#              This file is part of VISUINO project - Copyright (C) 2013</span>
+<span class="c">#</span>
+<span class="c"># Licence:     GNU GPL. Its simple: use and modify as you please, and redis-</span>
+<span class="c">#              tribute ONLY as 100% free. Also, remember to keep the credits.</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The Graphics View Framework of PyQt relies on the following three main objects:</span>
+<span class="sd">    </span>
+<span class="sd">    * **QGraphicsItem** : Represents a 2D graphical object. Can be drawn using</span>
+<span class="sd">      primitives from ``QPainter`` or also can load images.</span>
+<span class="sd">    </span>
+<span class="sd">    * **QGraphicsScene** : Container for ``QGraphicsItem`` objects, managing</span>
+<span class="sd">      all the itens positions, rectangles and stacking order.</span>
+<span class="sd">    </span>
+<span class="sd">    * **QGraphicsView** : A ``QWidget`` specialized on draw contents from some</span>
+<span class="sd">      ``QGraphicsScene``.</span>
+<span class="sd">    </span>
+<span class="sd">This module provides re-implementations for each one of those objects, by</span>
+<span class="sd">setting up some attributes project-specific and also adding some new funtionality.</span>
+
+<span class="sd">**Convention**: Classes beginning with ``Gx`` mean that they are somehow related</span>
+<span class="sd">to the Graphics View Framework or represents subclasses of ``QGraphicsItem``,</span>
+<span class="sd">i.e., can be inserted on the scene.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;../../&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">PyQt4.QtGui</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt4.QtCore</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">PyQt4.QtOpenGL</span> <span class="kn">import</span> <span class="n">QGLWidget</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">QGLWidget</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="kn">from</span> <span class="nn">visuino.gx.styles</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GxSceneBlocks&#39;</span><span class="p">,</span> <span class="s">&#39;GxBlock&#39;</span><span class="p">,</span><span class="s">&#39;GxView&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="GxView"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxView">[docs]</a><span class="k">class</span> <span class="nc">GxView</span><span class="p">(</span><span class="n">QGraphicsView</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Holds optimization flags for the project in general and also</span>
+<span class="sd">    offers wheel zooming.</span>
+<span class="sd">    </span>
+<span class="sd">    :ivar wheel_zoom: ``bool`` &lt;False&gt;. </span>
+<span class="sd">        Enable/disable the wheel zooming feature.</span>
+<span class="sd">    :ivar _zoom_level: ``int`` &lt;0&gt;. </span>
+<span class="sd">        Keeps track of how many scalings have occured.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="GxView.__init__"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxView.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">opengl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                 <span class="n">wheel_zoom</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;        </span>
+<span class="sd">        :param scene: ``QGraphicsScene`` &lt;None&gt;.</span>
+<span class="sd">            *QGraphicsView.__init__()*.</span>
+<span class="sd">        :param parent: ``QWidget`` &lt;None&gt;.</span>
+<span class="sd">            *QGraphicsView.__init__()*.</span>
+<span class="sd">        :param opengl: ``bool`` &lt;False&gt;.</span>
+<span class="sd">            Enables use of Open GL rendering through **PyQt4.QtOpenGL.QGLWidget**.</span>
+<span class="sd">        :param wheel_zoom: ``bool`` &lt;False&gt;.</span>
+<span class="sd">            Enables wheel zooming functionality.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QGraphicsView</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wheel_zoom</span> <span class="o">=</span> <span class="n">wheel_zoom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_zoom_level</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">QGLWidget</span> <span class="ow">and</span> <span class="n">opengl</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setViewport</span><span class="p">(</span><span class="n">QGLWidget</span><span class="p">())</span>
+
+<span class="c">##        self.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setRenderHint</span><span class="p">(</span><span class="n">QPainter</span><span class="o">.</span><span class="n">Antialiasing</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setRenderHint</span><span class="p">(</span><span class="n">QPainter</span><span class="o">.</span><span class="n">TextAntialiasing</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCacheMode</span><span class="p">(</span><span class="n">QGraphicsView</span><span class="o">.</span><span class="n">CacheBackground</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setOptimizationFlags</span><span class="p">(</span><span class="n">QGraphicsView</span><span class="o">.</span><span class="n">DontSavePainterState</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setTransformationAnchor</span><span class="p">(</span><span class="n">QGraphicsView</span><span class="o">.</span><span class="n">AnchorUnderMouse</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setResizeAnchor</span><span class="p">(</span><span class="n">QGraphicsView</span><span class="o">.</span><span class="n">AnchorViewCenter</span><span class="p">)</span>
+
+        <span class="c"># rectangle box selection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setDragMode</span><span class="p">(</span><span class="n">QGraphicsView</span><span class="o">.</span><span class="n">RubberBandDrag</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">centerOn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GxView.wheelEvent"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxView.wheelEvent">[docs]</a>    <span class="k">def</span> <span class="nf">wheelEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; *QGraphicsView.wheelEvent(QWheelEvent) -&gt; NoneType*</span>
+<span class="sd">        </span>
+<span class="sd">        Provides the wheel zooming functionality by calling </span>
+<span class="sd">        ``QGraphicsView.scale()`` according to the amount of scrolling.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QGraphicsView</span><span class="o">.</span><span class="n">wheelEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wheel_zoom</span><span class="p">:</span>
+
+            <span class="c">##TODO: smooth zooming and keyboard shortcut zooming</span>
+
+            <span class="n">factor</span> <span class="o">=</span> <span class="mf">1.41</span> <span class="o">**</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">delta</span><span class="p">()</span> <span class="o">/</span> <span class="mf">240.0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">factor</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">factor</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">zoom_level</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">zoom_level</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Zoom level:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">zoom_level</span><span class="p">)</span>
+
+            <span class="c">#self.centerOn(event.x(), event.y())</span>
+
+<span class="c">##    def drawBackground(self, painter, rect):</span>
+<span class="c">##        &#39;&#39;&#39; QGraphicsScene.drawBrackground(QPainter, QRectF) -&gt; NoneType</span>
+<span class="c">##        &#39;&#39;&#39;</span>
+<span class="c">##</span>
+<span class="c">##        painter.setPen(QPen(QColor(203, 203, 203)))</span>
+<span class="c">##        painter.fillRect(rect, QColor(219, 219, 219))</span>
+<span class="c">##</span>
+<span class="c">##        W, H = rect.width(), rect.height()</span>
+<span class="c">##        for i in range(1, int(W), 20):</span>
+<span class="c">##            painter.drawLine(i, 0, i, H)</span>
+<span class="c">##        for j in range(1, int(H), 20):</span>
+<span class="c">##            painter.drawLine(0, j, W, j)</span>
+
+</div></div>
+<div class="viewcode-block" id="GxSceneBlocks"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxSceneBlocks">[docs]</a><span class="k">class</span> <span class="nc">GxSceneBlocks</span><span class="p">(</span><span class="n">QGraphicsScene</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Besides adding the &quot;bring to front&quot; functionality (along with &quot;click to</span>
+<span class="sd">    front&quot;), this class also holds sets of paths used to detect collision </span>
+<span class="sd">    between notches (see ``visuino.gx.connections``).</span>
+
+<span class="sd">    :ivar style: ``visuino.gx.styles.StyleBlocks``.</span>
+<span class="sd">        Holds all the styling settings (for all the blocks).</span>
+<span class="sd">        </span>
+<span class="sd">    :ivar background_grid: ``bool`` &lt;True&gt;.</span>
+<span class="sd">        Enables the drawing of a grid on the background layer of the scene.</span>
+<span class="sd">        </span>
+<span class="sd">    :ivar click_to_front: ``bool`` &lt;True&gt;.</span>
+<span class="sd">        Enables the &quot;click to front&quot; feature, on which the clicked item always        </span>
+<span class="sd">        is brought to the front of the scene.</span>
+<span class="sd">        </span>
+<span class="sd">    :ivar vf_male_colli_paths: ``set`` of ``visuino.gx.connections.GxColliPath``.</span>
+<span class="sd">        Hold paths for detecting collision of moving female -&gt; male VF notches.</span>
+<span class="sd">        </span>
+<span class="sd">    :ivar vf_female_colli_paths: ``set`` of ``visuino.gx.connections.GxColliPath``.</span>
+<span class="sd">        Hold paths for detecting collision of moving male -&gt; female VF notches.</span>
+<span class="sd">        </span>
+<span class="sd">    :ivar io_female_colli_paths: ``set`` of ``visuino.gx.connections.GxColliPath``.</span>
+<span class="sd">        Hold paths for detecting collision of moving male -&gt; female IO notches.        </span>
+<span class="sd">        </span>
+<span class="sd">    :ivar _top_item: ``QGraphicsItem`` &lt;None&gt;.</span>
+<span class="sd">        Holds the last item brought to the front. Therefore, changes with </span>
+<span class="sd">        ``self.bringToFront()``.</span>
+<span class="sd">    </span>
+<span class="sd">    :ivar _top_z: ``float`` &lt;None&gt;.</span>
+<span class="sd">        zValue of the top-most item on the scene. Changes with </span>
+<span class="sd">        ``self.bringToFront()``.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c">#: Increment on zValue for use on ``self.bringToFront()``</span>
+    <span class="n">Z_INCREMENT</span> <span class="o">=</span> <span class="mf">0.0000000001</span>       
+
+<div class="viewcode-block" id="GxSceneBlocks.__init__"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxSceneBlocks.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">background_grid</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param parent: ``QObject``. *QGraphicsScene.__init__()*</span>
+<span class="sd">        :param background_grid: ``bool``.</span>
+<span class="sd">            Enables drawing of a grid on the background layer of the scene.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QGraphicsScene</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">background_grid</span> <span class="o">=</span> <span class="n">background_grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSceneRect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">setBackgroundBrush</span><span class="p">(</span><span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="s">&#39;lightgray&#39;</span><span class="p">)))</span>        
+<span class="c">##        self.setItemIndexMethod(QGraphicsScene.NoIndex)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">style</span> <span class="o">=</span> <span class="n">StyleBlocks</span><span class="p">()</span>
+
+        <span class="c"># if true, perform &quot;self.bringToFront()&quot; on the clicked item</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">click_to_front</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="c"># holds all the collidable items</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vf_male_colli_paths</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vf_female_colli_paths</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io_female_colli_paths</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        
+        <span class="c"># information about the top-most item (changes with &quot;bringToFront&quot;)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_top_item</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_top_z</span> <span class="o">=</span> <span class="mf">0.0</span>     
+        </div>
+<div class="viewcode-block" id="GxSceneBlocks.getTopItem"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxSceneBlocks.getTopItem">[docs]</a>    <span class="k">def</span> <span class="nf">getTopItem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">        :return: ``QGraphicsItem`` - The top-most item on the scene.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_item</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_item</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">items</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="GxSceneBlocks.bringToFront"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxSceneBlocks.bringToFront">[docs]</a>    <span class="k">def</span> <span class="nf">bringToFront</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Make the given item the top-most on the scene by setting properly</span>
+<span class="sd">        a new zValue (if necessary).</span>
+<span class="sd">        </span>
+<span class="sd">        :param item: ``QGraphicsItem``.        </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_item</span><span class="p">:</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">setZValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_top_z</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z_INCREMENT</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_top_z</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">zValue</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_top_item</span> <span class="o">=</span> <span class="n">item</span>        
+</div>
+<div class="viewcode-block" id="GxSceneBlocks.drawBackground"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxSceneBlocks.drawBackground">[docs]</a>    <span class="k">def</span> <span class="nf">drawBackground</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">rect</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; *QGraphicsScene.drawBrackground(QPainter, QRectF) -&gt; NoneType*</span>
+
+<span class="sd">        If ``self.background_grid`` flag is ``True``, then draws a series of </span>
+<span class="sd">        vertical and horizontal paralell lines to form a squared grid.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QGraphicsScene</span><span class="o">.</span><span class="n">drawBackground</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">rect</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">background_grid</span><span class="p">:</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="mi">203</span><span class="p">,</span> <span class="mi">203</span><span class="p">,</span> <span class="mi">203</span><span class="p">)))</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">fillRect</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="n">QColor</span><span class="p">(</span><span class="mi">219</span><span class="p">,</span> <span class="mi">219</span><span class="p">,</span> <span class="mi">219</span><span class="p">))</span>
+
+            <span class="n">W</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sceneRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">sceneRect</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">W</span><span class="p">),</span> <span class="mi">20</span><span class="p">):</span>
+                <span class="n">painter</span><span class="o">.</span><span class="n">drawLine</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">H</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">H</span><span class="p">),</span> <span class="mi">20</span><span class="p">):</span>
+                <span class="n">painter</span><span class="o">.</span><span class="n">drawLine</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GxSceneBlocks.mousePressEvent"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxSceneBlocks.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; *QGraphicsScene.mousePressEvent(QGraphicsSceneMouseEvent) -&gt; NoneType*</span>
+
+<span class="sd">        Appends the &quot;click to front&quot; functionality.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QGraphicsScene</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        
+        <span class="n">grabber</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouseGrabberItem</span><span class="p">()</span>   <span class="c"># item under the mouse</span>
+        <span class="k">if</span> <span class="n">grabber</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">click_to_front</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bringToFront</span><span class="p">(</span><span class="n">grabber</span><span class="p">)</span>    
+
+</div></div>
+<div class="viewcode-block" id="GxBlock"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock">[docs]</a><span class="k">class</span> <span class="nc">GxBlock</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Abstract base class that implements basic attributes and functionality for</span>
+<span class="sd">    any graphical block to be inserted on ``GxSceneBlocks``.</span>
+<span class="sd">    </span>
+<span class="sd">    The virtual method ``paint()`` of ``QGraphicsItem`` base class must be</span>
+<span class="sd">    re-implemented, also with the three following ones:</span>
+<span class="sd">        </span>
+<span class="sd">        * ``getBorderWidth()``;        </span>
+<span class="sd">        * ``updateMetrics()``;        </span>
+<span class="sd">        * ``cloneMe()``;</span>
+<span class="sd">          </span>
+<span class="sd">    No need to re-implement ``QGraphicsItem.boundingRect()``.</span>
+<span class="sd">    </span>
+<span class="sd">    :ivar _width: ``number`` &lt;200&gt;. </span>
+<span class="sd">        Width of the bounding rectangle.</span>
+<span class="sd">        </span>
+<span class="sd">    :ivar _height: ``number`` &lt;100&gt;.</span>
+<span class="sd">        Height of the bounding rectangle.</span>
+<span class="sd">        </span>
+<span class="sd">    :ivar _border_path: ``QPainterPath``.</span>
+<span class="sd">        Path that defines the shape of this item. The default path is a rect</span>
+<span class="sd">        that contains its bounding rectangle.</span>
+<span class="sd">        </span>
+<span class="sd">    :ivar _default_block_cursor: ``QCursor`` &lt;Qt.OpenHandCursor&gt;.</span>
+<span class="sd">        Cursor used when the block is not colliding with the palette.</span>
+<span class="sd">        </span>
+<span class="sd">    :ivar _palette_colliding: ``bool``.</span>
+<span class="sd">        Flag to indicate palette collision. See ````self.checksPaletteCollide()``.</span>
+<span class="sd">    </span>
+<span class="sd">    :ivar palette_blocks: ``visuino.gx.palette.GxPalette`` &lt;None&gt;.</span>
+<span class="sd">        Used to detecting collision with the palette. Should be set only </span>
+<span class="sd">        by the palette itself. See ``self.checksPaletteCollide()``.</span>
+
+<span class="sd">    :ivar new_block: ``bool``.</span>
+<span class="sd">        Tells if this block has just been instantiated by the palette.</span>
+<span class="sd">        See ``self.checksPaletteCollide()``. Should be set only by the palette</span>
+<span class="sd">        itself.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="GxBlock.__init__"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :param scene: ``GxSceneBlocks``.</span>
+<span class="sd">            By convention, in this project all blocks are inserted on the</span>
+<span class="sd">            scene right here, on instantiation.</span>
+<span class="sd">        :param parent: ``GxBlock``.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">scene</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">100</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">QPainterPath</span><span class="p">()</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">addRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_border_path</span> <span class="o">=</span> <span class="n">path</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_palette_colliding</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">palette_blocks</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_block</span> <span class="o">=</span> <span class="bp">False</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_block_cursor</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">OpenHandCursor</span>
+<span class="c">#        self.setCursor(self._default_block_cursor)</span>
+</div>
+<div class="viewcode-block" id="GxBlock._checkPaletteCollide"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock._checkPaletteCollide">[docs]</a>    <span class="k">def</span> <span class="nf">_checkPaletteCollide</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;        </span>
+<span class="sd">        Check if it is colliding with the palette and respond properly</span>
+<span class="sd">        by updating the cursor shape. Designed to be called on the mouse </span>
+<span class="sd">        move event of this item.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">palette_blocks</span><span class="p">:</span>
+            <span class="n">collide</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collidesWithItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">palette_blocks</span><span class="p">)</span> 
+
+            <span class="k">if</span> <span class="n">collide</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_block</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_palette_colliding</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setCursor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">palette_blocks</span><span class="o">.</span><span class="n">cursor_collide</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_palette_colliding</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">collide</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setCursor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_block_cursor</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">new_block</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_palette_colliding</span> <span class="o">=</span> <span class="bp">False</span>
+        </div>
+<div class="viewcode-block" id="GxBlock.boundingRect"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.boundingRect">[docs]</a>    <span class="k">def</span> <span class="nf">boundingRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; *QGraphicsItem.boundingRect() -&gt; QRectF*</span>
+<span class="sd">        </span>
+<span class="sd">        :return: ``QRectF`` - retangle with dimensions (``self._width``, </span>
+<span class="sd">                 ``self._height``).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">QRectF</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GxBlock.shape"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.shape">[docs]</a>    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;        </span>
+<span class="sd">        :return: ``QPainterPath`` - Item delimiting shape.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_border_path</span>
+</div>
+<div class="viewcode-block" id="GxBlock.updateMetrics"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.updateMetrics">[docs]</a>    <span class="k">def</span> <span class="nf">updateMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; *TO BE RE-IMPLEMENTED*</span>
+<span class="sd">        </span>
+<span class="sd">        The purpose of this method should be to update the block dimentions</span>
+<span class="sd">        and also its border path according to its contents.</span>
+<span class="sd">        </span>
+<span class="sd">        Example::</span>
+<span class="sd">        </span>
+<span class="sd">            def updateMetrics(self):</span>
+<span class="sd">                self.prepareGeometryChange()</span>
+<span class="sd">            </span>
+<span class="sd">                self._width, self._height = 200, 100</span>
+<span class="sd">        </span>
+<span class="sd">                path = QPainterPath()</span>
+<span class="sd">                path.addRect(self.boundingRect())</span>
+<span class="sd">                self._border_path = path</span>
+<span class="sd">        </span>
+<span class="sd">                self.update(self.boundingRect())</span>
+<span class="sd">            </span>
+<span class="sd">        &#39;&#39;&#39;</span> 
+        <span class="k">pass</span>        
+</div>
+<div class="viewcode-block" id="GxBlock.cloneMe"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.cloneMe">[docs]</a>    <span class="k">def</span> <span class="nf">cloneMe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; *TO BE RE-IMPLEMENTED*</span>
+<span class="sd">        </span>
+<span class="sd">        Should return an instance of itself, with the very same attribute </span>
+<span class="sd">        values. This method is used mainly ``visuino.gx.palette.GxPalette`` </span>
+<span class="sd">        to instantiate new blocks on the given scene.</span>
+<span class="sd">        </span>
+<span class="sd">        :param scene: ``GxSceneBlocks``.</span>
+<span class="sd">        :return: ``GxBlock`` subclass.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">GxBlock</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="GxBlock.getBorderWidth"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.getBorderWidth">[docs]</a>    <span class="k">def</span> <span class="nf">getBorderWidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; *TO BE RE-IMPLEMENTED*</span>
+<span class="sd">        </span>
+<span class="sd">        Should return the correct border width value for this kind of block.</span>
+<span class="sd">        See ``visuino.settings``.</span>
+<span class="sd">        &#39;&#39;&#39;</span>        
+        <span class="k">return</span> <span class="mi">2</span>
+    </div>
+<div class="viewcode-block" id="GxBlock.getWidth"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.getWidth">[docs]</a>    <span class="k">def</span> <span class="nf">getWidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :return: ``number``. Width of its path bounding rectangle.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_border_path</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="GxBlock.getHeight"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.getHeight">[docs]</a>    <span class="k">def</span> <span class="nf">getHeight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :return: ``number``. Height of its path bounding rectangle.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_border_path</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+        </div>
+<div class="viewcode-block" id="GxBlock.getTopParentItem"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.getTopParentItem">[docs]</a>    <span class="k">def</span> <span class="nf">getTopParentItem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        :return: ``GxBlock`` - The top-most parent item (if no parent, then return ``self``).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parent</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">parent</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="GxBlock.removeFromScene"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.removeFromScene">[docs]</a>    <span class="k">def</span> <span class="nf">removeFromScene</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        This method should be used to remove a ``GxBlock`` from the scene.</span>
+<span class="sd">        First, it calls ``removeFromScene`` on all its childs, because some</span>
+<span class="sd">        of them might be ``visuino.gx.connections.GxColliPath``, which has</span>
+<span class="sd">        its on ``removeFromScene()`` special behavior.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childItems</span><span class="p">():</span>
+            <span class="n">child</span><span class="o">.</span><span class="n">removeFromScene</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                            
+<span class="c">#    def mousePressEvent(self, event):</span>
+<span class="c">#        &#39;&#39;&#39; *QGraphicsItem.mousePressEvent(QGraphicsSceneMouseEvent) -&gt; NoneType*</span>
+<span class="c">#        &#39;&#39;&#39;</span>
+<span class="c">#        QGraphicsItem.mousePressEvent(self, event) </span>
+        </div>
+<div class="viewcode-block" id="GxBlock.mouseMoveEvent"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.mouseMoveEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; *QGraphicsItem.mouseMoveEvent(QGraphicsSceneMouseEvent) -&gt; NoneType*</span>
+<span class="sd">        </span>
+<span class="sd">        Calls ``self._checkPaletteCollide()``.</span>
+<span class="sd">        &#39;&#39;&#39;</span>        
+        <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">mouseMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_checkPaletteCollide</span><span class="p">()</span>        
+</div>
+<div class="viewcode-block" id="GxBlock.mouseReleaseEvent"><a class="viewcode-back" href="../../../visuino.gx.bases.html#visuino.gx.bases.GxBlock.mouseReleaseEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; *QGraphicsItem.mouseReleaseEvent(QGraphicsSceneMouseEvent) -&gt; NoneType*</span>
+<span class="sd">        </span>
+<span class="sd">        If it is colliding with the palette, then remove itself from the scene.</span>
+<span class="sd">        &#39;&#39;&#39;</span>   
+        <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        
+        <span class="c"># this is for the case when de item is grabbed on the mouse by</span>
+        <span class="c"># the palette, and not by some mouse click event (drag and drop)</span>
+        <span class="n">mouse_grabber</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">mouseGrabberItem</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">mouse_grabber</span> <span class="ow">and</span> <span class="n">mouse_grabber</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ungrabMouse</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">palette_blocks</span><span class="p">:</span>
+            <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span> 
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">collidesWithItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">palette_blocks</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">removeFromScene</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">scene</span><span class="o">.</span><span class="n">selectedItems</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">item</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">collidesWithItem</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">palette_blocks</span><span class="p">):</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">removeFromScene</span><span class="p">()</span>                  
+
+
+<span class="c"># ------------------------------------------------------------------------------</span>
+<span class="c"># all the defintions from here are just for demonstration purposes</span>
+</div></div>
+<span class="k">class</span> <span class="nc">GxExampleItem</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Shows how to create a graphics item from scratch.</span>
+
+<span class="sd">    There are two mandatory virtual methods to be re-implemented:</span>
+<span class="sd">        - boundingRect(), which returns the rectangle that defines the</span>
+<span class="sd">          area of the item on the scene.</span>
+<span class="sd">        - paint(), which actually perform the painting operations.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (QGraphicsScene, QGraphicsItem) -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">scene</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bk_color</span> <span class="o">=</span> <span class="n">QColor</span><span class="p">(</span><span class="s">&#39;darkgreen&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">boundingRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; QGraphicsItem.boundingRect() -&gt; QRectF</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">QRectF</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; QGraphicsItem.paint(QPainter, QStyleOptionGrpahicsItem,</span>
+<span class="sd">                                QWidget) -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">fillRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bk_color</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">config_item</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">opengl</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; (QGraphicsItem, tuple/list of 2 int/float, bool) -&gt; NoneType</span>
+
+<span class="sd">    Set the proper flags to the item and also its position.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c"># required for anti-alias on open GL rendering</span>
+    <span class="k">if</span> <span class="n">opengl</span><span class="p">:</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">setCacheMode</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">DeviceCoordinateCache</span><span class="p">)</span>
+
+    <span class="n">item</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsSelectable</span> <span class="o">|</span>
+                  <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsMovable</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pos</span><span class="p">:</span>
+        <span class="n">item</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+
+    <span class="c"># experience shows that QGraphicsView, although QWidget-based, does not</span>
+    <span class="c"># act very well as a window - does not quit the application properly</span>
+    <span class="n">win</span> <span class="o">=</span> <span class="n">QMainWindow</span><span class="p">()</span>
+    <span class="n">win</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>     <span class="c"># screen positon (200, 100)</span>
+
+    <span class="n">scene</span> <span class="o">=</span> <span class="n">GxSceneBlocks</span><span class="p">()</span>   <span class="c"># remember: this one is not a QWidget-based object</span>
+                              <span class="c"># it only acts as an indexing-manager container</span>
+
+    <span class="c"># ---- sample items ---------------------------------------------------</span>
+
+    <span class="n">elli</span> <span class="o">=</span> <span class="n">scene</span><span class="o">.</span><span class="n">addEllipse</span><span class="p">(</span><span class="n">QRectF</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="s">&#39;black&#39;</span><span class="p">)),</span>
+                            <span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="s">&#39;blue&#39;</span><span class="p">)))</span>
+    <span class="n">config_item</span><span class="p">(</span><span class="n">elli</span><span class="p">,</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="n">scene</span><span class="o">.</span><span class="n">addText</span><span class="p">(</span><span class="s">&quot;Hello PyQt world&quot;</span><span class="p">,</span> <span class="n">QFont</span><span class="p">(</span><span class="s">&quot;Comic Sans MS&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+    <span class="n">config_item</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">])</span>
+
+    <span class="n">rect</span> <span class="o">=</span> <span class="n">scene</span><span class="o">.</span><span class="n">addRect</span><span class="p">(</span><span class="n">QRectF</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">250</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="s">&#39;black&#39;</span><span class="p">)),</span>
+                         <span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="s">&#39;red&#39;</span><span class="p">)))</span>
+    <span class="n">config_item</span><span class="p">(</span><span class="n">rect</span><span class="p">)</span>
+
+    <span class="n">example_item</span> <span class="o">=</span> <span class="n">GxExampleItem</span><span class="p">(</span><span class="n">scene</span><span class="p">)</span>
+    <span class="n">config_item</span><span class="p">(</span><span class="n">example_item</span><span class="p">,</span> <span class="p">[</span><span class="mi">420</span><span class="p">,</span> <span class="mi">150</span><span class="p">])</span>
+
+    <span class="c"># ---------------------------------------------------------------------</span>
+
+    <span class="c"># remember: this one is just and special kind of QAbstractScrollArea</span>
+    <span class="c"># which suports vizualizing the scene, i.e., it does not handle the items</span>
+    <span class="n">view</span> <span class="o">=</span> <span class="n">GxView</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">win</span><span class="p">,</span> <span class="n">wheel_zoom</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="n">win</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>  <span class="c"># therefore, the size of the view will be the</span>
+                                <span class="c"># size of the window, and both are not</span>
+                                <span class="c"># related to the size of the scene!</span>
+    <span class="n">win</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

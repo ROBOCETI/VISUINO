@@ -1,0 +1,592 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>visuino.gx.blocks.function_call &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../../../_static/cloud.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for visuino.gx.blocks.function_call</h1><div class="highlight"><pre>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="c"># Name:        module1</span>
+<span class="c"># Purpose:</span>
+<span class="c">#</span>
+<span class="c"># Author:      Nelso</span>
+<span class="c">#</span>
+<span class="c"># Created:     04/04/2013</span>
+<span class="c"># Copyright:   (c) Nelso 2013</span>
+<span class="c"># Licence:     &lt;your licence&gt;</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;../../../&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">PyQt4.QtGui</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt4.QtCore</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt4</span> <span class="kn">import</span> <span class="n">uic</span>
+
+<span class="kn">from</span> <span class="nn">visuino.gx.bases</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">visuino.gx.shapes</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">visuino.gx.utils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">visuino.gx.connections</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">visuino.gx.blocks.arg_label</span> <span class="kn">import</span> <span class="n">GxArgLabel</span>
+
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GxBlockFunctionCall&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="GxBlockFunctionCall"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.function_call.GxBlockFunctionCall">[docs]</a><span class="k">class</span> <span class="nc">GxBlockFunctionCall</span><span class="p">(</span><span class="n">GxPluggableBlock</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Block that represents the function call syntax on imperative languages.</span>
+<span class="sd">    For instance, a funcion call in C or even in Python given by:</span>
+
+<span class="sd">        function_name(arg1, arg2, ..., argN)</span>
+
+<span class="sd">    On this block, each argument is given by an GxArgLabel object and the </span>
+<span class="sd">    function return (optional) is indicated signaled by a male IO connector </span>
+<span class="sd">    on the left side.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _def: FunctionDefiniton. Saves all information about the function.</span>
+
+<span class="sd">        _name_rect: QRectF. Rectangle in which the name text will be drawn.</span>
+<span class="sd">            Gets updated via updateMetrics(), using Style attributes.</span>
+
+<span class="sd">        _args_labels: list of GxArgLabel. Saves reference for each one of the</span>
+<span class="sd">            argument label object.</span>
+
+<span class="sd">        _args_height: number. Total height of the GxArgLabel objects in</span>
+<span class="sd">            self._args_labels, including the spacing between them.</span>
+<span class="sd">            Gets updated via updateMetrics().</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">MSG_ERR_TYPE_ARGS</span> <span class="o">=</span> \
+        <span class="s">&quot;On GxBlockFunctionCall.__init__(), parameter &#39;args&#39; must be a &quot;</span>\
+        <span class="s">&quot;tuple/list of &lt;class &#39;FieldInfo&#39;&gt;.&quot;</span>
+
+    <span class="n">MSG_ERR_NOT_FIELD_INFO</span> <span class="o">=</span> \
+        <span class="s">&quot;On GxBlockFunctionCall.__init__(), parameter &#39;args&#39;, invalid value&quot;</span>\
+        <span class="s">&quot; in position </span><span class="si">%d</span><span class="s">. Expected &lt;class &#39;FieldInfo&#39;&gt;, but was given </span><span class="si">%s</span><span class="s">.&quot;</span>        
+
+<div class="viewcode-block" id="GxBlockFunctionCall.__init__"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.function_call.GxBlockFunctionCall.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">definition</span><span class="p">,</span> <span class="n">scene</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (dict, GxSceneBlocks, QGraphicsItem)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">GxPluggableBlock</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_def</span> <span class="o">=</span> <span class="n">definition</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_element</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;command&#39;</span><span class="p">:</span> <span class="s">&#39;function_call&#39;</span><span class="p">,</span> 
+             <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">definition</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">],</span>
+             <span class="s">&#39;library&#39;</span><span class="p">:</span> <span class="n">definition</span><span class="p">[</span><span class="s">&#39;library&#39;</span><span class="p">],</span>
+             <span class="s">&#39;args&#39;</span><span class="p">:</span> <span class="bp">None</span> <span class="k">if</span> <span class="n">definition</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">else</span>
+                          <span class="p">[</span><span class="bp">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">definition</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">]]}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name_rect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c"># list of GxArgLabel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args_height</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupArgLabels</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span><span class="p">:</span>
+            <span class="n">arg</span><span class="o">.</span><span class="n">update_parent</span> <span class="o">=</span> <span class="bp">True</span>
+            </div>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;&lt;GxBlockFunctionCall &#39;</span><span class="si">%s</span><span class="s">&#39;&gt;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">])</span>
+    
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="GxBlockFunctionCall.args_labels"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.function_call.GxBlockFunctionCall.args_labels">[docs]</a>    <span class="k">def</span> <span class="nf">args_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span>
+        </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="GxBlockFunctionCall.definition"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.function_call.GxBlockFunctionCall.definition">[docs]</a>    <span class="k">def</span> <span class="nf">definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_def</span>        
+        </div>
+<div class="viewcode-block" id="GxBlockFunctionCall.getBorderWidth"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.function_call.GxBlockFunctionCall.getBorderWidth">[docs]</a>    <span class="k">def</span> <span class="nf">getBorderWidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; () -&gt; int</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">function_call</span><span class="o">.</span><span class="n">border_width</span>   
+            </div>
+<div class="viewcode-block" id="GxBlockFunctionCall.cloneMe"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.function_call.GxBlockFunctionCall.cloneMe">[docs]</a>    <span class="k">def</span> <span class="nf">cloneMe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (GxSceneBlocks) -&gt; GxBlockFunctionCall</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">GxBlockFunctionCall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">,</span> <span class="n">scene</span><span class="p">)</span>                                   
+</div>
+<div class="viewcode-block" id="GxBlockFunctionCall.paint"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.function_call.GxBlockFunctionCall.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; QGraphicsItem.paint(QPainter, QStyleOptionGraphicsItem,</span>
+<span class="sd">                                QWidget widget=None) -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">sfc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">function_call</span>
+
+        <span class="n">painter</span><span class="o">.</span><span class="n">fillRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(),</span> <span class="n">Qt</span><span class="o">.</span><span class="n">transparent</span><span class="p">)</span>
+
+        <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span>
+            <span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">sfc</span><span class="o">.</span><span class="n">border_color</span><span class="p">)),</span> <span class="n">sfc</span><span class="o">.</span><span class="n">border_width</span><span class="p">,</span>
+            <span class="n">Qt</span><span class="o">.</span><span class="n">SolidLine</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">RoundCap</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">RoundJoin</span><span class="p">))</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">sfc</span><span class="o">.</span><span class="n">background_color</span><span class="p">))</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawPath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_border_path</span><span class="p">)</span>
+
+        <span class="n">painter</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name_font</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">sfc</span><span class="o">.</span><span class="n">name_font_color</span><span class="p">)))</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name_rect</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">AlignVCenter</span> <span class="o">|</span> <span class="n">Qt</span><span class="o">.</span><span class="n">AlignLeft</span><span class="p">,</span> 
+                         <span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isSelected</span><span class="p">():</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">DashLine</span><span class="p">)</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">transparent</span><span class="p">)</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">drawRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="GxBlockFunctionCall.setupArgLabels"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.function_call.GxBlockFunctionCall.setupArgLabels">[docs]</a>    <span class="k">def</span> <span class="nf">setupArgLabels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; () -&gt; NoneType</span>
+
+<span class="sd">        Should be called whenever self._args changes.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">sa</span><span class="p">,</span> <span class="n">sn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">arg_label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">notch</span>
+
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span><span class="p">:</span>
+            <span class="n">arg</span><span class="o">.</span><span class="n">removeFromScene</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">max_width</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args_height</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg_info</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">]):</span>
+
+            <span class="n">new_label</span> <span class="o">=</span> <span class="n">GxArgLabel</span><span class="p">(</span><span class="n">arg_info</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">(),</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                                   <span class="n">update_parent</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">new_label</span><span class="o">.</span><span class="n">setCacheMode</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">DeviceCoordinateCache</span><span class="p">)</span>
+            <span class="n">new_label</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+<span class="c">##                new_label.setVisible(False)</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">new_label</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span>
+
+            <span class="n">max_width</span> <span class="o">=</span> <span class="n">w</span> <span class="k">if</span> <span class="n">w</span> <span class="o">&gt;</span> <span class="n">max_width</span> <span class="k">else</span> <span class="n">max_width</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_label</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span><span class="p">:</span>
+            <span class="n">arg</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="n">max_width</span><span class="p">)</span>
+            <span class="n">arg</span><span class="o">.</span><span class="n">update_parent</span> <span class="o">=</span> <span class="bp">True</span>
+    
+</div>
+<div class="viewcode-block" id="GxBlockFunctionCall.updateMetrics"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.function_call.GxBlockFunctionCall.updateMetrics">[docs]</a>    <span class="k">def</span> <span class="nf">updateMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; () -&gt; NoneType</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepareGeometryChange</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+
+        <span class="n">style_fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">function_call</span>
+        <span class="n">style_notch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">notch</span>
+
+        <span class="c"># half of the border width, for use as correction</span>
+        <span class="n">bw</span> <span class="o">=</span> <span class="n">style_fc</span><span class="o">.</span><span class="n">border_width</span><span class="o">/</span><span class="mi">2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name_font</span> <span class="o">=</span> <span class="n">QFont</span><span class="p">(</span><span class="n">style_fc</span><span class="o">.</span><span class="n">name_font_family</span><span class="p">,</span>
+                                <span class="n">style_fc</span><span class="o">.</span><span class="n">name_font_size</span><span class="p">)</span>
+        <span class="n">name_metrics</span> <span class="o">=</span> <span class="n">QFontMetricsF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name_font</span><span class="p">)</span>
+
+        <span class="c"># setting up nice short names for all the metrics</span>
+        <span class="n">nw</span><span class="p">,</span> <span class="n">nh</span> <span class="o">=</span> <span class="n">name_metrics</span><span class="o">.</span><span class="n">width</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]),</span> <span class="n">name_metrics</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+        <span class="n">fvc</span> <span class="o">=</span> <span class="n">style_fc</span><span class="o">.</span><span class="n">name_font_vcorrection</span>
+        <span class="n">hp</span><span class="p">,</span> <span class="n">vp</span> <span class="o">=</span> <span class="n">style_fc</span><span class="o">.</span><span class="n">getNamePadding</span><span class="p">()</span>
+        <span class="n">bp</span> <span class="o">=</span> <span class="n">style_fc</span><span class="o">.</span><span class="n">bottom_padd</span>
+        <span class="n">cw</span><span class="p">,</span> <span class="n">ch</span> <span class="o">=</span> <span class="n">style_fc</span><span class="o">.</span><span class="n">getCornerSize</span><span class="p">()</span>
+        <span class="n">malp</span> <span class="o">=</span> <span class="n">style_fc</span><span class="o">.</span><span class="n">arg_min_left_padd</span>
+        <span class="n">asp</span> <span class="o">=</span> <span class="n">style_fc</span><span class="o">.</span><span class="n">arg_spacing</span>
+        <span class="n">iow</span><span class="p">,</span> <span class="n">ioh</span> <span class="o">=</span> <span class="n">style_notch</span><span class="o">.</span><span class="n">getIoNotchSize</span><span class="p">()</span>
+        <span class="n">vfw</span><span class="p">,</span> <span class="n">vfh</span> <span class="o">=</span> <span class="n">style_notch</span><span class="o">.</span><span class="n">getVfNotchSize</span><span class="p">()</span>
+        <span class="n">vfs</span> <span class="o">=</span> <span class="n">bw</span> <span class="o">+</span> <span class="n">style_notch</span><span class="o">.</span><span class="n">vf_notch_x0</span>
+
+        <span class="c"># some nice short names for more attributes</span>
+        <span class="n">corner_shape</span> <span class="o">=</span> <span class="n">style_fc</span><span class="o">.</span><span class="n">corner_shape</span>
+        <span class="n">corner_size</span> <span class="o">=</span> <span class="n">QSizeF</span><span class="p">(</span><span class="n">cw</span><span class="p">,</span> <span class="n">ch</span><span class="p">)</span>
+        <span class="n">io_shape</span> <span class="o">=</span> <span class="n">style_notch</span><span class="o">.</span><span class="n">io_notch_shape</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> \
+                   <span class="nb">str</span><span class="p">(</span><span class="n">style_notch</span><span class="o">.</span><span class="n">io_notch_basis</span><span class="p">)</span>
+        <span class="n">io_size</span> <span class="o">=</span> <span class="n">QSizeF</span><span class="p">(</span><span class="n">iow</span><span class="p">,</span> <span class="n">ioh</span><span class="p">)</span>
+        <span class="n">vf_shape</span> <span class="o">=</span> <span class="n">style_notch</span><span class="o">.</span><span class="n">vf_notch_shape</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> \
+                   <span class="nb">str</span><span class="p">(</span><span class="n">style_notch</span><span class="o">.</span><span class="n">vf_notch_basis</span><span class="p">)</span>
+        <span class="n">vf_size</span> <span class="o">=</span> <span class="n">QSizeF</span><span class="p">(</span><span class="n">vfw</span><span class="p">,</span> <span class="n">vfh</span><span class="p">)</span>
+
+        <span class="n">maw</span> <span class="o">=</span> <span class="mi">0</span>    <span class="c"># minimum width to comport arguments, if any</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span><span class="p">:</span>
+            <span class="n">maw</span> <span class="o">=</span> <span class="n">malp</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fvc</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c"># updating the total argument height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args_height</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_args_height</span> <span class="o">+=</span> <span class="n">arg</span><span class="o">.</span><span class="n">getHeight</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_args_height</span> <span class="o">+=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">function_call</span><span class="o">.</span><span class="n">arg_spacing</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">[</span><span class="s">&#39;return_type&#39;</span><span class="p">]:</span>
+            <span class="c"># height from the top up to the args y0</span>
+            <span class="n">args_y0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">vp</span><span class="p">,</span> <span class="n">ch</span><span class="p">)</span> <span class="o">+</span> <span class="n">nh</span> <span class="o">+</span> <span class="n">vp</span>
+            <span class="n">name_y0</span> <span class="o">=</span> <span class="n">args_y0</span> <span class="o">-</span> <span class="n">vp</span> <span class="o">-</span> <span class="n">nh</span>
+
+            <span class="c"># there are two metrics to limit the width:</span>
+            <span class="c">#   - name width + horizontal padding (2*max(hp, cw) + nw)</span>
+            <span class="c">#   - minimum argument left padding + arg label width (maw)</span>
+            <span class="n">W</span> <span class="o">=</span> <span class="n">iow</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">max</span><span class="p">(</span><span class="n">hp</span><span class="p">,</span> <span class="n">cw</span><span class="p">)</span> <span class="o">+</span> <span class="n">nw</span><span class="p">,</span> <span class="n">maw</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="n">args_y0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_height</span> <span class="o">+</span> <span class="n">ch</span>
+
+            <span class="n">path</span> <span class="o">=</span> <span class="n">GxPainterPath</span><span class="p">(</span><span class="n">QPointF</span><span class="p">(</span><span class="n">bw</span> <span class="o">+</span> <span class="n">iow</span><span class="p">,</span> <span class="n">bw</span> <span class="o">+</span> <span class="n">ch</span><span class="p">))</span>
+            <span class="n">CornerPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">corner_size</span><span class="p">,</span> <span class="n">corner_shape</span><span class="p">,</span> <span class="s">&#39;top-left&#39;</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="n">W</span> <span class="o">-</span> <span class="n">cw</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">CornerPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">corner_size</span><span class="p">,</span> <span class="n">corner_shape</span><span class="p">,</span> <span class="s">&#39;top-right&#39;</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">args_y0</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_placeArgs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">iow</span><span class="p">,</span> <span class="n">bw</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">asp</span><span class="p">)</span>
+
+            <span class="n">CornerPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">corner_size</span><span class="p">,</span> <span class="n">corner_shape</span><span class="p">,</span> <span class="s">&#39;bottom-right&#39;</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="n">bw</span> <span class="o">+</span> <span class="n">iow</span> <span class="o">+</span> <span class="n">cw</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">CornerPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">corner_size</span><span class="p">,</span> <span class="n">corner_shape</span><span class="p">,</span> <span class="s">&#39;bottom-left&#39;</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">name_y0</span> <span class="o">+</span> <span class="n">ioh</span> <span class="o">+</span> <span class="p">(</span><span class="n">nh</span> <span class="o">-</span> <span class="n">ioh</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">NotchPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">io_size</span><span class="p">,</span> <span class="n">io_shape</span><span class="p">,</span> <span class="s">&#39;-j&#39;</span><span class="p">,</span> <span class="s">&#39;left&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">io_male_start</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">currentPosition</span><span class="p">()</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">closeSubpath</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name_rect</span> <span class="o">=</span> <span class="n">QRectF</span><span class="p">(</span><span class="n">bw</span> <span class="o">+</span> <span class="n">iow</span> <span class="o">+</span> <span class="n">hp</span><span class="p">,</span> <span class="n">name_y0</span> <span class="o">+</span> <span class="n">fvc</span><span class="p">,</span>
+                                     <span class="n">W</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">hp</span> <span class="o">-</span> <span class="n">iow</span><span class="p">,</span> <span class="n">nh</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vf_female_start</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vf_male_start</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># height from the top up to the args y0</span>
+            <span class="n">args_y0</span> <span class="o">=</span> <span class="n">vfh</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">vp</span> <span class="o">+</span> <span class="n">nh</span>
+
+            <span class="c"># there are three metrics to limit the width:</span>
+            <span class="c">#   - name width + horizontal padding (2*max(hp, cw) + nw)</span>
+            <span class="c">#   - vf notch x0 + vf notch width (vfs + vfw)</span>
+            <span class="c">#   - minimum argument left padding + arg label width (maw)</span>
+            <span class="n">W</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">max</span><span class="p">(</span><span class="n">hp</span><span class="p">,</span> <span class="n">cw</span><span class="p">)</span> <span class="o">+</span> <span class="n">nw</span><span class="p">,</span> <span class="n">vfs</span> <span class="o">+</span> <span class="n">vfw</span> <span class="o">+</span> <span class="n">cw</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="n">maw</span><span class="p">)</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="n">args_y0</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_height</span> <span class="o">+</span> <span class="n">ch</span> <span class="o">+</span> <span class="n">vfh</span>
+
+            <span class="n">path</span> <span class="o">=</span> <span class="n">GxPainterPath</span><span class="p">(</span><span class="n">QPointF</span><span class="p">(</span><span class="n">bw</span><span class="p">,</span> <span class="n">bw</span> <span class="o">+</span> <span class="n">ch</span><span class="p">))</span>
+            <span class="n">CornerPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">corner_size</span><span class="p">,</span> <span class="n">corner_shape</span><span class="p">,</span> <span class="s">&#39;top-left&#39;</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="n">vfs</span> <span class="o">-</span> <span class="n">cw</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vf_female_start</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">currentPosition</span><span class="p">()</span>
+            <span class="n">NotchPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">vf_size</span><span class="p">,</span> <span class="n">vf_shape</span><span class="p">,</span> <span class="s">&#39;+i&#39;</span><span class="p">,</span> <span class="s">&#39;down&#39;</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="n">W</span> <span class="o">-</span> <span class="n">cw</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">CornerPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">corner_size</span><span class="p">,</span> <span class="n">corner_shape</span><span class="p">,</span> <span class="s">&#39;top-right&#39;</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">args_y0</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_placeArgs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">iow</span><span class="p">,</span> <span class="n">bw</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">asp</span><span class="p">)</span>
+
+            <span class="n">CornerPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">corner_size</span><span class="p">,</span> <span class="n">corner_shape</span><span class="p">,</span> <span class="s">&#39;bottom-right&#39;</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="n">W</span> <span class="o">+</span> <span class="n">vfs</span> <span class="o">+</span> <span class="n">cw</span> <span class="o">+</span> <span class="n">vfw</span><span class="p">)</span>
+            <span class="n">NotchPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">vf_size</span><span class="p">,</span> <span class="n">vf_shape</span><span class="p">,</span> <span class="s">&#39;-i&#39;</span><span class="p">,</span> <span class="s">&#39;down&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vf_male_start</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">currentPosition</span><span class="p">()</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="n">bw</span> <span class="o">+</span> <span class="n">cw</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">CornerPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">corner_size</span><span class="p">,</span> <span class="n">corner_shape</span><span class="p">,</span> <span class="s">&#39;bottom-left&#39;</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">closeSubpath</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name_rect</span> <span class="o">=</span> <span class="n">QRectF</span><span class="p">(</span><span class="n">bw</span> <span class="o">+</span> <span class="n">hp</span><span class="p">,</span> <span class="n">args_y0</span> <span class="o">-</span> <span class="n">vp</span> <span class="o">-</span> <span class="n">nh</span> <span class="o">+</span> <span class="n">fvc</span><span class="p">,</span>
+                                     <span class="n">W</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">hp</span><span class="p">,</span> <span class="n">nh</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">io_male_start</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_border_path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">W</span> <span class="o">+</span> <span class="n">bw</span><span class="p">,</span> <span class="n">H</span> <span class="o">+</span> <span class="n">bw</span>
+
+<span class="c">#        print(&#39;Updating connectors GxBlockFunctionCall &#39;, self._name)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateConnections</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parentItem</span><span class="p">(),</span> <span class="n">GxBlock</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">_placeArgs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">iow</span><span class="p">,</span> <span class="n">bw</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">asp</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (GxPainterPath, number, number, number, number) -&gt; NoneType</span>
+
+<span class="sd">        From the current position on the path, set the GxArgLabel objects</span>
+<span class="sd">        final positions.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args_labels</span><span class="p">:</span>
+            <span class="n">arg</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">W</span> <span class="o">-</span> <span class="n">arg</span><span class="o">.</span><span class="n">getWidth</span><span class="p">()</span> <span class="o">-</span> <span class="n">bw</span><span class="p">,</span> <span class="n">path</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">bw</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="o">-</span><span class="n">iow</span> <span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">bw</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dy</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">getHeight</span><span class="p">())</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">lineToInc</span><span class="p">(</span><span class="n">dx</span> <span class="o">=</span> <span class="n">iow</span> <span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">bw</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GxBlockFunctionCall.updateDefinition"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.function_call.GxBlockFunctionCall.updateDefinition">[docs]</a>    <span class="k">def</span> <span class="nf">updateDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (kwargs) -&gt; NoneType</span>
+
+<span class="sd">        Set its arguments information, and also update the graphics.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">[</span><span class="s">&#39;return_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;return_type&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">[</span><span class="s">&#39;return_type&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s">&#39;args&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_def</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;args&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setupArgLabels</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+        
+<span class="c">#    def mousePressEvent(self, event):</span>
+<span class="c">#        print(&#39;-&#39; * 30)</span>
+<span class="c">#        pprint(self.getTopParentVf().sketch. self._element)</span>
+<span class="c">#        print(&#39;-&#39; * 30)</span>
+<span class="c">#        super(GxBlockFunctionCall, self).mousePressEvent(event) </span>
+
+        
+</div></div>
+<span class="k">class</span> <span class="nc">WinCustomizeFunctionCall</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">WinCustomizeFunctionCall</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span> <span class="o">=</span> <span class="n">uic</span><span class="o">.</span><span class="n">loadUi</span><span class="p">(</span><span class="s">&#39;form_customize_function_call.ui&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initUi</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">initUi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; () -&gt; NoneType</span>
+
+<span class="sd">        Creates the main widgets (GxView and dock customize) and also</span>
+<span class="sd">        connect the proper signals.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="n">GxSceneBlocks</span><span class="p">()</span>
+
+        <span class="n">sfc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">function_call</span>
+        <span class="n">sa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">arg_label</span>
+        <span class="n">sn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">notch</span>    
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_function_call</span> <span class="o">=</span> <span class="n">GxBlockFunctionCall</span><span class="p">(</span>
+            <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;digitalWrite&#39;</span><span class="p">,</span> <span class="s">&#39;return_type&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;library&#39;</span><span class="p">:</span> <span class="s">&#39;Arduino.h&#39;</span><span class="p">,</span>
+             <span class="s">&#39;args&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;pin&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;int&#39;</span><span class="p">},</span>
+                      <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;value&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;int&#39;</span><span class="p">}]},</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_function_call</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_function_call</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsMovable</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_function_call</span><span class="o">.</span><span class="n">setCursor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">OpenHandCursor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_function_call</span><span class="o">.</span><span class="n">setCacheMode</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">DeviceCoordinateCache</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">view</span> <span class="o">=</span> <span class="n">GxView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">wheel_zoom</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                           <span class="n">opengl</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">)</span>
+
+        <span class="n">dock_customize</span> <span class="o">=</span> <span class="n">QDockWidget</span><span class="p">(</span><span class="s">&#39;Customize&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">dock_customize</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addDockWidget</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">RightDockWidgetArea</span><span class="p">,</span> <span class="n">dock_customize</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">edit_fc_name</span><span class="o">.</span><span class="n">textChanged</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_function_call</span><span class="o">.</span><span class="n">updateDefinition</span><span class="p">(</span><span class="n">name</span><span class="o">=</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">edit_fc_name</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+                    
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">checkbox_fc_return</span><span class="o">.</span><span class="n">stateChanged</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">block_function_call</span><span class="o">.</span><span class="n">updateDefinition</span><span class="p">(</span><span class="n">return_type</span><span class="o">=</span>
+                    <span class="s">&#39;int&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">checkbox_fc_return</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="k">else</span> <span class="bp">None</span><span class="p">))</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">edit_fc_args</span><span class="o">.</span><span class="n">textChanged</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updateFunctionArgs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">edit_fc_args</span><span class="o">.</span><span class="n">text</span><span class="p">()))</span>
+
+        <span class="c"># UI name convention:</span>
+        <span class="c">#   widget kind + &#39;_&#39; + tab identifier + &#39;_&#39; + style attribute</span>
+
+        <span class="n">s_tabs</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;fc&#39;</span><span class="p">:</span> <span class="n">sfc</span><span class="p">,</span> <span class="s">&#39;arg&#39;</span><span class="p">:</span> <span class="n">sa</span><span class="p">,</span> <span class="s">&#39;nch&#39;</span><span class="p">:</span> <span class="n">sn</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">wg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">suffix</span> <span class="o">=</span> <span class="n">k</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">tab_prefix</span> <span class="o">=</span> <span class="n">suffix</span><span class="p">[:</span><span class="n">suffix</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)]</span>
+            <span class="n">style_attr</span> <span class="o">=</span> <span class="n">suffix</span><span class="p">[</span><span class="n">suffix</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+<span class="c">##            print(&#39;Testing %s&#39; % k)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sa</span><span class="p">,</span> <span class="n">style_attr</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sn</span><span class="p">,</span> <span class="n">style_attr</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sfc</span><span class="p">,</span> <span class="n">style_attr</span><span class="p">)):</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wg</span><span class="p">,</span> <span class="p">(</span><span class="n">QSpinBox</span><span class="p">,</span> <span class="n">QComboBox</span><span class="p">,</span> <span class="n">QSlider</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_setupSignal</span><span class="p">(</span><span class="n">wg</span><span class="p">,</span> <span class="n">s_tabs</span><span class="p">[</span><span class="n">tab_prefix</span><span class="p">],</span> <span class="n">style_attr</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wg</span><span class="p">,</span> <span class="n">QFrame</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wg</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">):</span>
+                <span class="c"># those QFrame are for color selection</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_setupFrameClick</span><span class="p">(</span><span class="n">wg</span><span class="p">,</span> <span class="n">s_tabs</span><span class="p">[</span><span class="n">tab_prefix</span><span class="p">],</span> <span class="n">style_attr</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">slider_vf_notch_x0</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">sn</span><span class="o">.</span><span class="n">vf_notch_x0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">slider_vf_notch_x0</span><span class="o">.</span><span class="n">valueChanged</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updateStyle</span><span class="p">(</span><span class="n">sn</span><span class="p">,</span> <span class="s">&#39;vf_notch_x0&#39;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">slider_vf_notch_x0</span><span class="o">.</span><span class="n">value</span><span class="p">()))</span>
+                    
+
+    <span class="k">def</span> <span class="nf">_strToFieldInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">str_list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">ArgInfo</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s">&#39;int&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">str_list</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_updateFunctionArgs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;int&#39;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_function_call</span><span class="o">.</span><span class="n">updateDefinition</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_updateStyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_function_call</span><span class="o">.</span><span class="n">setupArgLabels</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">block_function_call</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+            
+
+    <span class="k">def</span> <span class="nf">_setupSignal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (QSpinBox/QComboBox/QSlider, str) -&gt; NoneType</span>
+
+<span class="sd">        Configures on the sender widget the current value of &#39;attr&#39; in &#39;style&#39;,</span>
+<span class="sd">        and also setup its suitable signal to customization changes.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">QSpinBox</span><span class="p">):</span>
+            <span class="n">sender</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">sender</span><span class="o">.</span><span class="n">valueChanged</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+                <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updateStyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">sender</span><span class="o">.</span><span class="n">value</span><span class="p">()))</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">QComboBox</span><span class="p">):</span>
+            <span class="n">sender</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">sender</span><span class="o">.</span><span class="n">findText</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)))</span>
+            <span class="n">sender</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+                <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updateStyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span>
+                                           <span class="nb">str</span><span class="p">(</span><span class="n">sender</span><span class="o">.</span><span class="n">currentText</span><span class="p">())))</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">QSlider</span><span class="p">):</span>
+            <span class="n">sender</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">sender</span><span class="o">.</span><span class="n">valueChanged</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+                <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updateStyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span>
+                                           <span class="nb">float</span><span class="p">(</span><span class="n">sender</span><span class="o">.</span><span class="n">value</span><span class="p">()</span><span class="o">/</span><span class="mi">100</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_setupFrameClick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (QFrame, str) -&gt; NoneType</span>
+
+<span class="sd">        Configures the frame background color to the current color of</span>
+<span class="sd">        &#39;attr&#39; in &#39;style&#39;, and also enable its mousePressEvent to execute</span>
+<span class="sd">        a color dialog.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">palette</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span>
+        <span class="n">current_color</span> <span class="o">=</span> <span class="n">QColor</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">))</span>
+        <span class="n">palette</span><span class="o">.</span><span class="n">setColor</span><span class="p">(</span><span class="n">QPalette</span><span class="o">.</span><span class="n">Background</span><span class="p">,</span> <span class="n">current_color</span><span class="p">)</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">setPalette</span><span class="p">(</span><span class="n">palette</span><span class="p">)</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">mousePressEvent</span> <span class="o">=</span> \
+            <span class="k">lambda</span> <span class="n">event</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chooseColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_chooseColor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (QFrame, Style, str) -&gt; NoneType</span>
+
+<span class="sd">        Saves the current color as &#39;old_color&#39;, then launch the color dialog.</span>
+<span class="sd">        Changes on the dialog are reflected immediately on the GxArgLabel.</span>
+<span class="sd">        If the dialog is cancelled, restores &#39;old_color&#39;.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">palette</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">palette</span><span class="p">()</span>
+        <span class="n">old_color</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">background</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">()</span>
+        <span class="n">color_dialog</span> <span class="o">=</span> <span class="n">QColorDialog</span><span class="p">(</span><span class="n">old_color</span><span class="p">)</span>
+
+        <span class="n">color_dialog</span><span class="o">.</span><span class="n">currentColorChanged</span><span class="p">[</span><span class="n">QColor</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updateStyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">color_dialog</span><span class="o">.</span><span class="n">currentColor</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">())))</span>
+
+        <span class="n">answer</span> <span class="o">=</span> <span class="n">color_dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">answer</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">new_color</span> <span class="o">=</span> <span class="n">color_dialog</span><span class="o">.</span><span class="n">currentColor</span><span class="p">()</span>
+            <span class="n">palette</span><span class="o">.</span><span class="n">setColor</span><span class="p">(</span><span class="n">QPalette</span><span class="o">.</span><span class="n">Background</span><span class="p">,</span> <span class="n">new_color</span><span class="p">)</span>
+            <span class="n">frame</span><span class="o">.</span><span class="n">setPalette</span><span class="p">(</span><span class="n">palette</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_updateStyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_color</span><span class="o">.</span><span class="n">name</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_updateStyle</span><span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">old_color</span><span class="o">.</span><span class="n">name</span><span class="p">()))</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">win</span> <span class="o">=</span> <span class="n">WinCustomizeFunctionCall</span><span class="p">()</span>
+    <span class="n">win</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

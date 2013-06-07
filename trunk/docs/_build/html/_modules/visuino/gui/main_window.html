@@ -1,0 +1,377 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>visuino.gui.main_window &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../../_static/cloud.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for visuino.gui.main_window</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="c"># Purpose:</span>
+<span class="c">#</span>
+<span class="c"># Author:      Nelso G. Jost (nelsojost@gmail.com)</span>
+<span class="c">#</span>
+<span class="c">#              This file is part of VISUINO project - Copyright (C) 2013</span>
+<span class="c">#</span>
+<span class="c"># Licence:     GNU GPL. Its simple: use and modify as you please, and redis-</span>
+<span class="c">#              tribute ONLY as 100% free and keeping the credits.</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">os</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;../../&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">PyQt4.QtGui</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt4.QtCore</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">visuino.gx.palette</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">visuino.gx.blocks</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">visuino.resources</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;MainWindow&#39;</span><span class="p">,</span> <span class="s">&#39;AppVisuino&#39;</span><span class="p">]</span>
+
+<span class="n">sketch</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;snippets&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+<span class="n">sketch</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;pos&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="s">&#39;body&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+<span class="n">sketch</span><span class="p">[</span><span class="s">&#39;snippets&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">][</span><span class="s">&#39;body&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;function_call&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;digitalWrite&#39;</span><span class="p">,</span> <span class="s">&#39;library&#39;</span><span class="p">:</span> <span class="s">&#39;Arduino.h&#39;</span><span class="p">,</span>
+     <span class="s">&#39;args&#39;</span><span class="p">:</span> <span class="p">{</span>
+         <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;tag&#39;</span><span class="p">:</span> <span class="s">&#39;function_call&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;digitalRead&#39;</span><span class="p">,</span> 
+             <span class="s">&#39;library&#39;</span><span class="p">:</span> <span class="s">&#39;Arduino.h&#39;</span><span class="p">,</span> <span class="s">&#39;args&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+             <span class="p">}</span>
+    <span class="p">})</span>
+
+<div class="viewcode-block" id="MainWindow"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.MainWindow">[docs]</a><span class="k">class</span> <span class="nc">MainWindow</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        _app: QApplication. The application that lauched this window.</span>
+<span class="sd">        _opengl: bool. Says if use Open GL rendering or not.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="MainWindow.__init__"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.MainWindow.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">opengl</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (QApplication, QWidget, bool) -&gt; NoneType</span>
+
+<span class="sd">        The &#39;app&#39; just saves the reference for the PyQt application that</span>
+<span class="sd">        called this class. And, if the &#39;opengl&#39; flag is not None, i.e.,</span>
+<span class="sd">        if it is True or False, this value will be used to override the</span>
+<span class="sd">        one configurated on the INI settings.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QMainWindow</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_app</span> <span class="o">=</span> <span class="n">app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span> <span class="o">=</span> <span class="n">opengl</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupIniSettings</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&#39;Using Open GL engine (hardware acceleration!)&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&#39;Using basic graphics engine!&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">initUI</span><span class="p">()</span>     
+</div>
+<div class="viewcode-block" id="MainWindow.setupIniSettings"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.MainWindow.setupIniSettings">[docs]</a>    <span class="k">def</span> <span class="nf">setupIniSettings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; () -&gt; NoneType</span>
+
+<span class="sd">        Reads the INI file, if there is one, and configures the application</span>
+<span class="sd">        according to it. If there is no INI yet, then create one from scratch</span>
+<span class="sd">        with default values.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">MAIN_CWD</span><span class="p">:</span>
+            <span class="n">ini_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">MAIN_CWD</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> \
+                           <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">INI_NAME</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ini_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app</span><span class="o">.</span><span class="n">INI_NAME</span>
+
+        <span class="n">ini</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ini_file</span> <span class="o">=</span> <span class="n">QSettings</span><span class="p">(</span><span class="n">ini_filename</span><span class="p">,</span>
+                                                <span class="n">QSettings</span><span class="o">.</span><span class="n">IniFormat</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ini_filename</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c"># for python 2.7</span>
+                <span class="n">value_opengl</span> <span class="o">=</span> <span class="n">ini</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&#39;engine/opengl&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">toBool</span><span class="p">()</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="c"># for python 3.3</span>
+                <span class="n">value_opengl</span> <span class="o">=</span> <span class="n">ini</span><span class="o">.</span><span class="n">value</span><span class="p">(</span><span class="s">&#39;engine/opengl&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;t&#39;</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span> <span class="o">=</span> <span class="n">value_opengl</span>
+
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;The following configuration file was loaded:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n\n</span><span class="s">&quot;</span> \
+                  <span class="o">%</span> <span class="n">ini_filename</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">createDefaultIni</span><span class="p">()</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&#39;INI created in:&#39;</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">ini_filename</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="MainWindow.createDefaultIni"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.MainWindow.createDefaultIni">[docs]</a>    <span class="k">def</span> <span class="nf">createDefaultIni</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (QSettings) -&gt; NoneType</span>
+
+<span class="sd">        Create the default INI settings.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">ini</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ini_file</span>
+        <span class="n">ini</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&#39;engine/opengl&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span>
+                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">False</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="MainWindow.updateIniSettings"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.MainWindow.updateIniSettings">[docs]</a>    <span class="k">def</span> <span class="nf">updateIniSettings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; () -&gt; NoneType</span>
+
+<span class="sd">        Update the INI settings file.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">ini</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ini_file</span>
+        <span class="n">ini</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s">&#39;engine/opengl&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="MainWindow.closeEvent"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.MainWindow.closeEvent">[docs]</a>    <span class="k">def</span> <span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; QWidget.closeEvent(QCloseEvent) -&gt; NoneType</span>
+
+<span class="sd">        Update the INI settings before closing.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateIniSettings</span><span class="p">()</span>
+        <span class="n">QMainWindow</span><span class="o">.</span><span class="n">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="MainWindow.initUI"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.MainWindow.initUI">[docs]</a>    <span class="k">def</span> <span class="nf">initUI</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; () -&gt; NoneType</span>
+
+<span class="sd">        Initializes the User Interface by creating all the child widgets</span>
+<span class="sd">        and setting its properties.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c"># --- Blocks Area ------------------------------------------------</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_blocks_view</span> <span class="o">=</span> <span class="n">GxViewPalette</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                                            <span class="n">opengl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span><span class="p">)</span>
+
+        <span class="c"># --- Code Area --------------------------------------------------</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_area_code</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c"># ----------------------------------------------------------------</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_main_tab</span> <span class="o">=</span> <span class="n">QTabWidget</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_main_tab</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_blocks_view</span><span class="p">,</span> <span class="s">&#39;Blocks&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_main_tab</span><span class="o">.</span><span class="n">addTab</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_area_code</span><span class="p">,</span> <span class="s">&#39;Code&#39;</span><span class="p">)</span>
+
+        <span class="c"># --- Main menu --------------------------------------------------</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_menu_file</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="s">&#39;&amp;File&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_menu_file</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&#39;Load Sketch&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">actionLoadSketch</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_menu_file</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&#39;Save Sketch&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">actionSaveSketch</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_menu_file</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_menu_file</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&#39;&amp;Exit&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_open_gl</span> <span class="o">=</span> <span class="n">QAction</span><span class="p">(</span><span class="s">&#39;Open&amp;GL&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_open_gl</span><span class="o">.</span><span class="n">setCheckable</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_open_gl</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_open_gl</span><span class="p">,</span> <span class="n">SIGNAL</span><span class="p">(</span><span class="s">&#39;triggered()&#39;</span><span class="p">),</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">actionSetOptionOpenGl</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_menu_options</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="s">&#39;&amp;Options&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_menu_options</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">action_open_gl</span><span class="p">)</span>
+
+        <span class="n">menu_bar</span> <span class="o">=</span> <span class="n">QMenuBar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">menu_bar</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_menu_file</span><span class="p">)</span>
+        <span class="n">menu_bar</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_menu_options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMenuBar</span><span class="p">(</span><span class="n">menu_bar</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s">&#39;Visuino&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowIcon</span><span class="p">(</span><span class="n">QIcon</span><span class="p">(</span><span class="s">&#39;:python_arduino.png&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_main_tab</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>
+        
+        </div>
+<div class="viewcode-block" id="MainWindow.actionLoadSketch"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.MainWindow.actionLoadSketch">[docs]</a>    <span class="k">def</span> <span class="nf">actionLoadSketch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getOpenFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;Load sketch&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+                                               <span class="s">&#39;*.vsn&#39;</span><span class="p">)</span>
+<span class="c">#        print(filename)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_blocks_view</span><span class="o">.</span><span class="n">sketch</span><span class="o">.</span><span class="n">loadSketch</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_blocks_view</span><span class="o">.</span><span class="n">sketch</span><span class="o">.</span><span class="n">drawSnippets</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wg_blocks_view</span><span class="o">.</span><span class="n">scene</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wg_blocks_view</span><span class="o">.</span><span class="n">palette_blocks</span><span class="p">)</span>
+        </div>
+<div class="viewcode-block" id="MainWindow.actionSaveSketch"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.MainWindow.actionSaveSketch">[docs]</a>    <span class="k">def</span> <span class="nf">actionSaveSketch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;Save sketch&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">,</span> 
+                                               <span class="s">&#39;*.vsn&#39;</span><span class="p">)</span>
+<span class="c">#        print(filename)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wg_blocks_view</span><span class="o">.</span><span class="n">sketch</span><span class="o">.</span><span class="n">dumpSketch</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="MainWindow.actionSetOptionOpenGl"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.MainWindow.actionSetOptionOpenGl">[docs]</a>    <span class="k">def</span> <span class="nf">actionSetOptionOpenGl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; () -&gt; NoneType</span>
+
+<span class="sd">        Trigger of the main menu Option &gt; Open GL. If the new checked value</span>
+<span class="sd">        is True, will prompt for a confirmation, since the use of Open GL</span>
+<span class="sd">        rendering may cause problems on some systems.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_open_gl</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="n">ans</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Information</span><span class="p">,</span>
+                <span class="s">&#39;Confirmation&#39;</span><span class="p">,</span> <span class="s">&quot;This option will attempt to use some &quot;</span> \
+                <span class="o">+</span> <span class="s">&quot;hardware acceleration. Beware that it&#39;s success depends &quot;</span> \
+                <span class="o">+</span> <span class="s">&quot;on the video driver.</span><span class="se">\n</span><span class="s">For instance, in some Linux systems &quot;</span> \
+                <span class="o">+</span> <span class="s">&quot;that runs on top of generic drivers may presents some &quot;</span>
+                <span class="o">+</span> <span class="s">&quot;problems.</span><span class="se">\n\n</span><span class="s">Do you want to confirm it?&quot;</span><span class="p">,</span>
+                <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span> <span class="o">|</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span><span class="p">)</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ans</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_open_gl</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">action_open_gl</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>
+                <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_opengl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_open_gl</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+
+        <span class="n">QMessageBox</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Warning</span><span class="p">,</span> <span class="s">&#39;Warning&#39;</span><span class="p">,</span>
+            <span class="s">&quot;You need restart the application in order for &quot;</span> <span class="o">+</span>
+            <span class="s">&quot;this change to take effect!&quot;</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+            
+</div></div>
+<div class="viewcode-block" id="AppVisuino"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.AppVisuino">[docs]</a><span class="k">class</span> <span class="nc">AppVisuino</span><span class="p">(</span><span class="n">QApplication</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    The hole Visuino application is launched by this class. It holds</span>
+<span class="sd">    the main window and all the proccess starts with the execute() method,</span>
+<span class="sd">    and ends with it.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        MAIN_CWD: str. Path to the main file of the application.</span>
+<span class="sd">        INI_NAME: str. Name of the INI configuration file.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">INI_NAME</span> <span class="o">=</span> <span class="s">&#39;.visuino.ini&#39;</span>
+
+<div class="viewcode-block" id="AppVisuino.__init__"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.AppVisuino.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">main_cwd</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (list of str, str) -&gt; NoneType</span>
+
+<span class="sd">        The &#39;argv&#39; parameter is used to pass command line arguments, and</span>
+<span class="sd">        the &#39;main_cwd&#39; is stored on the self.MAIN_CWD attribute.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QApplication</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">MAIN_CWD</span> <span class="o">=</span> <span class="n">main_cwd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setStyle</span><span class="p">(</span><span class="n">QStyleFactory</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s">&quot;plastique&quot;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="AppVisuino.execute"><a class="viewcode-back" href="../../../visuino.gui.html#visuino.gui.main_window.AppVisuino.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opengl</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; (bool) -&gt; int</span>
+
+<span class="sd">        Creates an instance of the PyQt application and show its main</span>
+<span class="sd">        window (instance of a MainWindow object, which uses the &#39;opengl&#39;</span>
+<span class="sd">        flag).</span>
+
+<span class="sd">        Returns the QApplication.exec_() result.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">splash_pix</span> <span class="o">=</span> <span class="n">QPixmap</span><span class="p">(</span><span class="s">&#39;:splash_loading.png&#39;</span><span class="p">)</span>
+        <span class="n">splash</span> <span class="o">=</span> <span class="n">QSplashScreen</span><span class="p">(</span><span class="n">splash_pix</span><span class="p">,</span>
+                                     <span class="n">Qt</span><span class="o">.</span><span class="n">WindowStaysOnTopHint</span><span class="p">)</span>
+        <span class="n">splash</span><span class="o">.</span><span class="n">setMask</span><span class="p">(</span><span class="n">splash_pix</span><span class="o">.</span><span class="n">mask</span><span class="p">())</span>
+        <span class="n">splash</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+
+        <span class="n">main_win</span> <span class="o">=</span> <span class="n">MainWindow</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">opengl</span><span class="o">=</span><span class="n">opengl</span><span class="p">)</span>
+        <span class="n">main_win</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">splash</span><span class="o">.</span><span class="n">finish</span><span class="p">(</span><span class="n">main_win</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">AppVisuino</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

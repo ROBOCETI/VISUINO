@@ -1,0 +1,673 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>visuino.gx.blocks.expression &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../../../_static/cloud.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for visuino.gx.blocks.expression</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="c"># Purpose:</span>
+<span class="c">#</span>
+<span class="c"># Author:      Nelso G. Jost (nelsojost@gmail.com)</span>
+<span class="c">#</span>
+<span class="c">#              This file is part of VISUINO project - Copyright (C) 2013</span>
+<span class="c">#</span>
+<span class="c"># Licence:     GNU GPL. Its simple: use and modify as you please, and redis-</span>
+<span class="c">#              tribute ONLY as 100% free and keeping the credits.</span>
+<span class="c">#-------------------------------------------------------------------------------</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;GxExpression&#39;</span><span class="p">]</span>
+
+<span class="kn">from</span> <span class="nn">PyQt4.QtGui</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">PyQt4.QtCore</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">visuino.gx.bases</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="GxExpression"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.expression.GxExpression">[docs]</a><span class="k">class</span> <span class="nc">GxExpression</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="p">):</span>
+
+    <span class="n">_H_PADD</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">_V_PADD</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">_OP_PADD</span> <span class="o">=</span> <span class="mi">5</span>
+
+<div class="viewcode-block" id="GxExpression.__init__"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.expression.GxExpression.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style_scheme</span><span class="p">,</span> <span class="n">scene</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :style_scheme: dict. Format:</span>
+<span class="sd">            {&#39;field_scheme&#39;: dict for GxField style_scheme,</span>
+<span class="sd">             &#39;backg_color&#39;: QColor()}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">scene</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCacheMode</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">DeviceCoordinateCache</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span> <span class="o">=</span> <span class="n">style_scheme</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFlags</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsMovable</span><span class="p">)</span>
+
+        <span class="n">field</span> <span class="o">=</span> <span class="n">GxField</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span><span class="p">[</span><span class="s">&#39;field_scheme&#39;</span><span class="p">],</span>
+                        <span class="n">scene</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">field</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_H_PADD</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V_PADD</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">_getMatchIndex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">match</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the index of the occurrency of id(match),</span>
+<span class="sd">        or -1 if not found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+<span class="c">#        print &quot;searching match..&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">):</span>
+<span class="c">#            print &quot;%d -- id: %d -- %s&quot; % (i, id(x), x.__class__.__name__)</span>
+            <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="nb">id</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">i</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+
+<div class="viewcode-block" id="GxExpression.updateMetrics"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.expression.GxExpression.updateMetrics">[docs]</a>    <span class="k">def</span> <span class="nf">updateMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recalculate its dimensions based on the current elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_H_PADD</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">+=</span> <span class="n">x</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">GxOperatorSymbol</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">+=</span> <span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_OP_PADD</span>
+
+        <span class="n">max_height</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">:</span>
+            <span class="n">x_height</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">x_height</span> <span class="o">&gt;</span> <span class="n">max_height</span><span class="p">:</span>
+                <span class="n">max_height</span> <span class="o">=</span> <span class="n">x_height</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V_PADD</span> <span class="o">+</span> <span class="n">max_height</span>
+</div>
+<div class="viewcode-block" id="GxExpression.boundingRect"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.expression.GxExpression.boundingRect">[docs]</a>    <span class="k">def</span> <span class="nf">boundingRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">QRectF</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GxExpression.paint"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.expression.GxExpression.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">fillRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(),</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span><span class="p">[</span><span class="s">&#39;backg_color&#39;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="GxExpression.insertOperator"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.expression.GxExpression.insertOperator">[docs]</a>    <span class="k">def</span> <span class="nf">insertOperator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">place</span><span class="p">,</span> <span class="n">op_symbol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Insert operator+field at the left or right of &#39;match&#39;.</span>
+
+<span class="sd">        :match: GxField.</span>
+<span class="sd">        :place: str in [&#39;left&#39;, &#39;right&#39;]</span>
+<span class="sd">        :op_symbol: str. Operator symbol.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">match_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getMatchIndex</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match_index</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">IndexError</span>
+
+        <span class="n">text_op</span> <span class="o">=</span> <span class="n">GxOperatorSymbol</span><span class="p">(</span><span class="n">op_symbol</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span><span class="p">[</span><span class="s">&#39;operator_scheme&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_V_PADD</span><span class="p">,</span>
+            <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">scene</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">())</span>
+
+        <span class="n">new_field</span> <span class="o">=</span> <span class="n">GxField</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span><span class="p">[</span><span class="s">&#39;field_scheme&#39;</span><span class="p">],</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">(),</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;right&#39;</span><span class="p">:</span>
+
+            <span class="n">text_op</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="n">match</span><span class="o">.</span><span class="n">_width</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_OP_PADD</span><span class="p">,</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">_V_PADD</span><span class="p">)</span>
+            <span class="n">new_field</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">text_op</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="n">text_op</span><span class="o">.</span><span class="n">_width</span> <span class="o">+</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">_OP_PADD</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V_PADD</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">match_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">text_op</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">match_index</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">new_field</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;to the right&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">reposElements</span><span class="p">(</span><span class="n">new_field</span><span class="p">,</span> <span class="n">text_op</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">+</span> \
+                               <span class="n">new_field</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_H_PADD</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;left&#39;</span><span class="p">:</span>
+
+            <span class="n">dx</span> <span class="o">=</span> <span class="n">new_field</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_OP_PADD</span>
+
+            <span class="n">new_field</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">pos</span><span class="p">())</span>
+            <span class="n">text_op</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V_PADD</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">match_index</span><span class="p">,</span> <span class="n">new_field</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">match_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">text_op</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;to the left&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">reposElements</span><span class="p">(</span><span class="n">text_op</span><span class="p">,</span> <span class="n">dx</span> <span class="o">+</span> <span class="n">text_op</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> \
+                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_OP_PADD</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="GxExpression.removeOperator"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.expression.GxExpression.removeOperator">[docs]</a>    <span class="k">def</span> <span class="nf">removeOperator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">place</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove field+operator at the left or right of &#39;match&#39;.</span>
+
+<span class="sd">        :match: GxField.</span>
+<span class="sd">        :place: str in [&#39;left&#39;, &#39;right&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">match_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getMatchIndex</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match_index</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="k">return</span>
+
+        <span class="n">old_rect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span>
+        <span class="n">scene_rect</span> <span class="o">=</span> <span class="n">QRectF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">(),</span> <span class="n">old_rect</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;right&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isLast</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;removing right..&quot;</span><span class="p">)</span>
+
+            <span class="n">rem_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">match_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">rem_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">match_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">rem_op</span><span class="o">.</span><span class="n">setParentItem</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+            <span class="n">rem_field</span><span class="o">.</span><span class="n">setParentItem</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">rem_op</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">rem_field</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isLast</span><span class="p">(</span><span class="n">rem_field</span><span class="p">):</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">reposElements</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_OP_PADD</span> <span class="o">+</span>
+                    <span class="n">rem_op</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">+</span>
+                    <span class="n">rem_field</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">old_rect</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scene_rect</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">place</span> <span class="o">==</span> <span class="s">&#39;left&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isFirst</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;removing left..&quot;</span><span class="p">)</span>
+
+            <span class="n">rem_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">match_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">rem_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">match_index</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">rem_op</span><span class="o">.</span><span class="n">setParentItem</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+            <span class="n">rem_field</span><span class="o">.</span><span class="n">setParentItem</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">rem_op</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">rem_field</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">reposElements</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_OP_PADD</span> <span class="o">+</span>
+                <span class="n">rem_op</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">+</span>
+                <span class="n">rem_field</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()),</span> <span class="n">include_match</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">old_rect</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">scene_rect</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="GxExpression.printElements"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.expression.GxExpression.printElements">[docs]</a>    <span class="k">def</span> <span class="nf">printElements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%d</span><span class="s"> -- </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="GxExpression.reposElements"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.expression.GxExpression.reposElements">[docs]</a>    <span class="k">def</span> <span class="nf">reposElements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">match</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">include_match</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Re-positionates all elements after &#39;match&#39;, by displacing &#39;dx&#39;.</span>
+
+<span class="sd">        :match: GxField</span>
+<span class="sd">        :dx: int.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+<span class="c">#        print &quot;repositioning because %d ...&quot; % dx</span>
+
+        <span class="n">match_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getMatchIndex</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">match_index</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;No match for </span><span class="si">%d</span><span class="s">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">start_range</span> <span class="o">=</span> <span class="n">match_index</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">include_match</span><span class="p">:</span> <span class="n">start_range</span> <span class="o">=</span> <span class="n">match_index</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_range</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">)):</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="GxExpression.isFirst"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.expression.GxExpression.isFirst">[docs]</a>    <span class="k">def</span> <span class="nf">isFirst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if &#39;element&#39; is the first on the expression,</span>
+<span class="sd">        and false otherwise.</span>
+
+<span class="sd">        :element: GxField or GxOperatorSymbol.</span>
+
+<span class="sd">        :return : bool.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getMatchIndex</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="GxExpression.isLast"><a class="viewcode-back" href="../../../../visuino.gx.blocks.html#visuino.gx.blocks.expression.GxExpression.isLast">[docs]</a>    <span class="k">def</span> <span class="nf">isLast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if &#39;element&#39; is the last on the expression,</span>
+<span class="sd">        and false otherwise.</span>
+
+<span class="sd">        :element: GxField or GxOperatorSymbol.</span>
+
+<span class="sd">        :return : bool.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getMatchIndex</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_elements</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+</div></div>
+<span class="k">class</span> <span class="nc">GxField</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="p">):</span>
+
+    <span class="n">_DEFAULT_HEIGHT</span> <span class="o">=</span> <span class="mi">30</span>
+    <span class="n">_DEFAULT_WIDTH</span> <span class="o">=</span> <span class="mi">40</span>
+    <span class="n">_RX</span> <span class="o">=</span> <span class="mi">10</span>     <span class="c"># X roundness of the empty field rectangle</span>
+    <span class="n">_RY</span> <span class="o">=</span> <span class="mi">10</span>     <span class="c"># Y roundness of the empty field rectangle</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style_scheme</span><span class="p">,</span> <span class="n">scene</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :style_scheme: dict. Must be in the form:</span>
+<span class="sd">            {&#39;backg_color&#39;: QColor(), &#39;input_font&#39;: QFont()}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">scene</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCacheMode</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">DeviceCoordinateCache</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent_expr</span> <span class="o">=</span> <span class="n">parent</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_WIDTH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_HEIGHT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span> <span class="o">=</span> <span class="n">style_scheme</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_field</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_input</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setupMenus</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsFocusable</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_setupMenus</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_act_input_here</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span>
+            <span class="s">&quot;Input here&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_createInputField</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_act_variable_here</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span>
+            <span class="s">&quot;Variable here&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_act_operation_here</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span>
+            <span class="s">&quot;Operation here&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+
+        <span class="n">menu_op_right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s">&quot;Insert right&quot;</span><span class="p">)</span>
+        <span class="n">menu_op_left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="s">&quot;Insert left&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_act_remove_right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span>
+            <span class="s">&quot;Remove right&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">removeOperator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;right&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_act_remove_left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span>
+            <span class="s">&quot;Remove left&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">removeOperator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&#39;left&#39;</span><span class="p">))</span>
+
+        <span class="n">get_slot</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">op</span><span class="p">,</span> <span class="n">place</span><span class="p">:</span> \
+            <span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">insertOperator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">place</span><span class="p">,</span> <span class="n">op</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;+&#39;</span><span class="p">,</span> <span class="s">&#39;-&#39;</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;/&#39;</span><span class="p">):</span>
+            <span class="n">menu_op_right</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">u&#39;</span><span class="si">%s</span><span class="s"> </span><span class="se">\u2610</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">op</span><span class="p">,</span> <span class="n">get_slot</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="s">&#39;right&#39;</span><span class="p">))</span>
+            <span class="n">menu_op_left</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">u&#39;</span><span class="se">\u2610</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">op</span><span class="p">,</span> <span class="n">get_slot</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="s">&#39;left&#39;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_input</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="n">menu_op_right</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_input</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="n">menu_op_left</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_input</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_input</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_act_remove_right</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_input</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_act_remove_left</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_input</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu_input</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s">&quot;Remove input field&quot;</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">_removeInputField</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_createInputField</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a proper QLineEdit (from EditInputField) to occupy its</span>
+<span class="sd">        field space. This widget will be keep in self._proxy_field.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">edit</span> <span class="o">=</span> <span class="n">EditInputField</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span><span class="p">[</span><span class="s">&#39;input_font&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_field</span> <span class="o">=</span> <span class="n">GxProxyInputField</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_menu_input</span><span class="p">,</span>
+                                              <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_field</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="n">edit</span><span class="p">)</span>
+        <span class="n">edit</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span>
+<span class="c">#        self.updateMetrics()</span>
+
+    <span class="k">def</span> <span class="nf">_removeInputField</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes the input field by cleaning references and updating</span>
+<span class="sd">        self._proxy_field.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_field</span><span class="o">.</span><span class="n">setParentItem</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_field</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_enableActionsRemove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent_expr</span><span class="o">.</span><span class="n">isFirst</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_act_remove_left</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_act_remove_left</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent_expr</span><span class="o">.</span><span class="n">isLast</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_act_remove_right</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_act_remove_right</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">boundingRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">QRectF</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">fillRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(),</span> <span class="n">Qt</span><span class="o">.</span><span class="n">transparent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_field</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">transparent</span><span class="p">)</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span><span class="p">[</span><span class="s">&#39;backg_color&#39;</span><span class="p">])</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">drawRoundedRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(),</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">_RX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_RY</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">contextMenuEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enableActionsRemove</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">popup</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">screenPos</span><span class="p">())</span>
+
+
+    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">MidButton</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_field</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_createInputField</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">updateMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update its dimensions based on the dimensions of the proxy (if any),</span>
+<span class="sd">        and also call the apropriate update() for its parent GxExpression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">old_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_width</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_field</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_field</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_WIDTH</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_HEIGHT</span>
+
+        <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">GxExpression</span><span class="p">):</span>
+
+            <span class="n">old_rect</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span>
+            <span class="n">parent</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+            <span class="n">new_rect</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">old_rect</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">new_rect</span><span class="o">.</span><span class="n">width</span><span class="p">():</span>
+                <span class="n">rect_scene</span> <span class="o">=</span> <span class="n">QRectF</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">pos</span><span class="p">(),</span>
+                                    <span class="n">old_rect</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+                <span class="n">parent</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rect_scene</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parent</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_rect</span><span class="p">)</span>
+
+            <span class="n">parent</span><span class="o">.</span><span class="n">reposElements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">-</span> <span class="n">old_width</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">GxOperatorSymbol</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Holds the operator symbol as a graphical text object.</span>
+
+<span class="sd">    Special graphical item where the text appears vertical centralized</span>
+<span class="sd">    as respect to some given &#39;max_height&#39;. The width of the bounding</span>
+<span class="sd">    rect will be the width of the text.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_V_PADD_FIX</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op_symbol</span><span class="p">,</span> <span class="n">style_scheme</span><span class="p">,</span> <span class="n">max_height</span><span class="p">,</span>
+                 <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">scene</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :op_symbol: str.</span>
+<span class="sd">        :style_scheme: dict  {&#39;font&#39;: QFont(), &#39;color&#39;: QColor()}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">scene</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCacheMode</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">DeviceCoordinateCache</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op_symbol</span> <span class="o">=</span> <span class="n">op_symbol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span> <span class="o">=</span> <span class="n">style_scheme</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span> <span class="o">=</span> <span class="n">QFontMetrics</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span><span class="p">[</span><span class="s">&#39;font&#39;</span><span class="p">])</span> \
+                        <span class="o">.</span><span class="n">width</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_op_symbol</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="n">max_height</span>
+
+    <span class="k">def</span> <span class="nf">boundingRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">QRectF</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">fillRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(),</span> <span class="n">Qt</span><span class="o">.</span><span class="n">transparent</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span><span class="p">[</span><span class="s">&#39;font&#39;</span><span class="p">])</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_style_scheme</span><span class="p">[</span><span class="s">&#39;color&#39;</span><span class="p">]))</span>
+        <span class="n">rect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span>
+        <span class="n">rect</span><span class="o">.</span><span class="n">setTop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_V_PADD_FIX</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawText</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">AlignCenter</span><span class="p">,</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">_op_symbol</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">GxProxyInputField</span><span class="p">(</span><span class="n">QGraphicsProxyWidget</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Features added:</span>
+
+<span class="sd">        - On mouse click events, brings its &quot;grandpa&quot; GxExpression to the</span>
+<span class="sd">          front of the GxScene. OBS: Its parent is a GxField.</span>
+
+<span class="sd">        - On context menu event, raises some QMenu() as specified on the</span>
+<span class="sd">          self._context_menu attribute.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context_menu</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">QGraphicsProxyWidget</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCacheMode</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">DeviceCoordinateCache</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_context_menu</span> <span class="o">=</span> <span class="n">context_menu</span>
+
+    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="n">QGraphicsProxyWidget</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">bringToFront</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">parentItem</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">MidButton</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">_removeInputField</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">contextMenuEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">_enableActionsRemove</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_context_menu</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_context_menu</span><span class="o">.</span><span class="n">popup</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">screenPos</span><span class="p">())</span>
+
+
+<span class="k">class</span> <span class="nc">EditInputField</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Features added:</span>
+
+<span class="sd">        - Variable width, which will always be big enough (and only that</span>
+<span class="sd">          big) to contain its text. Call updateMetrics() on the field</span>
+<span class="sd">          parent (GxField) when the width is updated.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_parent</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :field_parent: GxField().</span>
+<span class="sd">        :font: QFont().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QLineEdit</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_field_parent</span> <span class="o">=</span> <span class="n">field_parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span> <span class="o">=</span> <span class="n">QFontMetrics</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">SIGNAL</span><span class="p">(</span><span class="s">&#39;textChanged(const QString&amp;)&#39;</span><span class="p">),</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">_onTextChanged</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">font</span><span class="p">,</span> <span class="n">QFont</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateWidth</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFrame</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignCenter</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">setFont</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">font</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :font: QFont().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QLineEdit</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">font</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span> <span class="o">=</span> <span class="n">QFontMetrics</span><span class="p">(</span><span class="n">font</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateWidth</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">updateWidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update its x-dimension and also call updateMetrics() on the</span>
+<span class="sd">        GxField parent, if any.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">min_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="o">.</span><span class="n">width</span><span class="p">(</span><span class="s">&#39;MMi&#39;</span><span class="p">)</span>
+        <span class="n">new_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="o">.</span><span class="n">width</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="n">new_width</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setFixedWidth</span><span class="p">(</span><span class="n">min_width</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_field_parent</span><span class="p">,</span> <span class="n">GxField</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_field_parent</span><span class="o">.</span><span class="n">updateMetrics</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_onTextChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Every time that text change, its dimension will be updated to</span>
+<span class="sd">        comport the new text.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateWidth</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">win</span> <span class="o">=</span> <span class="n">QMainWindow</span><span class="p">()</span>
+    <span class="n">win</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+    <span class="n">scene</span> <span class="o">=</span> <span class="n">GxSceneBlocks</span><span class="p">()</span>
+
+    <span class="n">style_scheme</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;field_scheme&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;backg_color&#39;</span><span class="p">:</span> <span class="n">QColor</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">213</span><span class="p">,</span> <span class="mi">213</span><span class="p">),</span>
+                                     <span class="s">&#39;input_font&#39;</span><span class="p">:</span> <span class="n">QFont</span><span class="p">(</span><span class="s">&quot;Verdana&quot;</span><span class="p">,</span> <span class="mi">12</span><span class="p">)},</span>
+                    <span class="s">&#39;operator_scheme&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;font&#39;</span><span class="p">:</span> <span class="n">QFont</span><span class="p">(</span><span class="s">&quot;Verdana&quot;</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span>
+                                        <span class="s">&#39;color&#39;</span><span class="p">:</span> <span class="n">QColor</span><span class="p">(</span><span class="s">&#39;white&#39;</span><span class="p">)},</span>
+                    <span class="s">&#39;backg_color&#39;</span><span class="p">:</span> <span class="n">QColor</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">)}</span>
+
+    <span class="n">gx_exp</span> <span class="o">=</span> <span class="n">GxExpression</span><span class="p">(</span><span class="n">style_scheme</span><span class="p">,</span> <span class="n">scene</span><span class="p">)</span>
+    <span class="n">gx_exp</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+    <span class="n">view</span> <span class="o">=</span> <span class="n">GxView</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">win</span><span class="p">)</span>
+    <span class="n">win</span><span class="o">.</span><span class="n">setCentralWidget</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+    <span class="n">win</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../../../index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

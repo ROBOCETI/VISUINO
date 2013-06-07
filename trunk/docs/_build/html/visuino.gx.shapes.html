@@ -1,0 +1,390 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gx.shapes Module &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="_static/cloud.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="index.html" />
+    <link rel="up" title="gx Package" href="visuino.gx.html" />
+    <link rel="next" title="blocks Package" href="visuino.gx.blocks.html" />
+    <link rel="prev" title="gx.bases Module" href="visuino.gx.bases.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.blocks.html" title="blocks Package"
+             accesskey="N">next</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.bases.html" title="gx.bases Module"
+             accesskey="P">previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" >visuino</a> &raquo;</li>
+          <li><a href="visuino.html" >visuino Package</a> &raquo;</li>
+          <li><a href="visuino.gx.html" accesskey="U">gx Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-visuino.gx.shapes">
+<span id="gx-shapes-module"></span><h1><cite>gx.shapes</cite> Module<a class="headerlink" href="#module-visuino.gx.shapes" title="Permalink to this headline">¶</a></h1>
+<p>This module provides <tt class="docutils literal"><span class="pre">QPainterPath</span></tt> based classes with configurable shapes
+that can be easily connected to another existing path.</p>
+<p>The blocks on Visuino are meant to be fully customizable, which means that
+values such as corner/notch sizes (width and lenght), shapes, etc, will be
+available to the end user through global configurations - i.e., changes will
+apply to all blocks on each category.</p>
+<p>This module can also be executed on his own for testing all variations of
+attributes by using a simple GUI.</p>
+<div class="section" id="cornerpath-class">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">CornerPath</span></tt> class<a class="headerlink" href="#cornerpath-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="visuino.gx.shapes.CornerPath">
+<em class="property">class </em><tt class="descclassname">visuino.gx.shapes.</tt><tt class="descname">CornerPath</tt><big>(</big><em>start_point</em>, <em>rect_size</em>, <em>shape</em>, <em>place</em>, <em>clockwise=True</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/shapes.html#CornerPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.shapes.CornerPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">visuino.gx.utils.GxPainterPath</span></tt></p>
+<p>Path with the shape of a corner to be connected with other paths.</p>
+<p>It has the following available shapes (<tt class="docutils literal"><span class="pre">self.SHAPES</span></tt>):</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">'trig'</span></tt>: inclinated line (diagonal of the bounding rectangle);</li>
+<li><tt class="docutils literal"><span class="pre">'arc'</span></tt>: circular - can be used to create rounded rectangles;</li>
+<li><tt class="docutils literal"><span class="pre">'rect'</span></tt>: regular rectangular corner;</li>
+</ul>
+</div></blockquote>
+<p>For each one of those there is 4 possible places (see <tt class="docutils literal"><span class="pre">self.PLACES</span></tt>).
+Here we have an example of some <tt class="docutils literal"><span class="pre">'top-right'</span></tt> corner of <tt class="docutils literal"><span class="pre">'trig'</span></tt> shape:</p>
+<div class="highlight-python"><pre>-------------#\. . . .
+             . \     .
+             .  \    .
+             .   \   .
+             .    \  .
+             .     \ .
+             .      \ 
+             . . . . @
+                     |</pre>
+</div>
+<p>Considering clockwise drawing, <tt class="docutils literal"><span class="pre">#</span></tt> would be the starting point and
+<tt class="docutils literal"><span class="pre">&#64;</span></tt>, the ending (and vice-versa for counterclockwise drawing).
+PS: The dotted lines indicates the bounding rectangle for the corner.</p>
+<p>The easiest way to go is using the <tt class="docutils literal"><span class="pre">connect()</span></tt> static method.</p>
+<dl class="attribute">
+<dt id="visuino.gx.shapes.CornerPath.VALID_PLACES">
+<tt class="descname">VALID_PLACES</tt><em class="property"> = ('bottom-left', 'bottom-right', 'top-left', 'top-right')</em><a class="headerlink" href="#visuino.gx.shapes.CornerPath.VALID_PLACES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="visuino.gx.shapes.CornerPath.VALID_SHAPES">
+<tt class="descname">VALID_SHAPES</tt><em class="property"> = ('trig', 'arc', 'rect')</em><a class="headerlink" href="#visuino.gx.shapes.CornerPath.VALID_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.shapes.CornerPath.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>self</em>, <em>start_point</em>, <em>rect_size</em>, <em>shape</em>, <em>place</em>, <em>clockwise=True</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/shapes.html#CornerPath.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.shapes.CornerPath.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start_point</strong> &#8211; <tt class="docutils literal"><span class="pre">QPointF</span></tt>
+Point from where this path will begin to draw.</li>
+<li><strong>rect_size</strong> &#8211; <tt class="docutils literal"><span class="pre">QSizeF</span></tt>
+Size of the bounding rectangle of the corner area.
+This is used to calculate the final point of the corner path.</li>
+<li><strong>shape</strong> &#8211; <tt class="docutils literal"><span class="pre">str</span></tt> in <tt class="docutils literal"><span class="pre">self.VALID_SHAPES</span></tt>
+Indicates the appearence of the corner path.</li>
+<li><strong>place</strong> &#8211; <tt class="docutils literal"><span class="pre">str</span></tt> in <tt class="docutils literal"><span class="pre">self.VALID_PLACES</span></tt>
+Indicates what kind of corner this will be on the final picture.</li>
+<li><strong>clockwise</strong> &#8211; <tt class="docutils literal"><span class="pre">bool</span></tt>
+Direction of the drawing.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.shapes.CornerPath.connect">
+<tt class="descname">connect</tt><big>(</big><em>path</em>, <em>rect_size</em>, <em>shape</em>, <em>place</em>, <em>clockwise=True</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/shapes.html#CornerPath.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.shapes.CornerPath.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method provides a nice and clean way of connecting a corner
+path to another path. Here is some usage example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">QPainterPath</span><span class="p">(</span><span class="n">QPointF</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">CornerPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">QSizeF</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="s">&#39;trig&#39;</span><span class="p">,</span> <span class="s">&#39;top-right&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">currenPosition</span><span class="p">())</span>
+<span class="go">QPointF(100.0, 50.0)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> &#8211; <tt class="docutils literal"><span class="pre">QPainterPath</span></tt>
+Path on which the corner will be connected. The current position
+will be used as the starting point for the corner path.</li>
+<li><strong>rect_size</strong> &#8211; <tt class="docutils literal"><span class="pre">QSizeF</span></tt>
+Size of the bounding rectangle of the corner area.
+This is used to calculate the final point of the corner path.</li>
+<li><strong>shape</strong> &#8211; <tt class="docutils literal"><span class="pre">str</span></tt> in <cite>self.VALID_SHAPES</cite>
+Indicates the appearence of the corner path.</li>
+<li><strong>place</strong> &#8211; <tt class="docutils literal"><span class="pre">str</span></tt> in <tt class="docutils literal"><span class="pre">self.VALID_PLACES</span></tt>
+Indicates what kind of corner this will be on the final picture.</li>
+<li><strong>clockwise</strong> &#8211; <tt class="docutils literal"><span class="pre">bool</span></tt>
+Direction of the drawing.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="notchpath-class">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">NotchPath</span></tt> class<a class="headerlink" href="#notchpath-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="visuino.gx.shapes.NotchPath">
+<em class="property">class </em><tt class="descclassname">visuino.gx.shapes.</tt><tt class="descname">NotchPath</tt><big>(</big><em>start_point</em>, <em>rect_size</em>, <em>shape</em>, <em>direction</em>, <em>facing</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/shapes.html#NotchPath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.shapes.NotchPath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">visuino.gx.utils.GxPainterPath</span></tt></p>
+<p>Path with the shape of a notch to be used as &#8220;puzzle-like&#8221; connectors.</p>
+<p>The available shapes are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">'trig/%f'</span></tt>: triangle or trapezium form;</li>
+<li><tt class="docutils literal"><span class="pre">'arc/%f'</span></tt>: circular corners;</li>
+</ul>
+</div></blockquote>
+<p>The <tt class="docutils literal"><span class="pre">/%f</span></tt> part is optional on both cases, where <tt class="docutils literal"><span class="pre">%f</span></tt> must be a real 
+number between <tt class="docutils literal"><span class="pre">0.0</span></tt> (default) and <tt class="docutils literal"><span class="pre">1.0</span></tt>. It determines the lenght of 
+the trapezium top side, relatively to the lenght of the trapezium base side. 
+If <tt class="docutils literal"><span class="pre">0.0</span></tt>, results on a triangular form for <tt class="docutils literal"><span class="pre">'trig'</span></tt> shape, and 
+on a perfect half-circle/ellipse form for <tt class="docutils literal"><span class="pre">'arc'</span></tt> shape. If <tt class="docutils literal"><span class="pre">1.0</span></tt>, then
+the lenght of the top is the same of the base, resulting on a rectangled
+notch for either shape value.</p>
+<p>With the <tt class="docutils literal"><span class="pre">'+i'</span></tt> and <tt class="docutils literal"><span class="pre">'-i'</span></tt> directions (horizontal shapes), it can be 
+facing <tt class="docutils literal"><span class="pre">'up'</span></tt> or <tt class="docutils literal"><span class="pre">'down'</span></tt>; similarly, with the <tt class="docutils literal"><span class="pre">'+j'</span></tt> and <tt class="docutils literal"><span class="pre">'-j'</span></tt>
+directions (vertical shapes), it can be facing <tt class="docutils literal"><span class="pre">'left'</span></tt> or <tt class="docutils literal"><span class="pre">'right'</span></tt>.</p>
+<p>The following notch was constructed with <tt class="docutils literal"><span class="pre">'-j'</span></tt> direction and facing 
+<tt class="docutils literal"><span class="pre">'left'</span></tt>:</p>
+<div class="highlight-python"><pre>                 |
+                 @     +
+                /      |
+              /        |
+            /          |
+     +     |           |
+     |     |           |
+top  |     |           |  base
+     +     |           |
+            \          |
+              \        |
+                \      |
+                 #     +
+                 |</pre>
+</div>
+<p>Here we have a <tt class="docutils literal"><span class="pre">'trig/0.4'</span></tt> shape, where <tt class="docutils literal"><span class="pre">#</span></tt> is the starting point 
+and <tt class="docutils literal"><span class="pre">&#64;</span></tt> the ending. The lenght of the top is <tt class="docutils literal"><span class="pre">0.4</span></tt> times the lenght 
+of the base.</p>
+<dl class="attribute">
+<dt id="visuino.gx.shapes.NotchPath.VALID_SHAPES">
+<tt class="descname">VALID_SHAPES</tt><em class="property"> = ('trig/%f', 'arc/%f')</em><a class="headerlink" href="#visuino.gx.shapes.NotchPath.VALID_SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="visuino.gx.shapes.NotchPath.VALID_DIRECTIONS">
+<tt class="descname">VALID_DIRECTIONS</tt><em class="property"> = ('+i', '-i', '+j', '-j')</em><a class="headerlink" href="#visuino.gx.shapes.NotchPath.VALID_DIRECTIONS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="visuino.gx.shapes.NotchPath.VALID_FACING_SIDES">
+<tt class="descname">VALID_FACING_SIDES</tt><em class="property"> = ('up', 'down', 'left', 'right')</em><a class="headerlink" href="#visuino.gx.shapes.NotchPath.VALID_FACING_SIDES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.shapes.NotchPath.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>self</em>, <em>start_point</em>, <em>rect_size</em>, <em>shape</em>, <em>direction</em>, <em>facing</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/shapes.html#NotchPath.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.shapes.NotchPath.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>start_point</strong> &#8211; <tt class="docutils literal"><span class="pre">QPointF</span></tt>
+Point from where this path will begin to draw.</li>
+<li><strong>rect_size</strong> &#8211; <tt class="docutils literal"><span class="pre">QSizeF</span></tt>
+Size of the bounding rectangle for this path.</li>
+<li><strong>shape</strong> &#8211; <tt class="docutils literal"><span class="pre">str</span></tt> in <tt class="docutils literal"><span class="pre">self.VALID_SHAPES</span></tt>
+Shape of the notch.</li>
+<li><strong>direction</strong> &#8211; <tt class="docutils literal"><span class="pre">str</span></tt> in <tt class="docutils literal"><span class="pre">self.VALID_DIRECTIONS</span></tt>
+Indicates the direction of the drawing (using vectorial notation).</li>
+<li><strong>facing</strong> &#8211; <tt class="docutils literal"><span class="pre">str</span></tt> in <tt class="docutils literal"><span class="pre">self.VALID_FACING_SIDES</span></tt>
+Indicates to which side the top of the trapezium is going to be
+pointing on.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.shapes.NotchPath.connect">
+<tt class="descname">connect</tt><big>(</big><em>path</em>, <em>rect_size</em>, <em>shape</em>, <em>direction</em>, <em>facing</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/shapes.html#NotchPath.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.shapes.NotchPath.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method provides a nice and clean way of connecting a notch
+path to another path. Here is some usage example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">QPainterPath</span><span class="p">(</span><span class="n">QPointF</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">lineTo</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">NotchPath</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">QSizeF</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="s">&#39;trig/0.8&#39;</span><span class="p">,</span> <span class="s">&#39;i+&#39;</span><span class="p">,</span> <span class="s">&#39;down&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">currenPosition</span><span class="p">())</span>
+<span class="go">QPointF(150.0, 0.0)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> &#8211; <tt class="docutils literal"><span class="pre">QPainterPath</span></tt>
+Path on which the notch will be connected. The current position
+will be used as the starting point for the notch path.</li>
+<li><strong>rect_size</strong> &#8211; <tt class="docutils literal"><span class="pre">QSizeF</span></tt>
+Size of the bounding rectangle for this path.</li>
+<li><strong>shape</strong> &#8211; <tt class="docutils literal"><span class="pre">str</span></tt> in <tt class="docutils literal"><span class="pre">self.VALID_SHAPES</span></tt>
+Shape of the notch.</li>
+<li><strong>direction</strong> &#8211; <tt class="docutils literal"><span class="pre">str</span></tt> in <tt class="docutils literal"><span class="pre">self.VALID_DIRECTIONS</span></tt>
+Indicates the direction of the drawing (using vectorial notation).</li>
+<li><strong>facing</strong> &#8211; <tt class="docutils literal"><span class="pre">str</span></tt> in <tt class="docutils literal"><span class="pre">self.VALID_FACING_SIDES</span></tt>
+Indicates to which side the top of the trapezium is going to be
+pointing on.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <div class="sphinxlocaltoc">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><cite>gx.shapes</cite> Module</a><ul>
+<li><a class="reference internal" href="#cornerpath-class"><tt class="docutils literal"><span class="pre">CornerPath</span></tt> class</a></li>
+<li><a class="reference internal" href="#notchpath-class"><tt class="docutils literal"><span class="pre">NotchPath</span></tt> class</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="visuino.gx.bases.html"
+                        title="previous chapter"><cite>gx.bases</cite> Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="visuino.gx.blocks.html"
+                        title="next chapter">blocks Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/visuino.gx.shapes.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.blocks.html" title="blocks Package"
+             >next</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.bases.html" title="gx.bases Module"
+             >previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" >visuino</a> &raquo;</li>
+          <li><a href="visuino.html" >visuino Package</a> &raquo;</li>
+          <li><a href="visuino.gx.html" >gx Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

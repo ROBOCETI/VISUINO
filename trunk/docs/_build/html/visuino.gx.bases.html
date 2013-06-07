@@ -1,0 +1,545 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gx.bases Module &mdash; VISUINO 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="_static/cloud.js"></script>
+    <link rel="top" title="VISUINO 0.0.1 documentation" href="index.html" />
+    <link rel="up" title="gx Package" href="visuino.gx.html" />
+    <link rel="next" title="gx.shapes Module" href="visuino.gx.shapes.html" />
+    <link rel="prev" title="gx Package" href="visuino.gx.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body>
+    <div class="relbar-top">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.shapes.html" title="gx.shapes Module"
+             accesskey="N">next</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.html" title="gx Package"
+             accesskey="P">previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" >visuino</a> &raquo;</li>
+          <li><a href="visuino.html" >visuino Package</a> &raquo;</li>
+          <li><a href="visuino.gx.html" accesskey="U">gx Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-visuino.gx.bases">
+<span id="gx-bases-module"></span><h1><cite>gx.bases</cite> Module<a class="headerlink" href="#module-visuino.gx.bases" title="Permalink to this headline">¶</a></h1>
+<p>The Graphics View Framework of PyQt relies on the following three main objects:</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>QGraphicsItem</strong> : Represents a 2D graphical object. Can be drawn using
+primitives from <tt class="docutils literal"><span class="pre">QPainter</span></tt> or also can load images.</li>
+<li><strong>QGraphicsScene</strong> : Container for <tt class="docutils literal"><span class="pre">QGraphicsItem</span></tt> objects, managing
+all the itens positions, rectangles and stacking order.</li>
+<li><strong>QGraphicsView</strong> : A <tt class="docutils literal"><span class="pre">QWidget</span></tt> specialized on draw contents from some
+<tt class="docutils literal"><span class="pre">QGraphicsScene</span></tt>.</li>
+</ul>
+</div></blockquote>
+<p>This module provides re-implementations for each one of those objects, by
+setting up some attributes project-specific and also adding some new funtionality.</p>
+<p><strong>Convention</strong>: Classes beginning with <tt class="docutils literal"><span class="pre">Gx</span></tt> mean that they are somehow related
+to the Graphics View Framework or represents subclasses of <tt class="docutils literal"><span class="pre">QGraphicsItem</span></tt>,
+i.e., can be inserted on the scene.</p>
+<div class="section" id="gxview-class">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">GxView</span></tt> class<a class="headerlink" href="#gxview-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="visuino.gx.bases.GxView">
+<em class="property">class </em><tt class="descclassname">visuino.gx.bases.</tt><tt class="descname">GxView</tt><big>(</big><em>scene=None</em>, <em>parent=None</em>, <em>opengl=False</em>, <em>wheel_zoom=False</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QGraphicsView</span></tt></p>
+<p>Holds optimization flags for the project in general and also
+offers wheel zooming.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>wheel_zoom</strong> &#8211; <tt class="docutils literal"><span class="pre">bool</span></tt> &lt;False&gt;. 
+Enable/disable the wheel zooming feature.</li>
+<li><strong>_zoom_level</strong> &#8211; <tt class="docutils literal"><span class="pre">int</span></tt> &lt;0&gt;. 
+Keeps track of how many scalings have occured.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="visuino.gx.bases.GxView.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>self</em>, <em>scene=None</em>, <em>parent=None</em>, <em>opengl=False</em>, <em>wheel_zoom=False</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxView.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxView.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>scene</strong> &#8211; <tt class="docutils literal"><span class="pre">QGraphicsScene</span></tt> &lt;None&gt;.
+<em>QGraphicsView.__init__()</em>.</li>
+<li><strong>parent</strong> &#8211; <tt class="docutils literal"><span class="pre">QWidget</span></tt> &lt;None&gt;.
+<em>QGraphicsView.__init__()</em>.</li>
+<li><strong>opengl</strong> &#8211; <tt class="docutils literal"><span class="pre">bool</span></tt> &lt;False&gt;.
+Enables use of Open GL rendering through <strong>PyQt4.QtOpenGL.QGLWidget</strong>.</li>
+<li><strong>wheel_zoom</strong> &#8211; <tt class="docutils literal"><span class="pre">bool</span></tt> &lt;False&gt;.
+Enables wheel zooming functionality.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxView.wheelEvent">
+<tt class="descname">wheelEvent</tt><big>(</big><em>self</em>, <em>event</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxView.wheelEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxView.wheelEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>QGraphicsView.wheelEvent(QWheelEvent) -&gt; NoneType</em></p>
+<p>Provides the wheel zooming functionality by calling 
+<tt class="docutils literal"><span class="pre">QGraphicsView.scale()</span></tt> according to the amount of scrolling.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="gxsceneblocks-class">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">GxSceneBlocks</span></tt> class<a class="headerlink" href="#gxsceneblocks-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="visuino.gx.bases.GxSceneBlocks">
+<em class="property">class </em><tt class="descclassname">visuino.gx.bases.</tt><tt class="descname">GxSceneBlocks</tt><big>(</big><em>parent=None</em>, <em>background_grid=True</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxSceneBlocks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxSceneBlocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QGraphicsScene</span></tt></p>
+<p>Besides adding the &#8220;bring to front&#8221; functionality (along with &#8220;click to
+front&#8221;), this class also holds sets of paths used to detect collision 
+between notches (see <tt class="docutils literal"><span class="pre">visuino.gx.connections</span></tt>).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>background_grid</strong> &#8211; <tt class="docutils literal"><span class="pre">bool</span></tt> &lt;True&gt;.
+Enables the drawing of a grid on the background layer of the scene.</li>
+<li><strong>click_to_front</strong> &#8211; <tt class="docutils literal"><span class="pre">bool</span></tt> &lt;True&gt;.
+Enables the &#8220;click to front&#8221; feature, on which the clicked item always        
+is brought to the front of the scene.</li>
+<li><strong>vf_male_colli_paths</strong> &#8211; <tt class="docutils literal"><span class="pre">set</span></tt> of <tt class="docutils literal"><span class="pre">visuino.gx.connections.GxColliPath</span></tt>.
+Hold paths for detecting collision of moving female -&gt; male VF notches.</li>
+<li><strong>vf_female_colli_paths</strong> &#8211; <tt class="docutils literal"><span class="pre">set</span></tt> of <tt class="docutils literal"><span class="pre">visuino.gx.connections.GxColliPath</span></tt>.
+Hold paths for detecting collision of moving male -&gt; female VF notches.</li>
+<li><strong>io_female_colli_paths</strong> &#8211; <tt class="docutils literal"><span class="pre">set</span></tt> of <tt class="docutils literal"><span class="pre">visuino.gx.connections.GxColliPath</span></tt>.
+Hold paths for detecting collision of moving male -&gt; female IO notches.</li>
+<li><strong>_top_item</strong> &#8211; <tt class="docutils literal"><span class="pre">QGraphicsItem</span></tt> &lt;None&gt;.
+Holds the last item brought to the front. Therefore, changes with 
+<tt class="docutils literal"><span class="pre">self.bringToFront()</span></tt>.</li>
+<li><strong>_top_z</strong> &#8211; <tt class="docutils literal"><span class="pre">float</span></tt> &lt;None&gt;.
+zValue of the top-most item on the scene. Changes with 
+<tt class="docutils literal"><span class="pre">self.bringToFront()</span></tt>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="visuino.gx.bases.GxSceneBlocks.Z_INCREMENT">
+<tt class="descname">Z_INCREMENT</tt><em class="property"> = 1e-10</em><a class="headerlink" href="#visuino.gx.bases.GxSceneBlocks.Z_INCREMENT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increment on zValue for use on <tt class="docutils literal"><span class="pre">self.bringToFront()</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxSceneBlocks.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>self</em>, <em>parent=None</em>, <em>background_grid=True</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxSceneBlocks.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxSceneBlocks.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>parent</strong> &#8211; <tt class="docutils literal"><span class="pre">QObject</span></tt>. <em>QGraphicsScene.__init__()</em></li>
+<li><strong>background_grid</strong> &#8211; <tt class="docutils literal"><span class="pre">bool</span></tt>.
+Enables drawing of a grid on the background layer of the scene.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxSceneBlocks.getTopItem">
+<tt class="descname">getTopItem</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxSceneBlocks.getTopItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxSceneBlocks.getTopItem" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><tt class="docutils literal"><span class="pre">QGraphicsItem</span></tt> - The top-most item on the scene.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxSceneBlocks.bringToFront">
+<tt class="descname">bringToFront</tt><big>(</big><em>self</em>, <em>item</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxSceneBlocks.bringToFront"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxSceneBlocks.bringToFront" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the given item the top-most on the scene by setting properly
+a new zValue (if necessary).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>item</strong> &#8211; <tt class="docutils literal"><span class="pre">QGraphicsItem</span></tt>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxSceneBlocks.drawBackground">
+<tt class="descname">drawBackground</tt><big>(</big><em>self</em>, <em>painter</em>, <em>rect</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxSceneBlocks.drawBackground"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxSceneBlocks.drawBackground" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>QGraphicsScene.drawBrackground(QPainter, QRectF) -&gt; NoneType</em></p>
+<p>If <tt class="docutils literal"><span class="pre">self.background_grid</span></tt> flag is <tt class="docutils literal"><span class="pre">True</span></tt>, then draws a series of 
+vertical and horizontal paralell lines to form a squared grid.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxSceneBlocks.mousePressEvent">
+<tt class="descname">mousePressEvent</tt><big>(</big><em>self</em>, <em>event</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxSceneBlocks.mousePressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxSceneBlocks.mousePressEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>QGraphicsScene.mousePressEvent(QGraphicsSceneMouseEvent) -&gt; NoneType</em></p>
+<p>Appends the &#8220;click to front&#8221; functionality.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="gxblock-class">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">GxBlock</span></tt> class<a class="headerlink" href="#gxblock-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="visuino.gx.bases.GxBlock">
+<em class="property">class </em><tt class="descclassname">visuino.gx.bases.</tt><tt class="descname">GxBlock</tt><big>(</big><em>scene</em>, <em>parent=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">PyQt4.QtGui.QGraphicsItem</span></tt></p>
+<p>Abstract base class that implements basic attributes and functionality for
+any graphical block to be inserted on <tt class="docutils literal"><span class="pre">GxSceneBlocks</span></tt>.</p>
+<p>The virtual method <tt class="docutils literal"><span class="pre">paint()</span></tt> of <tt class="docutils literal"><span class="pre">QGraphicsItem</span></tt> base class must be
+re-implemented, also with the three following ones:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">getBorderWidth()</span></tt>;</li>
+<li><tt class="docutils literal"><span class="pre">updateMetrics()</span></tt>;</li>
+<li><tt class="docutils literal"><span class="pre">cloneMe()</span></tt>;</li>
+</ul>
+</div></blockquote>
+<p>No need to re-implement <tt class="docutils literal"><span class="pre">QGraphicsItem.boundingRect()</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>_width</strong> &#8211; <tt class="docutils literal"><span class="pre">number</span></tt> &lt;200&gt;. 
+Width of the bounding rectangle.</li>
+<li><strong>_height</strong> &#8211; <tt class="docutils literal"><span class="pre">number</span></tt> &lt;100&gt;.
+Height of the bounding rectangle.</li>
+<li><strong>_border_path</strong> &#8211; <tt class="docutils literal"><span class="pre">QPainterPath</span></tt>.
+Path that defines the shape of this item. The default path is a rect
+that contains its bounding rectangle.</li>
+<li><strong>_default_block_cursor</strong> &#8211; <tt class="docutils literal"><span class="pre">QCursor</span></tt> &lt;Qt.OpenHandCursor&gt;.
+Cursor used when the block is not colliding with the palette.</li>
+<li><strong>_palette_colliding</strong> &#8211; <tt class="docutils literal"><span class="pre">bool</span></tt>.
+Flag to indicate palette collision. See <tt class="docutils literal"><span class="pre">``self.checksPaletteCollide()</span></tt>.</li>
+<li><strong>palette_blocks</strong> &#8211; <tt class="docutils literal"><span class="pre">visuino.gx.palette.GxPalette</span></tt> &lt;None&gt;.
+Used to detecting collision with the palette. Should be set only 
+by the palette itself. See <tt class="docutils literal"><span class="pre">self.checksPaletteCollide()</span></tt>.</li>
+<li><strong>new_block</strong> &#8211; <tt class="docutils literal"><span class="pre">bool</span></tt>.
+Tells if this block has just been instantiated by the palette.
+See <tt class="docutils literal"><span class="pre">self.checksPaletteCollide()</span></tt>. Should be set only by the palette
+itself.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>self</em>, <em>scene</em>, <em>parent=None</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>scene</strong> &#8211; <tt class="docutils literal"><span class="pre">GxSceneBlocks</span></tt>.
+By convention, in this project all blocks are inserted on the
+scene right here, on instantiation.</li>
+<li><strong>parent</strong> &#8211; <tt class="docutils literal"><span class="pre">GxBlock</span></tt>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock._checkPaletteCollide">
+<tt class="descname">_checkPaletteCollide</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock._checkPaletteCollide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock._checkPaletteCollide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if it is colliding with the palette and respond properly
+by updating the cursor shape. Designed to be called on the mouse 
+move event of this item.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.boundingRect">
+<tt class="descname">boundingRect</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.boundingRect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.boundingRect" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>QGraphicsItem.boundingRect() -&gt; QRectF</em></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><tt class="docutils literal"><span class="pre">QRectF</span></tt> - retangle with dimensions (<tt class="docutils literal"><span class="pre">self._width</span></tt>, 
+<tt class="docutils literal"><span class="pre">self._height</span></tt>).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.shape">
+<tt class="descname">shape</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.shape" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><tt class="docutils literal"><span class="pre">QPainterPath</span></tt> - Item delimiting shape.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.updateMetrics">
+<tt class="descname">updateMetrics</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.updateMetrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.updateMetrics" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>TO BE RE-IMPLEMENTED</em></p>
+<p>The purpose of this method should be to update the block dimentions
+and also its border path according to its contents.</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">updateMetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">prepareGeometryChange</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">100</span>
+
+    <span class="n">path</span> <span class="o">=</span> <span class="n">QPainterPath</span><span class="p">()</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">addRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">())</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_border_path</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">())</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.cloneMe">
+<tt class="descname">cloneMe</tt><big>(</big><em>self</em>, <em>scene</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.cloneMe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.cloneMe" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>TO BE RE-IMPLEMENTED</em></p>
+<p>Should return an instance of itself, with the very same attribute 
+values. This method is used mainly <tt class="docutils literal"><span class="pre">visuino.gx.palette.GxPalette</span></tt> 
+to instantiate new blocks on the given scene.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>scene</strong> &#8211; <tt class="docutils literal"><span class="pre">GxSceneBlocks</span></tt>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><tt class="docutils literal"><span class="pre">GxBlock</span></tt> subclass.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.getBorderWidth">
+<tt class="descname">getBorderWidth</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.getBorderWidth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.getBorderWidth" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>TO BE RE-IMPLEMENTED</em></p>
+<p>Should return the correct border width value for this kind of block.
+See <tt class="docutils literal"><span class="pre">visuino.settings</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.getWidth">
+<tt class="descname">getWidth</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.getWidth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.getWidth" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><tt class="docutils literal"><span class="pre">number</span></tt>. Width of its path bounding rectangle.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.getHeight">
+<tt class="descname">getHeight</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.getHeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.getHeight" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><tt class="docutils literal"><span class="pre">number</span></tt>. Height of its path bounding rectangle.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.getTopParentItem">
+<tt class="descname">getTopParentItem</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.getTopParentItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.getTopParentItem" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><tt class="docutils literal"><span class="pre">GxBlock</span></tt> - The top-most parent item (if no parent, then return <tt class="docutils literal"><span class="pre">self</span></tt>).</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.removeFromScene">
+<tt class="descname">removeFromScene</tt><big>(</big><em>self</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.removeFromScene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.removeFromScene" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method should be used to remove a <tt class="docutils literal"><span class="pre">GxBlock</span></tt> from the scene.
+First, it calls <tt class="docutils literal"><span class="pre">removeFromScene</span></tt> on all its childs, because some
+of them might be <tt class="docutils literal"><span class="pre">visuino.gx.connections.GxColliPath</span></tt>, which has
+its on <tt class="docutils literal"><span class="pre">removeFromScene()</span></tt> special behavior.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.mouseMoveEvent">
+<tt class="descname">mouseMoveEvent</tt><big>(</big><em>self</em>, <em>event</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.mouseMoveEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.mouseMoveEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>QGraphicsItem.mouseMoveEvent(QGraphicsSceneMouseEvent) -&gt; NoneType</em></p>
+<p>Calls <tt class="docutils literal"><span class="pre">self._checkPaletteCollide()</span></tt>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visuino.gx.bases.GxBlock.mouseReleaseEvent">
+<tt class="descname">mouseReleaseEvent</tt><big>(</big><em>self</em>, <em>event</em><big>)</big><a class="reference internal" href="_modules/visuino/gx/bases.html#GxBlock.mouseReleaseEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visuino.gx.bases.GxBlock.mouseReleaseEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>QGraphicsItem.mouseReleaseEvent(QGraphicsSceneMouseEvent) -&gt; NoneType</em></p>
+<p>If it is colliding with the palette, then remove itself from the scene.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <div class="sphinxlocaltoc">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><cite>gx.bases</cite> Module</a><ul>
+<li><a class="reference internal" href="#gxview-class"><tt class="docutils literal"><span class="pre">GxView</span></tt> class</a></li>
+<li><a class="reference internal" href="#gxsceneblocks-class"><tt class="docutils literal"><span class="pre">GxSceneBlocks</span></tt> class</a></li>
+<li><a class="reference internal" href="#gxblock-class"><tt class="docutils literal"><span class="pre">GxBlock</span></tt> class</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="visuino.gx.html"
+                        title="previous chapter">gx Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="visuino.gx.shapes.html"
+                        title="next chapter"><cite>gx.shapes</cite> Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/visuino.gx.bases.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.shapes.html" title="gx.shapes Module"
+             >next</a> &nbsp; &nbsp;</li>
+        <li class="right" >
+          <a href="visuino.gx.html" title="gx Package"
+             >previous</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">VISUINO 0.0.1 documentation</a> &raquo;</li>
+
+          <li><a href="modules.html" >visuino</a> &raquo;</li>
+          <li><a href="visuino.html" >visuino Package</a> &raquo;</li>
+          <li><a href="visuino.gx.html" >gx Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer">
+        &copy; Copyright 2013, &#34;Nelso G. Jost&#34;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>
