@@ -110,6 +110,84 @@ snippets:
                   - null
 """
 
+"""
+body:
+    - block: 'variable_declaration'
+      name: 'estado_led'
+      type: 'boolean'
+      value: False
+      
+    - block: 'variable_declaration'
+      name: 'estado_botao'
+      type: 'boolean'
+      value: False
+    
+    - block: 'loop_forever'
+      body:
+          - block: 'if'
+            condition:
+                block: 'expression'
+                type: 'boolean'
+                operator: '!='
+                left:
+                    block: 'function_call'
+                    name: 'pushbutton'
+                    library: 'roboedu.h'
+                    args: 
+                        - block: 'expression'
+                          type: 'int'
+                          value: '1'
+                        - block: 'expression'
+                          type: 'character'
+                          value: 'A'
+                right: 'var,estado_botao'
+            branch_if:
+                - block: 'if'
+                  condition:
+                      block: 'expression'
+                      type: 'boolean'
+                      operator: '=='
+                      left: 'var,estado_botao'
+                      right: 'boolean,false'
+                  branch_if:
+                      - block: 'assignment'
+                        name: 'estado_led'
+                        value: 
+                            block: 'expression'
+                            type: 'boolean'
+                            operator: '!'
+                            right: 'var,estado_botao'
+                      - block: 'function_call'
+                        name: 'LED'
+                        library: 'roboedu.h'
+                        args:
+                            - block: 'expression'
+                              type: 'int'
+                              value: '1'
+                            - block: 'expression'
+                              type: 'char'
+                              value: 'A'
+                            - block: 'expression'
+                              type: 'variable'
+                              value: 'estado_led'
+                  branch_else: None
+                  branches_elseif: []
+                  
+                - block: 'assignment'
+                  name: 'estado_botao'
+                  value: 
+                      block: 'expression'
+                      type: 'boolean'
+                      operator: '!'
+                      right: 'var|estado_botao'
+            branch_else: None
+            branches_elseif: []
+variables:
+    'estado_led': 'boolean'
+    'estado_botao': 'boolean'
+"""
+
+
 class SketchBlocks(object):
     ''' 
     This class holds the sketch dictionary 
@@ -241,15 +319,15 @@ class SketchBlocks(object):
         snippet = self._root['snippets'][snippet_id]
         
         result = ''
-        for command in snippet['body']:
-            result += self._getElementCodeString(command) + ';\n'
+        for block in snippet['body']:
+            result += self._getElementCodeString(block) + ';\n'
             
         return result[:-1]
         
     def _getElementCodeString(self, element):
         ''' (dict)
         '''
-        if element['command'] == 'function_call':
+        if element['block'] == 'function_call':
         
             result = element['name'] + '('
             
@@ -269,7 +347,7 @@ class SketchBlocks(object):
         ''' (dict, GxSceneBlocks, GxPalette)    
         '''
         e = element
-        if e['command'] == 'function_call':
+        if e['block'] == 'function_call':
 #            print('Creating function call %s...' % e['name'])
             
             new_block = GxBlockFunctionCall(

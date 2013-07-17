@@ -12,13 +12,16 @@
 #-------------------------------------------------------------------------------
 import yaml
 
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+
 # VISUINO GLOBAL SETTINGS
 VGS = {}
 
 DEFAULT_SETTINGS = \
 """
 styles:
-
+    
     notch:
         insertion_marker_color: '#111111'
         insertion_marker_width: 10
@@ -34,12 +37,12 @@ styles:
         vf_x0: 20
         vf_size:
             width: 40
-            height: 5
+            height: 5            
 
     block_function_call:
 
-        background_color: 'blue'
-        border_color: 'black'
+        background_color: '#0055d4'
+        border_color: '#003380'
         border_width: 2
         corner_shape: 'arc'
         corner_size:
@@ -61,7 +64,7 @@ styles:
     block_arg_label:
 
         background_color: 'yellow'
-        border_color: 'black'
+        border_color: '#333333'
         border_width: 2
         corner_shape: 'arc'
         corner_size:
@@ -90,11 +93,63 @@ styles:
             horizontal: 10
             vertical: 10
 
+    block_start_end:
+        
+        border_width: 2
+        corner_shape: 'arc'
+        corner_size:
+            width: 6
+            height: 6
+            
+        background_color: '#808080'
+        font:
+            color: 'white'
+            outline_color: 'black'
+            family: 'Verdana'
+            size: 10
+            vcorrection: -1
+            bold: True
+            italic: False
+            
+        label_padding:
+            horizontal: 50
+            vertical: 10
+            
+        start_label_text: 'Início'
+        end_label_text: 'Fim'
 """
+
+class StyleBlocks(dict):
+    def __init__(self, style_dict):
+        dict.__init__(self, style_dict)
+    
+    def getFont(self):
+        if 'font' not in self: return None
+        
+        font = QFont(self['font']['family'], self['font']['size'])
+        font.setBold(self['font']['bold'])
+        font.setItalic(self['font']['italic'])
+        
+        return font
+        
+    def getCornerSize(self):
+        return (self['corner_size']['width'], self['corner_size']['height'])    
+        
+
+class VisuinoGlobalSettings(dict):
+    def __init__(self, start_dict={}):
+        dict.__init__(self, start_dict)
+        
+    def getBlockStyle(self, block_name):
+        if block_name not in self['styles']:
+            raise KeyError("'%s' is not a valid block!" % block_name)
+            
+        sty = StyleBlocks(self['styles'][block_name])
+
 
 def load_default():
     global VGS, DEFAULT_SETTINGS
-    VGS = yaml.safe_load(DEFAULT_SETTINGS)
+    VGS = VisuinoGlobalSettings(yaml.safe_load(DEFAULT_SETTINGS))
 
 
 def load_config_file(filename):

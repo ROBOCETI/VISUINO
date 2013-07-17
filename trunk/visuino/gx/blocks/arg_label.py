@@ -20,7 +20,6 @@ from PyQt4 import uic
 from visuino.gx.bases import *
 from visuino.gx.shapes import *
 from visuino.gx.utils import *
-from visuino.gx.styles import *
 from visuino.gx.connections import *
 
 from visuino.settings import VGS

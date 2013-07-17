@@ -72,6 +72,20 @@ Arduino.h:
           palette_section: "Time"
           return_type: "int"
           args: null
+          
+        - name: "LED"
+          palette_section: "Outros"
+          return_type: null
+          args:
+              - name: "porta"
+                type: "int"
+                restriction: null
+              - name: "componente"
+                type: "int"
+                restriction: null
+              - name: "estado"
+                type: "boolean"
+                restriction: null
 """
 
 class LibraryDefinitions(dict):

@@ -10,11 +10,21 @@
 # Licence:     GNU GPL. Its simple: use and modify as you please, and redis-
 #              tribute ONLY as 100% free and keeping the credits.
 #-------------------------------------------------------------------------------
-__all__ = ['GxPainterPath', 'GxProxyToFront', 'item_to_svg',]
+from __future__ import division, print_function
+import sys
+if __name__ == '__main__':
+    sys.path.append('../../')
 
-from PyQt4 import QtGui, QtCore, QtSvg
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+from PyQt4.QtSvg import *
 
-class GxPainterPath(QtGui.QPainterPath):
+from visuino.gx.bases import *
+
+__all__ = ['GxPainterPath', 'GxProxyToFront', 'item_to_svg', 
+           'GxOutlinedText']
+
+class GxPainterPath(QPainterPath):
     '''
     This class just append some facilities for the original QPainterPath,
     from the Graphics View Framework.
@@ -28,10 +38,11 @@ class GxPainterPath(QtGui.QPainterPath):
         # x: current position's x-coordinate
         # y: current position's y-coordinate
     '''
-    def __init__(self, start_point):
+    def __init__(self, start_point=None):
         ''' (QPointF) -> NoneType
         '''
-        QtGui.QPainterPath.__init__(self, start_point)
+        QPainterPath.__init__(self, start_point if start_point is not None
+                                                else QPointF(0, 0))
 
     @property
     def x(self):
@@ -62,7 +73,7 @@ class GxPainterPath(QtGui.QPainterPath):
         self.lineTo(self.x + dx, self.y + dy)
 
 
-class GxProxyToFront(QtGui.QGraphicsProxyWidget):
+class GxProxyToFront(QGraphicsProxyWidget):
     '''
     When clicked on the scene, brings itself to the front, or its parents
     in case of having one. This is a fairly wanted effect for widgets on
@@ -78,11 +89,65 @@ class GxProxyToFront(QtGui.QGraphicsProxyWidget):
         Brings its parent to the front, if any and if the scene suports
         bringToFront() method.
         '''
-        QtGui.QGraphicsProxyWidget.mousePressEvent(self, event)
+        QGraphicsProxyWidget.mousePressEvent(self, event)
 
         if self.scene() and isinstance(self.scene(), GxScene) and \
             self.parentItem():
             self.scene().bringToFront(self.parentItem())
+            
+
+class GxOutlinedText(QGraphicsPathItem):
+    '''
+    Label that display outlined text.
+    '''
+    def __init__(self, text, font, scene, parent=None, **kwargs):
+        '''
+        :param text: ``str``
+        :param font: ``QFont``
+        :param scene: ``QGraphicsScene``
+        :param parent: ``QGraphicsItem``
+        :param kwargs:
+            - 'outline_width': ``int``;
+        '''
+        self._text, self._font = text, font
+        self._effect = QGraphicsDropShadowEffect()
+        self._effect.setOffset(1.2, 1.2)
+        
+        self._outline_width = kwargs.get('outline_width', 1)
+        
+        path = QPainterPath(QPointF(0, 0))
+        path.addText(path.currentPosition(), self._font, self._text)
+        
+        QGraphicsPathItem.__init__(self, path, parent, scene)
+        self.setCacheMode(QGraphicsItem.DeviceCoordinateCache)
+        self.setGraphicsEffect(self._effect)
+        self.setPos(0, 0)    
+	
+    def paint(self, painter, option=None, widget=None):
+        painter.setPen(QPen(Qt.black, self._outline_width))
+        painter.setBrush(Qt.white)
+        painter.drawPath(self.path())
+        
+    def setPos(self, x, y):
+        QGraphicsPathItem.setPos(self, x, y+self.boundingRect().height())
+
+    
+def test_outlined_text():
+    app = QApplication([])
+    win = QMainWindow()
+    
+    scene = GxSceneBlocks()
+    view = GxView(scene)
+    
+    font = QFont('Verdana', 12, 40)
+    font.setBold(True)
+    out_text = GxOutlinedText("repita sempre", font, scene, outline_width=1)
+    out_text.setPos(0, 0)
+    
+    win.setGeometry(200, 100, 800, 600)
+    win.setCentralWidget(view)
+    win.show()
+    app.exec_()
 
 
 def item_to_svg(gx_item, filename):
@@ -99,3 +164,6 @@ def item_to_svg(gx_item, filename):
     painter.begin(svg_gen)
     gx_item.paint(painter)
     painter.end()
+    
+if __name__ == '__main__':
+    test_outlined_text()

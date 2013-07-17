@@ -20,7 +20,6 @@ from PyQt4.QtCore import *
 
 from visuino.gx.bases import *
 from visuino.gx.blocks import *
-from visuino.gx.styles import *
 from visuino.resources import *
 
 from visuino.core.sketch import SketchBlocks

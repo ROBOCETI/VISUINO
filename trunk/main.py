@@ -24,8 +24,8 @@ from visuino.resources import *
 def execute(opengl=None):
     ''' (bool) -> int
 
-    Launch an instance of the Visuino application. The 'opengl' flag can
-    be used to force the Open GL rendering. If it is None, then the
+    Launch an instance of the Visuino application. The 'opengl' flag 
+    can be used to force Open GL rendering. If it is None, then the
     rendering engine will be decided based on the INI settings file.
 
     Returns the QApplication.exec_() result.

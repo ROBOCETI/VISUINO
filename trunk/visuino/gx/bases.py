@@ -1,14 +1,6 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Purpose:     Offer re-implementations of the two most basic objects on
-#              the PyQt Graphics View Framework:
-#                  - QGraphicsView ---> GxView
-#                  - QGraphicsScene ---> GxScene.
-#
-#              Convention: All QGraphicsXXXXX related objects will have
-#              their names started by "Gx" on this project.
-#
 # Author:      Nelso G. Jost (nelsojost@gmail.com)
 #
 #              This file is part of VISUINO project - Copyright (C) 2013
@@ -35,7 +27,6 @@ setting up some attributes project-specific and also adding some new funtionalit
 to the Graphics View Framework or represents subclasses of ``QGraphicsItem``,
 i.e., can be inserted on the scene.
 """
-
 from __future__ import division, print_function
 import sys
 if __name__ == '__main__':

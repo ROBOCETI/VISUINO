@@ -67,7 +67,7 @@ class GxBlockFunctionCall(GxPluggableBlock):
         
         self._def = definition
 
-        self._element = {'command': 'function_call', 
+        self._element = {'block': 'function_call', 
              'name': definition['name'],
              'library': definition['library'],
              'args': None if definition['args'] is None else
