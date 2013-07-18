@@ -337,11 +337,9 @@ class GxPluggableBlock(GxBlock):
         '''
 #        print('Plugging IO...')
         self.setParentItem(target)
-        x, y = target.io_female_start.x(), target.io_female_start.y()
+        x, y = target.io_female_start.x(), 0
         x -= VGS['styles']['notch']['io_size']['width'] \
              + self.getBorderWidth()/2
-        y += 2*target.getBorderWidth()
-        y -= self.io_male_start.y()
         self.setPos(x, y)
 
         self.parent_io = target
@@ -349,6 +347,7 @@ class GxPluggableBlock(GxBlock):
 
         if hasattr(target, 'updateMetrics'):
             target.updateMetrics()
+        
         if hasattr(target, 'updateElement'):
             target.updateElement(self.element)
         
